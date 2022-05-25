@@ -25,8 +25,8 @@
 /*
 	1-0 Debugging these multi-process/thread programs can be much more difficult compared to the single process case.
 	1-1 Communicating between sockets and managing shared state is also much more burdensome.
-	1-2	For these reasons, we will avoid fork() and other multiprocess/thread techniques.
 */
+	1-2	For these reasons, we will avoid fork() and other multiprocess/thread techniques.
 
 #include "chap03.h"
 #include <ctype.h>
