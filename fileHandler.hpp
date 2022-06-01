@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 02:20:13 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/01 01:40:20 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/01 21:36:31 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <iostream>
 # include <fstream>
 # include <sys/stat.h>
+# include <vector>
 
 //TODO documentation
 namespace ws {
@@ -24,6 +25,7 @@ namespace ws {
 		private:
 			fileHandler();
 			static std::string generateTmpName();
+			static int BUFFER_SIZE;
 		public:
 			~fileHandler();
 			static std::string create(std::string fileName, std::string path);
@@ -32,6 +34,7 @@ namespace ws {
 			static void write(std::string filePath, std::string buffer);
 			static void moveFile(std::string fileOldPath, std::string newPath);//maybe return value bool if removed moved
 			static void removeFile(std::string filePath);//maybe return value bool to check if removed
+			static std::string readFile(std::ifstream& ifile);//getnextline
 			// bool checkIfFile(); //TODO if needed
 			// bool checkIPermissions(); //TODO if needed
 		struct FileExist : public std::exception

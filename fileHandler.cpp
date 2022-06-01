@@ -6,11 +6,13 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 02:22:26 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/01 01:39:19 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/01 21:44:12 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fileHandler.hpp"
+
+int ws::fileHandler::BUFFER_SIZE = 10;
 
 bool ws::fileHandler::checkIfExist(std::string filePath)
 {
@@ -82,4 +84,27 @@ std::string ws::fileHandler::generateTmpName()
 	char *tmp =  mktemp(filename);
 	std::string tmpName(tmp);
 	return tmpName;
+}
+
+
+
+/////////////// readFile example ///////////////////////////////////////////////////
+//
+// 		std::string path = "./files/hello.html";
+// 		std::ifstream ifile(path, std::ifstream::in| std::ifstream::binary);
+// 		while(ifile)
+//  	   	std::cout << ws::fileHandler::readFile(ifile);
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+std::string ws::fileHandler::readFile(std::ifstream& ifile)
+{
+	//maybe i need to check some errors here and throw them !!
+    std::vector<char> buffer (ws::fileHandler::BUFFER_SIZE + 1, 0);
+    ifile.read(buffer.data(), ws::fileHandler::BUFFER_SIZE);
+    std::streamsize s = ((ifile) ? ws::fileHandler::BUFFER_SIZE : ifile.gcount());
+    buffer[s] = 0;
+    if(!ifile)
+        ifile.close();
+    return std::string(buffer.data());
 }
