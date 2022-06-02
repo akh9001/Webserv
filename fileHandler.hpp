@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 02:20:13 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/01 18:32:56 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/02 22:47:35 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ namespace ws {
 		private:
 			fileHandler();
 			static std::string generateTmpName();
+			static int BUFFER_SIZE;
 		public:
 			static bool readingEnd;
 		public:
@@ -37,8 +38,7 @@ namespace ws {
 			static void write(std::string filePath, std::string buffer);
 			static void moveFile(std::string fileOldPath, std::string newPath);//maybe return value bool if removed moved
 			static void removeFile(std::string filePath);//maybe return value bool to check if removed
-			static std::string readFile(std::string filePath);//TODO
-			// add reading function
+			static std::string readFile(std::ifstream& ifile);//getnextline
 			// bool checkIfFile(); //TODO if needed
 			// bool checkIPermissions(); //TODO if needed
 		struct FileExist : public std::exception

@@ -6,13 +6,13 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 02:22:26 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/01 18:32:42 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/02 22:47:51 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fileHandler.hpp"
 
-bool ws::fileHandler::readingEnd = false;
+int ws::fileHandler::BUFFER_SIZE = 10;
 
 bool ws::fileHandler::checkIfExist(std::string filePath)
 {
@@ -85,20 +85,26 @@ std::string ws::fileHandler::generateTmpName()
 	std::string tmpName(tmp);
 	return tmpName;
 }
-/////////////TODO
-std::string ws::fileHandler::readFile(std::string filePath)
+
+
+
+/////////////// readFile example ///////////////////////////////////////////////////
+//
+// 		std::string path = "./files/hello.html";
+// 		std::ifstream ifile(path, std::ifstream::in| std::ifstream::binary);
+// 		while(ifile)
+//  	   	std::cout << ws::fileHandler::readFile(ifile);
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+std::string ws::fileHandler::readFile(std::ifstream& ifile)
 {
-	static std::ifstream ifile(filePath, std::ifstream::binary|std::fstream::in);
-	std::vector<char> buffer (10 + 1, 0);
-	while(1)
-	{
-		ifile.read(buffer.data(), 10);
-		std::streamsize s = ((ifile) ? 10 : ifile.gcount());
-		buffer[s] = 0;
-		if(!ifile) break;
-		else return std::string(buffer.data());
-	}
-	ifile.close();
-	ws::fileHandler::readingEnd = true;
-	return std::string(buffer.data());
+	//maybe i need to check some errors here and throw them !!
+    std::vector<char> buffer (ws::fileHandler::BUFFER_SIZE + 1, 0);
+    ifile.read(buffer.data(), ws::fileHandler::BUFFER_SIZE);
+    std::streamsize s = ((ifile) ? ws::fileHandler::BUFFER_SIZE : ifile.gcount());
+    buffer[s] = 0;
+    if(!ifile)
+        ifile.close();
+    return std::string(buffer.data());
 }
