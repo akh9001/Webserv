@@ -6,11 +6,13 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 02:22:26 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/01 01:39:19 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/01 18:32:42 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fileHandler.hpp"
+
+bool ws::fileHandler::readingEnd = false;
 
 bool ws::fileHandler::checkIfExist(std::string filePath)
 {
@@ -82,4 +84,21 @@ std::string ws::fileHandler::generateTmpName()
 	char *tmp =  mktemp(filename);
 	std::string tmpName(tmp);
 	return tmpName;
+}
+/////////////TODO
+std::string ws::fileHandler::readFile(std::string filePath)
+{
+	static std::ifstream ifile(filePath, std::ifstream::binary|std::fstream::in);
+	std::vector<char> buffer (10 + 1, 0);
+	while(1)
+	{
+		ifile.read(buffer.data(), 10);
+		std::streamsize s = ((ifile) ? 10 : ifile.gcount());
+		buffer[s] = 0;
+		if(!ifile) break;
+		else return std::string(buffer.data());
+	}
+	ifile.close();
+	ws::fileHandler::readingEnd = true;
+	return std::string(buffer.data());
 }
