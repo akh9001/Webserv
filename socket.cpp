@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/02 21:01:36 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/03 02:43:52 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,34 +78,40 @@
 		{
 			__reads = __master_rd;
 			__writes = __master_wr;
-			if (select(max_socket + 1, &__reads, &__writes, NULL, NULL) == -1)
+			struct timeval timeout;
+			timeout.tv_sec = 0;
+			timeout.tv_usec = 50;
+			int ret;
+			if ((ret = select(max_socket + 1, &__reads, &__writes, NULL, &timeout)) == -1)
 			{
 				perror("select() failed. !");
 				exit(EXIT_FAILURE);
 			}
+			if(!ret)
+				continue;
 			// ! why should I start with i = 1 and not 0.
 			for (int i = 1; i <= max_socket; i++)
 			{
 				if(FD_ISSET(i, &__reads))
 				{
-					// struct sockaddr	*client_address;
-					// socklen_t		client_len = sizeof(client_address);
 					if (find(socket_listen.begin(), end, i) != end)
 					{
 						client.socket_fd = accept(i, &client.address, &client.address_lenght);
 						client_map[client.socket_fd] = client;
 						FD_SET(client.socket_fd, &__master_rd);
+						max_socket = max_socket > client.socket_fd ? max_socket : client.socket_fd;
 					}
 					else
 					{
 						char read[1024];
                     	int bytes_received = recv(i, read, sizeof(read), 0);
-						// parse_request
+						//1- parse_request
+						// Request request(read);
 						if (true)
 						{
 							FD_CLR(i, &__master_rd);
 							FD_SET(i, &__master_wr);
-							// response_path = get_response()
+							//2- response_path = get_response()
 							client_map[i].resp_outfile.open(client_map[i].resp_path);
 						}
 					}

@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:46:37 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/02 20:56:18 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/03 02:40:37 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,19 +24,20 @@
 */
 struct Client
 {
-	const static socklen_t			address_lenght;
-	struct sockaddr		address;
-	std::string			header_request;
-	// istream may cause a problem.
-	char*				resp_path;
-	std::ofstream		resp_outfile;
-	int					socket_fd;
-	int					received;
-	// server
-	struct timeval		timeout;
-	// drop client
+	//*static variables :
+	static socklen_t			address_lenght;
+	const static struct timeval	timeout;
+	//*variables :
+	struct sockaddr			address;
+	char*					resp_path;
+	//! istream may cause a problem.
+	std::ofstream			resp_outfile;
+	int						socket_fd;
+	// *constructors :
 	Client();
+	Client(const Client  &);
+	Client& operator=(const Client& other);
+	// *destructor :
 	void	drop_client();
 	~Client();
-	
 };
