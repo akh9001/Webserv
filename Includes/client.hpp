@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:46:37 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/05 05:43:04 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/05 22:12:46 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ struct Client
 	struct sockaddr			address;
 	char*					resp_path;
 	//! istream may cause a problem.
-	std::ofstream			resp_outfile;
+	std::ifstream			resp_infile;
 	int						socket_fd;
 	Request					request;
 	time_t					last_activity;
