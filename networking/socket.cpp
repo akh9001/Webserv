@@ -6,11 +6,13 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/05 05:50:19 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/06 00:29:48 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/socket.hpp"
+#include "../dyalek/fileHandler.hpp"
+#include <string>
 #define	TIME_OUT_CLIENT 50
 
 int		Socket::max_socket = 0;
@@ -140,11 +142,24 @@ void	Socket::wait(const std::vector<Socket> socket_listen)
 					client_map[client.socket_fd].last_activity = time(NULL);
 					FD_SET(client.socket_fd, &__master_rd);
 					max_socket = max_socket > client.socket_fd ? max_socket : client.socket_fd;
+					if (fcntl(client.socket_fd, F_SETFL, O_NONBLOCK) == -1)
+					{
+						perror("fncl !");
+						exit(EXIT_FAILURE);
+					}
 				}
 				else
 				{
 					char read[1024];
-                	int bytes_received = recv(i, read, sizeof(read), 0);
+					int bytes_received;
+					// if (tmp has something)
+					// {
+					// 	copy tmp to read
+					// 	bytes_received = len(tmp)
+					// 	clear tmp;
+					// }
+					// else
+                		bytes_received = recv(i, read, sizeof(read), 0);
 					if(!bytes_received)
 					{
 						FD_CLR(i, &__master_rd);
@@ -165,8 +180,8 @@ void	Socket::wait(const std::vector<Socket> socket_listen)
 						FD_CLR(i, &__master_rd);
 						FD_SET(i, &__master_wr);
 						//2- response_path = get_response()
-						
-						client_map[i].resp_outfile.open(client_map[i].resp_path);
+						// this->buffer = getHeaders();
+						client_map[i].resp_infile.open("/Users/akhalidy/Desktop/webserv/Makefile");
 						// fcntl(fd, F_SETFL, O_NONBLOCK);
 					}
 				}
@@ -174,33 +189,43 @@ void	Socket::wait(const std::vector<Socket> socket_listen)
 			else if (FD_ISSET(i, &__writes))
 			{
 				//open file , read
-				char	buffer[1024];
-				int	r  = read(i, buffer, sizeof(buffer));
-				if (!r)
-				{
-					client_map[i].resp_outfile.close();
-					FD_CLR(i, &__master_wr);
-					unlink(client_map[i].resp_path);
-				}
-				int sent = send(i, buffer, sizeof(buffer), 0);
-				long pos = client_map[i].resp_outfile.tellp();
-				if (sent != r)
-					client_map[i].resp_outfile.seekp(pos - sent);
-			}
-			else
-			{
-				time_t	now;
-				now = time(NULL);
-				// std::cout << "now " << client_map[i].last_activity<< " i = " << i << " max = " << max_socket << std::endl;
+				// char	buffer[1024];
+				std::string		buffer;
 				
-				if (now - client_map[i].last_activity > TIME_OUT_CLIENT)
-				{
-					FD_CLR(i, &__master_rd);
-					FD_CLR(i, &__master_wr);
-					close(i);
-					client_map.erase(i);
-				}
+				// client_map[i].resp_infile.open(client_map[i].resp_path);
+				//! Hamida normalement hna ma5asakch ta9ray man i
+				// int	r  = read(i, buffer, sizeof(buffer));
+				buffer = ws::fileHandler::readFile(client_map[i].resp_infile);
+				// if (!client_map[i].resp_infile)
+				// {
+				// 	// client_map[i].resp_infile.close();
+				// 	FD_CLR(i, &__master_wr);
+				// 	FD_SET(i, &__master_rd);
+				// 	client_map[i].last_activity= time(NULL);
+				// 	// unlink(client_map[i].resp_path);// std:;remove
+				// 	continue;
+				// }
+				int sent = send(i, buffer.c_str(), buffer.size(), 0);
+				
+				// long pos = client_map[i].resp_infile.tellg();
+				// if (sent != (int)buffer.size())
+				// 	client_map[i].resp_infile.seekg(pos - sent);
 			}
+			// else
+			// {
+			// 	time_t	now;
+			// 	now = time(NULL); 
+			// 	// std::cout << "now " << client_map[i].last_activity<< " i = " << i << " max = " << max_socket << std::endl;
+				
+			// 	if (now - client_map[i].last_activity > TIME_OUT_CLIENT)
+			// 	{
+			// 		FD_CLR(i, &__master_rd);
+			// 		FD_CLR(i, &__master_wr);
+			// 		close(i);
+			// 		std::cout << "Timeouuut " << std::endl;
+			// 		client_map.erase(i);
+			// 	}
+			// }
 		}
 	}
 }
