@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/03 02:43:52 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/03 04:22:46 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,11 +107,13 @@
                     	int bytes_received = recv(i, read, sizeof(read), 0);
 						//1- parse_request
 						// Request request(read);
+						int check = client_map[i].request.parse_read(std::string(read));
 						if (true)
 						{
 							FD_CLR(i, &__master_rd);
 							FD_SET(i, &__master_wr);
 							//2- response_path = get_response()
+							
 							client_map[i].resp_outfile.open(client_map[i].resp_path);
 						}
 					}

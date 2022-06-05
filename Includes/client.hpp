@@ -6,12 +6,12 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:46:37 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/03 03:55:24 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/05 05:43:04 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include "request.hpp"
+#include "../tmp/request.hpp"
 #include "networking.hpp"
 #include <string>
 #include <sys/_types/_socklen_t.h>
@@ -35,11 +35,13 @@ struct Client
 	std::ofstream			resp_outfile;
 	int						socket_fd;
 	Request					request;
+	time_t					last_activity;
 	// *constructors :
 	Client();
 	Client(const Client  &);
 	Client& operator=(const Client& other);
+	// bool	operator==(int val) const;
 	// *destructor :
-	void	drop_client();
+	// void	drop_client();
 	~Client();
 };
