@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 03:03:21 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/05 01:34:47 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/07 02:21:25 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,12 @@ namespace ws {
 	{
 		private:
 			std::string statusCodeResponseTemplate(std::string code, std::string message);
-			std::string resPath;
-			std::string resourcePath;
+			// std::string resPath;
+			std::string bodyPath;
 			int buildResponseTry;
+			std::string headers;
+			std::string statusCode;
+			std::map<std::string, std::string> headers_list;
 		public:
 			bool response_ready;
 			bool response_is_tmp;
@@ -42,8 +45,12 @@ namespace ws {
 			Response();
 			~Response();
 			// const char* getResponse(Request req , Location loc);
-			std::string getResponse(ws::Req req , ws::Location loc, int statusCode);
-			void buildResponse(std::string statusCode, ws::Req req , ws::Location loc);
+			// std::string getResponse(ws::Req req , ws::Location loc, int statusCode);
+			// void buildResponse(std::string statusCode, ws::Req req , ws::Location loc);
+			std::string getHeaders(ws::Req req , ws::Location loc, int statusCode);
+			std::pair<std::string, bool> getbody();
+			std::string headerBuilder();
+			void buildError(std::string statusCode,ws::Req req , ws::Location loc);
 			void craftResponse(ws::Req req , ws::Location loc);
 			void craftGetPostRequests(ws::Req req , ws::Location loc);
 			void craftDeleteRequests(ws::Req req , ws::Location loc);
@@ -53,6 +60,7 @@ namespace ws {
 			void checkIndex(ws::Req req , ws::Location loc);
 			void checkAutoIndex(ws::Req req , ws::Location loc);
 			std::string builPath(ws::Location loc, std::string resourcePath);
+			void bodyDefaultTemplate(std::string statusCode, std::string resPath);
 			//checkers
 			bool methodeAllowed(ws::Req req , ws::Location loc);
 			void checkRedirections(ws::Req req , ws::Location loc);
@@ -63,16 +71,23 @@ namespace ws {
 			bool isCGI(ws::Location loc);
 			bool isUriValid(ws::Req req , ws::Location loc);
 			bool isIndex(ws::Location loc);
-			bool isErrorPages(ws::Location loc);
+			bool isErrorPage(ws::Location loc,std::string statusCode);
 			bool isFilePermission(std::string path, std::string permission);
 
 			//getters
+			
 			std::string getResourcePath(ws::Req req, ws::Location loc);
 			std::string getMethode(ws::Req req);
 			std::string getAutoIndex(ws::Location loc);
 			std::string getErrorPage(ws::Location loc, std::string statusCode);
+			std::string getMessage(std::string statusCode);
+			long long getFileSize(std::string filePath);
 
-
+			//setters
+			void setDateHeader();
+			void setContentLength(std::string filePath);
+			
+			//asignment operator
 
 			
 			// bool defineResponseType(ws::Req req , ws::Location loc);
