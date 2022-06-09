@@ -1,5 +1,12 @@
 #include "../webServer.hpp"
 #include "../../FileHandler/fileHandler.hpp"
+#include "../Config/Config.hpp"  
+#include "../Config/Server.hpp"  
+#include "../Config/Location.hpp"
+
+class Config;
+// class Server;
+// class Location;
 
 class Request
 {
@@ -14,7 +21,8 @@ class Request
         std::string method;
         std::string uri;
         std::string version;
-        std::string host;
+        std::string hostIp;
+        int hostPort;
         std::string connection;
         std::string user_agent;
         std::string accept;
@@ -22,6 +30,8 @@ class Request
         std::string accept_language;
         std::string accept_charset;
         std::string content_type;
+        Server server;
+        Location location;
         
         int content_length;
         std::map<std::string, std::string> headerMap;
@@ -64,19 +74,26 @@ class Request
 
       // ! /////////////////////// Getters & Setters //////////////////////
      std::map<std::string, std::string> getHeaderMap() const { return headerMap; }
+     int getContentLenth() const { return content_length; }
+
     // ! /////////////////////// file_Readers //////////////////////
 
         void main_read();
         void readFile();
         void split_parts();
-        int parseChunks(std::string c);
+        int parseChunks(std::string c, Config config);
     // ! /////////////////////// parse header //////////////////
     int parse_header(std::string c);
     int parse_body(std::string c);
 
    void  print_header();
    void parsefline(std::string &);
-   void parseHeaderLines();
+   void parseHeaderLines(Config config);
+    // ! ////////////////////// fetch server or location //////////////////////
+    void fetchContentLength();
+    void fetchHost();
+    Server getRightServer(Config config);
+    Location getRightLocation(Config config);
 
 
    // ! /////////////////////// erros check //////////////////
@@ -84,6 +101,7 @@ class Request
     int checkMethod();
     int checkURI();
     int checkVersion();
+    int check_content_length(Config config);
 // ! ////////////////////// clear //////////////////
     void clear();
 };

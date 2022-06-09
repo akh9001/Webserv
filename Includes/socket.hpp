@@ -3,20 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 16:16:46 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/09 10:41:50 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/09 16:07:09 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 #include "client.hpp"
 
+
 // #include <cstdlib>
 // #include <sys/_types/_fd_def.h>
 // #include <sys/socket.h>
 // #include <vector>
+class Config;
 
 class Socket 
 {
@@ -36,14 +38,14 @@ class Socket
 		void				listen_socket();
 		int					get_socket() const;
 		static bool			accept_connection(int i, std::map<int,  Client> &clients);
-		static bool			read_request(int i, std::map<int,  Client> &clients);
+		static bool			read_request(int i, std::map<int,  Client> &clients, Config config); // added config
 		static bool			write_response(int i, std::map<int,  Client> &clients);
 		static void			remove_client(int i, std::map<int,  Client> &clients, bool rd, bool wr);
 		static void			reset_read(int i);
 		static void			reset_write(int i);
 		static void			init_fd_sets_timeout(std::vector<Socket>::const_iterator it, std::vector<Socket>::const_iterator end, struct timeval &timeout);
-		// static	void		supervise(std::map<int,  Client> &client_map);
-		static void			wait(const std::vector<Socket> &socket_listen);
+		static	void		supervise(std::map<int,  Client> &client_map);
+		static void			wait(const std::vector<Socket> &socket_listen, Config config); // config added
 		bool				operator==(int val) const;
 		~Socket();
 };

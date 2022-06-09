@@ -12,6 +12,8 @@
  }
  Server &Server::operator=(Server const& c)
  {
+    //std::cout << "Server::operator=(Server)" << std::endl;
+    //std::cout << c.getIp() << std::endl;
     serverline.assign(c.serverline.begin(), c.serverline.end());
     serverName.assign(c.serverName.begin(), c.serverName.end());
     _listen = c._listen;
@@ -24,6 +26,7 @@
     cgiPath = c.cgiPath;
     _clinet_max_body_size = c._clinet_max_body_size;
     _autoindex = c._autoindex;
+   // std::cout << _listen.getIp() << std::endl;
     return *this;
 
  }
@@ -38,9 +41,11 @@
 void Server::parseLines()
 {
     std::vector<std::string>::iterator it = serverline.begin();
+    
     it +=2;
     for (;it != serverline.end();it++)
     {
+       // std::cout << *it << std::endl;
         if ((*it).find("server_name") != std::string::npos)
             fetch_server_name(*it);
         else if ((*it).find("listen") != std::string::npos)
@@ -68,8 +73,6 @@ void Server::parseLines()
         else
             throw NotacceptableError();
     }
-
-  //  std::cout << "--------------------------------" << _locations[0].getRoot() <<std::endl;
 }
 
  void Server::fetch_server_name(std::string& c)

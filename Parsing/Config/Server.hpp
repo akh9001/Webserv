@@ -14,10 +14,18 @@ class TlisternerServer
     public :
         TlisternerServer()
         {
-            ip = "0.0.0.0";
+            ip = "127.0.0.1";
             port = 80;
         }
+    
         TlisternerServer(const std::string ip, const int port) : ip(ip), port(port) {}
+        TlisternerServer &operator=(const TlisternerServer &t)
+        {
+            //std::cout << "TlisternerServer" << std::endl;
+            ip = t.ip;
+            port = t.port;
+            return *this;
+        }
         std::string getIp() const { return ip; }
         int getPort() const { return port; }
         void setPort(int port) { this->port = port;}

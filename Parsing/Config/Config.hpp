@@ -14,7 +14,7 @@ class Config
         std::string full_file;
         std::vector<std::string> lines;
         std::vector<Server> servers;
-        std::map<int, const char *> _binders;
+        std::map<int, std::string> _binders;
 
     public :
 
@@ -61,7 +61,7 @@ class Config
     //Server getServer(int port) const;
     Server getServer(int port, std::string &) const;
     void setfile(std::string&);
-    std::map<int, std::string> getBinders() const;
+    std::map<int, std::string > getBinders() const;
     // ! /////////////////////// file_Readers //////////////////////
     void main_read();
     void read_file();

@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/09 11:21:10 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/09 16:07:21 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/socket.hpp"
+#include "../Parsing/Config/Config.hpp"
 #include <unistd.h>
 #define	TIME_OUT_CLIENT	50
 #define SIZE_BUFFER		1024
@@ -148,7 +149,7 @@ void	Socket::reset_write(int i)
 		FD_SET(i, &__master_rd);
 }
 
-bool	Socket::read_request(int i, std::map<int, Client> &clients)
+bool	Socket::read_request(int i, std::map<int, Client> &clients, Config config)  // config added
 {
 	char read[SIZE_BUFFER + 1];
 	int bytes_received;
@@ -164,7 +165,7 @@ bool	Socket::read_request(int i, std::map<int, Client> &clients)
 	}
 	//! I should remove the following line it afterwards.
 	std::cout << "read " << read << std::endl;
-	// if (clients[i].request.parseChunks(std::string(read, bytes_received)))
+	check = clients[i].request.parseChunks(std::string(read, bytes_received), config); // added the config
 	if (true)
 	{
 		reset_read(i);
@@ -236,7 +237,7 @@ void	Socket::init_fd_sets_timeout(std::vector<Socket>::const_iterator it, std::v
 	}
 }
 
-void	Socket::wait(const std::vector<Socket> &socket_listen)
+void	Socket::wait(const std::vector<Socket> &socket_listen, Config config)
 {
 	int									ret;
 	struct timeval						timeout;
@@ -267,7 +268,7 @@ void	Socket::wait(const std::vector<Socket> &socket_listen)
 						continue;
 				}
 				else
-					read_request(i, client_map);
+					read_request(i, client_map, config);
 			}
 			else if (FD_ISSET(i, &__writes))
 			{

@@ -3,9 +3,9 @@
 #include "Location.hpp"
 
 // ! //////////////////// Constuctors and destructor /////////////////
+
 Config::Config(std::string file) : file_name(file) , full_file(), lines(), servers()
 {
-
 }
 
 Config::~Config(){}
@@ -18,6 +18,8 @@ Config::Config(Config const& c)
 Config &Config::operator=(Config const& c) 
 {
     servers = c.servers;
+    lines = c.lines;
+    _binders = c._binders;
     return *this;
 }
 
@@ -69,7 +71,10 @@ Server Config::getServer(int port, std::string &c) const
     
     return servers[save];
 }
-
+ std::map<int, std::string> Config::getBinders() const
+ {
+        return _binders;
+ }
 void Config::setfile(std::string& file)
 {
     full_file = file;
@@ -143,44 +148,19 @@ void Config::split_servers()
 
 void Config::parse_server()
 {
-    //std::vector<std::string> a;
-    std::vector<Location> a;
-   // int a;
-
     for (int i = 0; i < servers.size(); i++)
         servers[i].parseLines();
-    std::string s = "youpiq";
-    Server sr = getServer(8000, s);
-    std::cout << sr.getIndex() << std::endl;
-    // std::map<int, std::string> c = servers[0].getErrorPages();
-
-    // for (std::map<int, std::string>::iterator it= c.begin(); it != c.end(); it++)
-    //     std::cout << it->first << " = " << it->second << std::endl;
-     //for (int i = 0; i < servers.size(); i++)
-     //{
-    //    // ? TO print server Names;
-    // //    a =  servers[i].getServerName();
-    // //    std::cout << "Server " << i << std::endl;
-    // //    for (int j = 0; j < a.size(); j++)
-    // //         std::cout << a[j] << std::endl;
-
-    //    // ? to print ip and port
-    //    std::cout << servers[i].getIp() << "--------------------------------" << servers[i].getPort() << std::endl;
-    //     // ? to print root
-    //     std::cout << servers[i].getRoot() << std::endl;
-    //     // ? to print index
-    //     std::cout << servers[i].getIndex() << std::endl;
-    //    a = servers[0].getLocation();
-        //std::cout << a[0].getRoot() << std::endl;
-        //  for (int i = 0; i < a.size(); i++)
-            //  std::cout << "location  " << a[i].getLocation_match() << " = " << a[i].getRoot() << std::endl;
-    // }
 }
 
 void Config::parse_bind_map()
 {
     for (int i = 0; i < servers.size(); i++)
-        _binders.insert(std::pair<int, const char *>(servers[i].getPort(),servers[i].getIp().c_str()));
+        _binders.insert(std::pair<int, std::string>(servers[i].getPort(),servers[i].getIp()));
+	// std::map<int, const char*>::iterator it = _binders.begin();
+	// std::map<int, const char*>::iterator end = _binders.end();
+	std::cout << " hello " << _binders[8001] << std::endl;
+	// for(; it != end; ++it)
+	// 	std::cout << "Binding to " << it->second << " on port " << it->first << std::endl;
 }
 
 // ! /////////////////////// Errors Managers //////////////////////
