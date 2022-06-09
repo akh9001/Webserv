@@ -63,7 +63,7 @@ class Request
     Request &operator=(Request const& c);
 
       // ! /////////////////////// Getters & Setters //////////////////////
-
+     std::map<std::string, std::string> getHeaderMap() const { return headerMap; }
     // ! /////////////////////// file_Readers //////////////////////
 
         void main_read();
