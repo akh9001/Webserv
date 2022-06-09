@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/09 10:48:58 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/09 11:21:10 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,30 +73,30 @@ void	Socket::listen_socket()
 	}
 }
 
-// void	Socket::supervise(std::map<int,  Client> &client_map)
-// {
-// 	std::map<int, Client>::const_iterator	it = client_map.begin();
-// 	std::map<int, Client>::const_iterator	end = client_map.end();
-// 	time_t	now;
-// 	static int i;
+void	Socket::supervise(std::map<int,  Client> &client_map)
+{
+	std::map<int, Client>::const_iterator	it = client_map.begin();
+	std::map<int, Client>::const_iterator	end = client_map.end();
+	time_t	now;
 
-// 	now = time(NULL);
-// 	if (now == -1)
-// 	{
-// 		perror("Time error !");
-// 		exit(EXIT_FAILURE);
-// 	}
-// 	for(; it != end; ++it)
-// 	{
-// 		if (now - it->second.last_activity > 5)
-// 		{
-// 			FD_CLR(it->first, &__master_rd);
-// 			FD_CLR(it->first, &__master_wr);
-// 			close(it->first);
-// 			client_map.erase(it);
-// 		}
-// 	}
-// }
+	now = time(NULL);
+	if (now == -1)
+	{
+		perror("Time error !");
+		return ;
+	}
+	for(; it != end; ++it)
+	{
+		if (now - it->second.last_activity > TIME_OUT_CLIENT)
+		{
+			FD_CLR(it->first, &__master_rd);
+			FD_CLR(it->first, &__master_wr);
+			close(it->first);
+			client_map.erase(it);
+			break;
+		}
+	}
+}
 
 // ! fncl
 //TODO http://gnu.ist.utl.pt/software/libc/manual/html_node/Getting-File-Status-Flags.html
@@ -255,7 +255,7 @@ void	Socket::wait(const std::vector<Socket> &socket_listen)
 			perror("select() failed. !");
 			continue;
 		}
-		// supervise(client_map);
+		supervise(client_map);
 		//? check timeout 
 		for (int i = 3; i <= max_socket; i++)
 		{
