@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/09 01:12:02 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/09 10:48:58 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/socket.hpp"
-#include "../FileHandler/fileHandler.hpp"
+#include <unistd.h>
 #define	TIME_OUT_CLIENT	50
 #define SIZE_BUFFER		1024
 
@@ -98,31 +98,158 @@ void	Socket::listen_socket()
 // 	}
 // }
 
-void	Socket::wait(const std::vector<Socket> socket_listen)
-{
-	int									ret = 0;
-	Client								client;
-	std::map<int,  Client>				client_map;
-	std::vector<Socket>::const_iterator	it = socket_listen.begin();
-	std::vector<Socket>::const_iterator	end = socket_listen.end();
+// ! fncl
+//TODO http://gnu.ist.utl.pt/software/libc/manual/html_node/Getting-File-Status-Flags.html
+// * http://www.gnu.org/software/libc/manual/html_node/File-Status-Flags.html#:~:text=File%20status%20flags%20are%20used,single%20opening%20of%20the%20file.
+// * I/O Operating Modes, affect how operations such as read and write are done. They are set by open, and can be fetched or changed with fcntl.
+// *  http://www.gnu.org/software/libc/manual/html_node/Operating-Modes.html :: O_NONBLOCK
 
+bool	Socket::accept_connection(int i, std::map<int,  Client> &clients)
+{
+	Client	client;
+
+	client.socket_fd = accept(i, &client.address, &client.address_lenght);
+	if (client.socket_fd < 0)
+		return false;
+	//! To remove afterwards :
+	std::cout << RED << "Socket client : " << client.socket_fd << RESET << std::endl;
+	clients[client.socket_fd] = client;
+	clients[client.socket_fd].last_activity = time(NULL);
+	FD_SET(client.socket_fd, &__master_rd);
+	max_socket = max_socket > client.socket_fd ? max_socket : client.socket_fd;
+	if (fcntl(client.socket_fd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		perror("fcntl !");
+		return false;
+	}
+	return true;
+}
+
+void	Socket::remove_client(int i, std::map<int,  Client> &clients, bool rd, bool wr)
+{
+	if (rd)
+		FD_CLR(i, &__master_rd);
+	if (wr)
+		FD_CLR(i, &__master_wr);
+	close(i);
+	clients.erase(i);	
+}
+
+void	Socket::reset_read(int i)
+{
+		FD_CLR(i, &__master_rd);
+		FD_SET(i, &__master_wr);
+}
+
+void	Socket::reset_write(int i)
+{
+		// ! I should clear the request.
+		FD_CLR(i, &__master_wr);
+		FD_SET(i, &__master_rd);
+}
+
+bool	Socket::read_request(int i, std::map<int, Client> &clients)
+{
+	char read[SIZE_BUFFER + 1];
+	int bytes_received;
+	bool check;
+
+	bytes_received = recv(i, read, sizeof(read), 0);
+	read[bytes_received] = '\0';
+	if (bytes_received < 0)
+	{
+		// * remove_client(int i, std::map<int,  Client> &clients, bool rd, bool wr)
+		remove_client(i, clients, true, false);
+		return false;
+	}
+	//! I should remove the following line it afterwards.
+	std::cout << "read " << read << std::endl;
+	// if (clients[i].request.parseChunks(std::string(read, bytes_received)))
+	if (true)
+	{
+		reset_read(i);
+		//2- response = get_response()
+		// client_map[i].buffer = getHeaders();
+		// client_map[i].body_inf = getbody();
+		clients[i].buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 54 \r\n\r\n";
+		clients[i].body_inf = std::make_pair(std::string("hello_world.html"), false);
+		if (clients[i].body_inf.first.size() > 0)
+			clients[i].file.open(clients[i].body_inf.first);
+	return true;
+	}
+	return true;
+}
+
+bool	Socket::write_response(int i, std::map<int,  Client> &clients)
+{
+	int		bytes_sent;
+	char	buff[SIZE_BUFFER];
 	
+	if (!clients[i].buffer.empty())
+	{
+		std::cout << "size >> " << clients[i].buffer.length() << std::endl;
+		bytes_sent = send(i, clients[i].buffer.c_str(), clients[i].buffer.length(), 0);
+	}
+	else if (clients[i].file.is_open())
+	{ 	
+		
+		if (clients[i].file.eof())
+		{
+			clients[i].file.close();
+			if (clients[i].body_inf.second)
+				if (remove(clients[i].body_inf.first.c_str()))
+					perror("remove() failed. !");
+			FD_CLR(i, &__master_wr);
+			//todo hna 5assni checki 3la keep alive 
+			FD_SET(i, &__master_rd);
+			clients[i].last_activity = time(NULL);
+			return false;
+		}
+		clients[i].file.read(buff, SIZE_BUFFER);
+		clients[i].buffer = std::string(buff);
+		bytes_sent = send(i, buff, clients[i].buffer.size(), 0);
+	}
+	std::cout << YELLOW << clients[i].buffer << " byte send " << bytes_sent << RESET << std::endl;
+	if (bytes_sent <= 0)
+	{
+		perror("send() failed. !");
+		remove_client(i, clients, false, true);
+		return false;
+	}
+	if (clients[i].buffer.size() > bytes_sent)
+		clients[i].buffer = clients[i].buffer.substr(bytes_sent);
+	else
+		clients[i].buffer.clear();
+	return true;
+}
+
+void	Socket::init_fd_sets_timeout(std::vector<Socket>::const_iterator it, std::vector<Socket>::const_iterator end, struct timeval &timeout)
+{
 	FD_ZERO(&__master_rd);
 	FD_ZERO(&__master_wr);
+	timeout.tv_sec	= 1;
+	timeout.tv_usec = 0;
 	for(;it < end; it++)
 	{
 		std::cout << "_sokc " << it->__socket << std::endl;
 		FD_SET(it->__socket, &__master_rd);
 	}
+}
+
+void	Socket::wait(const std::vector<Socket> &socket_listen)
+{
+	int									ret;
+	struct timeval						timeout;
+	std::map<int,  Client>				client_map;
+	std::vector<Socket>::const_iterator	it = socket_listen.begin();
+	std::vector<Socket>::const_iterator	end = socket_listen.end();
+
+	init_fd_sets_timeout(it, end, timeout);
 	while(true)
 	{
 		__reads = __master_rd;
 		__writes = __master_wr;
-		struct timeval timeout;
-		timeout.tv_sec = 1;
-		timeout.tv_usec = 0;
 	
-		// * std::cout <<"num == >     " <<  __reads.fds_bits[0] << " " << socket_listen[0].__socket << std::endl;
 		if ((ret = select(FD_SETSIZE, &__reads, &__writes, NULL, &timeout)) == -1)
 		{
 			perror("select() failed. !");
@@ -134,137 +261,18 @@ void	Socket::wait(const std::vector<Socket> socket_listen)
 		{
 			if(FD_ISSET(i, &__reads))
 			{
-				if (find(socket_listen.begin(), end, i) != end)
+				if (find(it, end, i) != end)
 				{
-					client.socket_fd = accept(i, &client.address, &client.address_lenght);
-					if (client.socket_fd < 0)
+					if (!accept_connection(i, client_map))
 						continue;
-					//! To remove afterwards :
-						std::cout << "Socket client : " << client.socket_fd << std::endl;
-					client_map[client.socket_fd] = client;
-					client_map[client.socket_fd].last_activity = time(NULL);
-					FD_SET(client.socket_fd, &__master_rd);
-					max_socket = max_socket > client.socket_fd ? max_socket : client.socket_fd;
-	// ! fncl
-	//TODO http://gnu.ist.utl.pt/software/libc/manual/html_node/Getting-File-Status-Flags.html
-	// * http://www.gnu.org/software/libc/manual/html_node/File-Status-Flags.html#:~:text=File%20status%20flags%20are%20used,single%20opening%20of%20the%20file.
-	// * I/O Operating Modes, affect how operations such as read and write are done. They are set by open, and can be fetched or changed with fcntl.
-	// *  http://www.gnu.org/software/libc/manual/html_node/Operating-Modes.html :: O_NONBLOCK
-					if (fcntl(client.socket_fd, F_SETFL, O_NONBLOCK) == -1)
-					{
-						perror("fcntl !");
-						continue;
-					}
 				}
 				else
-				{
-					char read[SIZE_BUFFER + 1];
-					int bytes_received;
-					// ws::Response	res;
-					// if (tmp has something)
-					// {
-					// 	copy tmp to read
-					// 	bytes_received = len(tmp)
-					// 	clear tmp;
-					// }
-					// else
-                	bytes_received = recv(i, read, sizeof(read), 0);
-					if(bytes_received < 0)
-					{
-						std::cout << "Made it here !" << std::endl;
-						FD_CLR(i, &__master_rd);
-						close(i);
-						client_map.erase(i);
-						continue;
-					}
-					//1- parse_request
-					//! Request request(read);
-					std::cout << "read " << read << std::endl;
-					bool check = client_map[i].request.parseChunks(std::string(read, bytes_received));
-					if (check)
-					{
-						FD_CLR(i, &__master_rd);
-						FD_SET(i, &__master_wr);
-						//2- response = get_response()
-						// client_map[i].buffer = getHeaders();
-						// client_map[i].body_inf = getbody();
-						client_map[i].buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 54 \r\n\r\n";
-						client_map[i].body_inf = std::make_pair(std::string("hello_world.html"), false);
-						if (client_map[i].body_inf.first.size() > 0)
-							client_map[i].file.open(client_map[i].body_inf.first);
-					}
-				}
+					read_request(i, client_map);
 			}
 			else if (FD_ISSET(i, &__writes))
 			{
-				if (!client_map[i].buffer.empty())
-				{
-					// if buffer.size < SIZE_BUFFER wash momkin dir problem.
-					std::cout << "size >> " << client_map[i].buffer.length() << std::endl;
-					int bytes_sent = send(i, client_map[i].buffer.c_str(), client_map[i].buffer.length(), 0);
-					std::cerr << YELLOW << client_map[i].buffer << " byte send " << bytes_sent  << std::endl << RESET;
-					if (bytes_sent <= 0)
-					{
-						perror("send() failed. !");
-						// should I close the socket ?
-						// should I throw an exception ?
-						// exit(EXIT_FAILURE);
-						//todo
-							//* close fd
-							//* remove from map
-							//* remove from fd_set
-						FD_CLR(i, &__master_wr);
-						close(i);
-						client_map.erase(i);
-						continue;
-					}
-					if (client_map[i].buffer.length() <= bytes_sent)
-						client_map[i].buffer.clear();
-					else
-						client_map[i].buffer = client_map[i].buffer.substr(bytes_sent);
-				}
-				else if (client_map[i].file.is_open())
-				{ 	
-					char	buff[SIZE_BUFFER];
-					
-					if (client_map[i].file.eof())
-					{
-						client_map[i].file.close();
-						if (client_map[i].body_inf.second)
-							if (remove(client_map[i].body_inf.first.c_str()))
-								perror("remove() failed. !");
-						FD_CLR(i, &__master_wr);
-						//todo hna 5assni checki 3la keep alive 
-						FD_SET(i, &__master_rd);
-						client_map[i].last_activity= time(NULL);
-						continue;
-					}
-					client_map[i].file.read(buff, SIZE_BUFFER);
-					// buff[client_map[i].file.gcount()] = '\0';
-					client_map[i].buffer = std::string(buff);
-					int bytes_sent = send(i, buff, client_map[i].buffer.size(), 0);
-					std::cout << YELLOW << buff << RESET << std::endl;
-					// exit(EXIT_FAILURE);
-					if (bytes_sent <= 0)
-					{
-						perror("send() failed. !");
-						// should I close the socket ?
-						// should I throw an exception ?
-						//todo
-							//* close fd
-							//* remove from map
-							//* remove from fd_set 
-						// exit(EXIT_FAILURE);
-						FD_CLR(i, &__master_wr);
-						close(i);
-						client_map.erase(i);
-						continue;
-					}
-					if (client_map[i].buffer.size() > bytes_sent)
-						client_map[i].buffer = client_map[i].buffer.substr(bytes_sent);
-					else
-						client_map[i].buffer.clear();
-				}
+				if (write_response(i, client_map))
+					continue;
 			}
 		}
 	}
