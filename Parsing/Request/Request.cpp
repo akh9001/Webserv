@@ -348,3 +348,17 @@ int Request::parse_body(std::string c)
     // {
     
     // }
+
+    void Request::clear()
+    {
+        headerPart.clear();
+        headerMap.clear();
+        save = "";
+        filePath = "";
+        parsed = false;
+        method = "";
+        uri = "";
+        version = "";
+        fchuncked = 0;
+        change = 0;
+    }

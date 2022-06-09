@@ -84,4 +84,6 @@ class Request
     int checkMethod();
     int checkURI();
     int checkVersion();
+// ! ////////////////////// clear //////////////////
+    void clear();
 };
