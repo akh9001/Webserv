@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/09 00:35:49 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/09 01:12:02 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/socket.hpp"
-#include "../dyalek/fileHandler.hpp"
+#include "../FileHandler/fileHandler.hpp"
 #define	TIME_OUT_CLIENT	50
 #define SIZE_BUFFER		1024
 
@@ -180,7 +180,7 @@ void	Socket::wait(const std::vector<Socket> socket_listen)
 					//1- parse_request
 					//! Request request(read);
 					std::cout << "read " << read << std::endl;
-					bool check = client_map[i].request.parse_read(std::string(read, bytes_received));
+					bool check = client_map[i].request.parseChunks(std::string(read, bytes_received));
 					if (check)
 					{
 						FD_CLR(i, &__master_rd);

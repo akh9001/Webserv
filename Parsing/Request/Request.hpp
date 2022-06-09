@@ -1,11 +1,12 @@
-#pragma once
-#include "webserver.hpp"
-
+#include "../webServer.hpp"
+#include "../../FileHandler/fileHandler.hpp"
 
 class Request
 {
     private :
+
         std::string requestFile;
+        std::string header;
         std::string full_file;
         std::vector<std::string> headerPart;
         std::vector<std::string> bodyPart;
@@ -21,9 +22,19 @@ class Request
         std::string accept_language;
         std::string accept_charset;
         std::string content_type;
-        std::string content_length;
+        
+        int content_length;
+        std::map<std::string, std::string> headerMap;
 
 
+        static int fchuncked;
+        static std::string save;
+        static int full;
+        bool parsed;
+       // ws::fileHandler fh;
+        std::fstream file;
+        std::string filePath;
+        static int change;
     public :
 
 
@@ -44,8 +55,9 @@ class Request
     };
 
     // ! Constuctors and destructor
-	Request();
+    Request();
     Request(std::string file);
+    Request(std::string file, int a);
     ~Request();
     Request(Request const& c);
     Request &operator=(Request const& c);
@@ -57,10 +69,14 @@ class Request
         void main_read();
         void readFile();
         void split_parts();
-		int parse_read(std::string c);
+        int parseChunks(std::string c);
     // ! /////////////////////// parse header //////////////////
-   void  parse_header();
-   void parsefline();
+    int parse_header(std::string c);
+    int parse_body(std::string c);
+
+   void  print_header();
+   void parsefline(std::string &);
+   void parseHeaderLines();
 
 
    // ! /////////////////////// erros check //////////////////

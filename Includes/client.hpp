@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:46:37 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/05 22:12:46 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/09 01:15:47 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include "../tmp/request.hpp"
+#include "../Parsing/Request/Request.hpp"
 #include "networking.hpp"
 #include <string>
 #include <sys/_types/_socklen_t.h>
@@ -29,13 +29,13 @@ struct Client
 	static socklen_t			address_lenght;
 	const static struct timeval	timeout;
 	//*variables :
-	struct sockaddr			address;
-	char*					resp_path;
-	//! istream may cause a problem.
-	std::ifstream			resp_infile;
-	int						socket_fd;
-	Request					request;
-	time_t					last_activity;
+	struct sockaddr						address;
+	int									socket_fd;
+	Request								request;
+	std::pair<std::string, bool>		body_inf;
+	std::ifstream						file;
+	std::string							buffer;
+	time_t								last_activity;
 	// *constructors :
 	Client();
 	Client(const Client  &);
