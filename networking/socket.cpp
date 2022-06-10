@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/10 11:42:32 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/10 11:49:06 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ bool	Socket::accept_connection(int i, std::map<int,  Client> &clients)
 	if (client.socket_fd < 0 || client.socket_fd >= FD_SETSIZE)
 		return false;
 	//! To remove afterwards :
-	std::cout << RED << "Socket client : " << client.socket_fd << RESET << std::endl;
+	// std::cout << RED << "Socket client : " << client.socket_fd << RESET << std::endl;
 	clients[client.socket_fd] = client;
 	clients[client.socket_fd].last_activity = time(NULL);
 	FD_SET(client.socket_fd, &__master_rd);
@@ -170,7 +170,7 @@ bool	Socket::read_request(int i, std::map<int, Client> &clients)
 	}
 	// read[bytes_received] = '\0';
 	//! I should remove the following line it afterwards.
-	std::cout << "read " << read << std::endl;
+	//std::cout << "read " << read << std::endl;
 	// if (clients[i].request.parseChunks(std::string(read, bytes_received)))
 	if (true)
 	{
@@ -197,7 +197,7 @@ bool	Socket::write_response(int i, std::map<int,  Client> &clients)
 	
 	if (!clients[i].buffer.empty())
 	{
-		std::cout << "size >> " << clients[i].buffer.length() << std::endl;
+		// std::cout << "size >> " << clients[i].buffer.length() << std::endl;
 		bytes_sent = send(i, clients[i].buffer.c_str(), clients[i].buffer.length(), 0);
 	}
 	else if (clients[i].file.is_open())
@@ -223,7 +223,7 @@ bool	Socket::write_response(int i, std::map<int,  Client> &clients)
 		reset_write(i, clients, clients[i].close_cnx);
 		return false;
 	}
-	std::cout << YELLOW << clients[i].buffer << RESET << " byte send " << bytes_sent << " Bytes read : " << bytes_read << std::endl;
+	// std::cout << YELLOW << clients[i].buffer << RESET << " byte send " << bytes_sent << " Bytes read : " << bytes_read << std::endl;
 	if (bytes_sent <= 0)
 	{
 		perror("send() failed. !");

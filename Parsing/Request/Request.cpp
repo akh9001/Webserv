@@ -157,8 +157,8 @@ int Request::parseChunks(std::string c)
     if (change == 1 && parsed == false)
     {
         parseHeaderLines();
-        for (std::map<std::string, std::string>::iterator it = headerMap.begin(); it != headerMap.end(); it++)
-            std::cout << (*it).first << " = " << (*it).second << std::endl;
+        // for (std::map<std::string, std::string>::iterator it = headerMap.begin(); it != headerMap.end(); it++)
+        //     std::cout << (*it).first << " = " << (*it).second << std::endl;
     }
     else if (change == 1 && full == 0)
         parse_body(c);
@@ -184,7 +184,7 @@ int Request::parse_header(std::string c)
                 fchuncked = 1;
                 tmp = line.substr(0, pos);
                 save += tmp;
-                std::cout << save << std::endl;
+                //std::cout << save << std::endl;
                 parsefline(save);
                 headerPart.push_back(save);
                 save = "";
