@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 16:16:46 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/09 10:41:50 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/09 11:50:30 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ class Socket
 		static bool			write_response(int i, std::map<int,  Client> &clients);
 		static void			remove_client(int i, std::map<int,  Client> &clients, bool rd, bool wr);
 		static void			reset_read(int i);
-		static void			reset_write(int i);
+		static void			reset_write(int i, std::map<int, Client> &clients, bool close);
 		static void			init_fd_sets_timeout(std::vector<Socket>::const_iterator it, std::vector<Socket>::const_iterator end, struct timeval &timeout);
-		// static	void		supervise(std::map<int,  Client> &client_map);
+		static void			supervise(std::map<int,  Client> &client_map);
 		static void			wait(const std::vector<Socket> &socket_listen);
 		bool				operator==(int val) const;
 		~Socket();

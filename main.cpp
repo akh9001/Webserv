@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 17:31:58 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/05 02:54:58 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/10 03:20:31 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,7 @@
 int	main(int argc, char **argv)
 {
 	(void)argv;
-	if (argc != 2)
-	{
-		std::cout << "Usage: ./client configfile" << std::endl;
-		return (1);
-	}
+	signal(SIGPIPE, SIG_IGN);
 	std::map<int, const char*>  servers ;//  {{8080, "127.0.0.1"}, {8081, "google.com"}};
 	servers.insert(std::make_pair(2025, "127.0.0.1"));
 	servers.insert(std::make_pair(8081, "127.0.0.1"));

@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/09 11:21:10 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/10 04:43:02 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void	Socket::bind_socket()
 
 void	Socket::listen_socket()
 {
-	if (listen(__socket, 128) == -1)
+	if (listen(__socket, 20) == -1)
 	{
 		perror("Listening... !");
 		exit(EXIT_FAILURE);
@@ -109,7 +109,7 @@ bool	Socket::accept_connection(int i, std::map<int,  Client> &clients)
 	Client	client;
 
 	client.socket_fd = accept(i, &client.address, &client.address_lenght);
-	if (client.socket_fd < 0)
+	if (client.socket_fd < 0 || client.socket_fd >= FD_SETSIZE)
 		return false;
 	//! To remove afterwards :
 	std::cout << RED << "Socket client : " << client.socket_fd << RESET << std::endl;
@@ -137,15 +137,22 @@ void	Socket::remove_client(int i, std::map<int,  Client> &clients, bool rd, bool
 
 void	Socket::reset_read(int i)
 {
-		FD_CLR(i, &__master_rd);
-		FD_SET(i, &__master_wr);
+	FD_CLR(i, &__master_rd);
+	FD_SET(i, &__master_wr);
 }
 
-void	Socket::reset_write(int i)
+void	Socket::reset_write(int i, std::map<int,  Client> &clients, bool close)
 {
-		// ! I should clear the request.
+	//todo hna 5assni checki 3la keep alive
+	if (close)
+		remove_client(i, clients, false, true);
+	else
+	{
 		FD_CLR(i, &__master_wr);
 		FD_SET(i, &__master_rd);
+		clients[i].request.clear();
+		clients[i].last_activity = time(NULL);
+	}
 }
 
 bool	Socket::read_request(int i, std::map<int, Client> &clients)
@@ -155,23 +162,25 @@ bool	Socket::read_request(int i, std::map<int, Client> &clients)
 	bool check;
 
 	bytes_received = recv(i, read, sizeof(read), 0);
-	read[bytes_received] = '\0';
 	if (bytes_received < 0)
 	{
 		// * remove_client(int i, std::map<int,  Client> &clients, bool rd, bool wr)
 		remove_client(i, clients, true, false);
 		return false;
 	}
+	// read[bytes_received] = '\0';
 	//! I should remove the following line it afterwards.
 	std::cout << "read " << read << std::endl;
 	// if (clients[i].request.parseChunks(std::string(read, bytes_received)))
 	if (true)
 	{
 		reset_read(i);
+		//! clients[i].close_cnx = clients[i].request.getHeaderMap()["Connection"] == "keep-alive" ? false : true;
+		clients[i].close_cnx = true;
 		//2- response = get_response()
 		// client_map[i].buffer = getHeaders();
 		// client_map[i].body_inf = getbody();
-		clients[i].buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 54 \r\n\r\n";
+		clients[i].buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 54\r\nConnection: close\r\n\r\n";
 		clients[i].body_inf = std::make_pair(std::string("hello_world.html"), false);
 		if (clients[i].body_inf.first.size() > 0)
 			clients[i].file.open(clients[i].body_inf.first);
@@ -183,6 +192,7 @@ bool	Socket::read_request(int i, std::map<int, Client> &clients)
 bool	Socket::write_response(int i, std::map<int,  Client> &clients)
 {
 	int		bytes_sent;
+	int		bytes_read;
 	char	buff[SIZE_BUFFER];
 	
 	if (!clients[i].buffer.empty())
@@ -199,17 +209,21 @@ bool	Socket::write_response(int i, std::map<int,  Client> &clients)
 			if (clients[i].body_inf.second)
 				if (remove(clients[i].body_inf.first.c_str()))
 					perror("remove() failed. !");
-			FD_CLR(i, &__master_wr);
-			//todo hna 5assni checki 3la keep alive 
-			FD_SET(i, &__master_rd);
-			clients[i].last_activity = time(NULL);
+			reset_write(i, clients, clients[i].close_cnx);
 			return false;
 		}
+		//! should I check if the read is correctly done ?
 		clients[i].file.read(buff, SIZE_BUFFER);
-		clients[i].buffer = std::string(buff);
+		bytes_read = clients[i].file.gcount();
+		clients[i].buffer = std::string(buff, bytes_read);
 		bytes_sent = send(i, buff, clients[i].buffer.size(), 0);
 	}
-	std::cout << YELLOW << clients[i].buffer << " byte send " << bytes_sent << RESET << std::endl;
+	else
+	{
+		reset_write(i, clients, clients[i].close_cnx);
+		return false;
+	}
+	std::cout << YELLOW << clients[i].buffer << RESET << " byte send " << bytes_sent << " Bytes read : " << bytes_read << std::endl;
 	if (bytes_sent <= 0)
 	{
 		perror("send() failed. !");
@@ -231,7 +245,7 @@ void	Socket::init_fd_sets_timeout(std::vector<Socket>::const_iterator it, std::v
 	timeout.tv_usec = 0;
 	for(;it < end; it++)
 	{
-		std::cout << "_sokc " << it->__socket << std::endl;
+		std::cout << "_sock " << it->__socket << std::endl;
 		FD_SET(it->__socket, &__master_rd);
 	}
 }
