@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/10 04:43:02 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/10 11:42:32 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void	Socket::bind_socket()
 
 void	Socket::listen_socket()
 {
-	if (listen(__socket, 20) == -1)
+	if (listen(__socket, 128) == -1)
 	{
 		perror("Listening... !");
 		exit(EXIT_FAILURE);
