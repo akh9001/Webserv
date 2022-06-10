@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 17:31:58 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/09 16:02:42 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/10 12:10:36 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,7 @@ int	main(int argc, char **argv)
 	catch (std::exception& e) {
 		std::cout << e.what() << std::endl;
 	}
-	std::map<int, std::string>  servers = config.getBinders();//  {{8080, "127.0.0.1"}, {8081, "google.com"}};
-	std::cout << servers[8001] << std::endl;
+	std::map<int, std::string>  servers = config.getBinders();//  {{8080, "127.0.0.1"}, {8081, "google.com"}}
 	std::vector<Socket>	socket_list(servers.size());
 	std::map<int, std::string>::iterator it = servers.begin();
 	std::map<int, std::string>::iterator end = servers.end();
@@ -40,7 +39,7 @@ int	main(int argc, char **argv)
 	for(; it != end; ++it)
 	{
 		std::cout << "Binding to " << it->second << " on port " << it->first << std::endl;
-		std::cout << "Creating socket " << i << std::endl;
+		//std::cout << "Creating socket " << i << std::endl;
 		socket_list[i].init(it->first, it->second.c_str());
 		socket_list[i].create_socket();
 		socket_list[i].bind_socket();

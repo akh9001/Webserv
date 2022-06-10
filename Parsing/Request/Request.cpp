@@ -30,7 +30,8 @@ Request::Request()
     this->accept_language = "";
     this->accept_charset = "";
     this->content_type = "";
-    this->content_length = 0;
+    this->contentLength = 0;
+    this->read = 0;
     this->parsed = false;
 }
 
@@ -68,7 +69,7 @@ Request &Request::operator=(Request const& c)
         accept_language = c.accept_language;
         accept_charset = c.accept_charset;
         content_type = c.content_type;
-        content_length = c.content_length;
+        contentLength = c.contentLength;
         parsed = c.parsed;
     }
     return *this;
@@ -116,15 +117,18 @@ void    Request::split_parts()
     }
 }
 
-int Request::parseChunks(std::string c, Config config)
+bool Request::parseChunks(std::string c, Config config)
 {
     if (change == 0)
         parse_header(c);
     if (change == 1 && parsed == false)
         parseHeaderLines(config);
-    else if (change == 1 && full == 0)
+    else if (change == 1)
         parse_body(c);
-    return full;
+    checkContentLength(c.size());
+    if (read == 0)
+        return true;
+    return false;
 }
 
 int Request::parse_header(std::string c)
@@ -145,7 +149,6 @@ int Request::parse_header(std::string c)
                 fchuncked = 1;
                 tmp = line.substr(0, pos);
                 save += tmp;
-                std::cout << save << std::endl;
                 parsefline(save);
                 headerPart.push_back(save);
                 save = "";
@@ -176,19 +179,18 @@ void Request::parseHeaderLines(Config config)
 {
 
     size_t pos = 0;
+    std::cout << "i am here" << std::endl;
     for (int i = 1; i < headerPart.size(); i++)
     {
         if ((pos = headerPart[i].find(":")) != std::string::npos)
             headerMap[headerPart[i].substr(0, pos)] = headerPart[i].substr(pos + 2, headerPart[i].find("\r\n") - pos - 2);   
     }
     fetchContentLength();
-
-    // int i = 0;
-    // std::istringstream(headerMap["Content-Length"]) >> i;
-    // sscanf(headerMap["Content-Length"].c_str(), "%d", &i);
-    // content_length = i;
-    // getRightServer(config);
-    // check_content_length(config);
+    std::cout << " i am here 1" << std::endl;
+    getRightServer(config);
+    getRightLocation();
+    std::cout << " i am here 2" << std::endl;
+    checkContentLength(0);
     parsed = true;
 }
 
@@ -230,6 +232,7 @@ int Request::parse_body(std::string c)
         version = line.substr(0, pos);
         line.erase(0, pos + 1);
         main_error_check();
+        tmpUri = uri;
 
 }
 
@@ -273,10 +276,17 @@ int Request::parse_body(std::string c)
         return (200);
     }
 
-    // int checkContentLength()
-    // {
-    
-    // }
+    void Request::checkContentLength(int a)
+    {
+        if (contentLength > location.getClientMaxBodySize()
+            || contentLength < 0)
+        {
+           std::cout << "Content-Length: " << contentLength << std::endl;
+           std::cout << "a "  << location.getClientMaxBodySize() << std::endl;
+            throw "413";
+        }
+        read -= a;
+    }
 
     void Request::clear()
     {
@@ -299,10 +309,11 @@ int Request::parse_body(std::string c)
 
     void Request::fetchContentLength()
     {
-        int i = 0;
+        unsigned long i = 0;
         std::istringstream(headerMap["Content-Length"]) >> i;
-        sscanf(headerMap["Content-Length"].c_str(), "%d", &i);
-        content_length = i;
+        sscanf(headerMap["Content-Length"].c_str(), "%ld", &i);
+        contentLength = i;
+        read = contentLength;
     }
 
      void Request::fetchHost()
@@ -311,14 +322,32 @@ int Request::parse_body(std::string c)
         hostPort = atoi(headerMap["Host"].substr(headerMap["Host"].find(":") + 1, headerMap["Host"].size()).c_str());
      }
 
-    Server  Request::getRightServer(Config config)
+    void  Request::getRightServer(Config config)
     {
+        try {
         server = config.getServer(hostPort, hostIp);
-        return a;
+        } catch (std::exception &e) {
+            std::cout << e.what() << std::endl;
+        }
     }
 
-    Location  Request::getRightLocation(Config config)
+    void  Request::getRightLocation()
     {
-
+        size_t pos = 0;
+        std::string clone(tmpUri);
+        int n = server.getLocation().size();
+        for (int i = 0; i < n; i++) {
+            if (server.getLocation()[i].getLocation_match() == tmpUri) {
+                location = server.getLocation()[i];
+                return ;
+            }
+        }
+        while (clone.size() > 0 && (pos = clone.find("/")) != std::string::npos && pos != 0)
+            clone.erase(0, pos);
+        tmpUri.erase(0, pos);
+        if (pos != 0)
+            getRightLocation();
+        else
+            throw "404";
     }
 

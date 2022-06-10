@@ -53,6 +53,7 @@ Server Config::getServer(int port, std::string &c) const
         if (servers[i].getPort() == port)
             a.push_back(servers[i]);
     }
+    // std::cout << "Server " << std::endl;
     if (!c.size() && a.size())
         return a[0];
     else if (!c.size())
@@ -68,7 +69,6 @@ Server Config::getServer(int port, std::string &c) const
     }
     if (j > 1)
         throw (MultpiteServerName());
-    
     return servers[save];
 }
  std::map<int, std::string> Config::getBinders() const
@@ -158,7 +158,7 @@ void Config::parse_bind_map()
         _binders.insert(std::pair<int, std::string>(servers[i].getPort(),servers[i].getIp()));
 	// std::map<int, const char*>::iterator it = _binders.begin();
 	// std::map<int, const char*>::iterator end = _binders.end();
-	std::cout << " hello " << _binders[8001] << std::endl;
+	//std::cout << " hello " << _binders[8001] << std::endl;
 	// for(; it != end; ++it)
 	// 	std::cout << "Binding to " << it->second << " on port " << it->first << std::endl;
 }

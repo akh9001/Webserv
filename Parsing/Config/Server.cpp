@@ -96,7 +96,10 @@ void Server::parseLines()
         setIp(tmp.substr(0,pos));
         tmp.erase(0, pos + 1);
     }
-    setPort(stoi(tmp.substr(0,pos)));
+    int i = 0;
+    std::istringstream(tmp.substr(0,pos)) >> i;
+    sscanf(tmp.substr(0,pos).c_str(), "%d", &i);
+    setPort(i);
     tmp.erase(0, pos + 1);
 }
 
@@ -177,9 +180,10 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
  void Server::fetch_cbbs(std::string& c)
  {
     std::string tmp = c.substr(24, c.size() - 24);
-    unsigned long a = stoi(tmp);
-    setClientMaxBodySize(a);
-
+    unsigned long i = 0;
+    std::istringstream(tmp) >> i;
+    sscanf(tmp.c_str(), "%ld", &i);
+    setClientMaxBodySize(i);
  }
 
  void Server::fetch_autoindex(std::string& c)
@@ -210,8 +214,10 @@ void Server::fetchErrorPage(std::string& c)
         throw NotacceptableError();
     if (a[0].size() != 3)
         throw NotacceptableError();
-    int b = stoi(a[0]);
-    errorPages.insert(std::make_pair(b, a[1]));
+    int q = 0;
+    std::istringstream(a[0]) >> q;
+    sscanf(a[0].c_str(), "%d", &q);
+    errorPages.insert(std::make_pair(q, a[1]));
 }
 // ! ///////////////////////////// Error pages ////////////////////
 

@@ -33,12 +33,14 @@ class Request
         Server server;
         Location location;
         
-        int content_length;
+        unsigned long contentLength;
         std::map<std::string, std::string> headerMap;
 
 
         static int fchuncked;
+        unsigned long read;
         static std::string save;
+        std::string tmpUri;
         static int full;
         bool parsed;
        // ws::fileHandler fh;
@@ -74,14 +76,16 @@ class Request
 
       // ! /////////////////////// Getters & Setters //////////////////////
      std::map<std::string, std::string> getHeaderMap() const { return headerMap; }
-     int getContentLenth() const { return content_length; }
+     int getContentLenth() const { return contentLength; }
+    Server getServer() const { return server; }
+    Location getLocation() const { return location; }
 
     // ! /////////////////////// file_Readers //////////////////////
 
         void main_read();
         void readFile();
         void split_parts();
-        int parseChunks(std::string c, Config config);
+        bool parseChunks(std::string c, Config config);
     // ! /////////////////////// parse header //////////////////
     int parse_header(std::string c);
     int parse_body(std::string c);
@@ -92,8 +96,8 @@ class Request
     // ! ////////////////////// fetch server or location //////////////////////
     void fetchContentLength();
     void fetchHost();
-    Server getRightServer(Config config);
-    Location getRightLocation(Config config);
+    void getRightServer(Config config);
+    void getRightLocation();
 
 
    // ! /////////////////////// erros check //////////////////
@@ -101,7 +105,7 @@ class Request
     int checkMethod();
     int checkURI();
     int checkVersion();
-    int check_content_length(Config config);
+    void checkContentLength(int a);
 // ! ////////////////////// clear //////////////////
     void clear();
 };
