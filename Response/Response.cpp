@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 03:04:46 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/09 07:59:15 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/11 02:18:15 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ namespace ws {
 		}
 		else
 		{
-			buildResponse("404", req , loc);
+			buildResponse("405", req , loc);
 		}
 
 		setDateHeader();	
@@ -197,7 +197,9 @@ namespace ws {
 					else
 					{
 						setHeader("Location",filenamePath);
-						buildResponse("201", req , loc);
+						this->bodyPath.clear();
+						this->response_is_tmp = false;
+						this->statusCode = "201";
 					}
 				}
 				else
@@ -396,7 +398,7 @@ namespace ws {
 			ret = directoriesHandler(loc, newf,dirList,i,originPath);
 		}
 		///TODO 0
-		std::cout << path << std::endl;
+		std::cout << path << std::endl;//DEBUG
 		if(ret != 0)
 			return ret;
 		struct stat info;
@@ -439,19 +441,6 @@ namespace ws {
 				return 409;
 			}
 		}
-		
-		////build directories if neccessary
-		// if(dirList.size() > 0)
-		// {
-		// 	//loop on directories -1 // cause the last is the file name
-		// 		//check if dir exist
-		// 			//check if permission continue to next dir
-		// 			//if no persmmision delete if any dir was already created buildResponse("403",req,loc);//forbidden
-		// 		//if dir not exist
-		// 			// create dir 
-		// 				//if created continue
-		// 				// else delete if any dir was already created buildResponse("500",req,loc);
-		// }
 		return ret;
 	}
 
@@ -657,7 +646,8 @@ namespace ws {
 
 	void Response::setContentLength(std::string filePath)
 	{
-		setHeader("Content-Length",std::to_string(getFileSize(filePath)));
+		if(!filePath.empty() && filePath.length() > 0)
+			setHeader("Content-Length",std::to_string(getFileSize(filePath)));
 	}
 
 	void Response::setHeader(std::string key, std::string value)
