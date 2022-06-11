@@ -14,12 +14,6 @@ class TlisternerServer
     public :
         TlisternerServer()
         {
-<<<<<<< HEAD
-            ip = "0.0.0.0";
-            port = 80;
-        }
-        TlisternerServer(const std::string ip, const int port) : ip(ip), port(port) {}
-=======
             ip = "127.0.0.1";
             port = 80;
         }
@@ -32,7 +26,6 @@ class TlisternerServer
             port = t.port;
             return *this;
         }
->>>>>>> akhalidy
         std::string getIp() const { return ip; }
         int getPort() const { return port; }
         void setPort(int port) { this->port = port;}

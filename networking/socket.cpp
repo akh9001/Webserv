@@ -3,29 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-<<<<<<< HEAD
-/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/09 01:12:02 by mokhames         ###   ########.fr       */
-=======
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/11 10:45:18 by akhalidy         ###   ########.fr       */
->>>>>>> akhalidy
+/*   Updated: 2022/06/11 11:24:05 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/socket.hpp"
-<<<<<<< HEAD
-#include "../FileHandler/fileHandler.hpp"
-=======
 #include "../Parsing/Config/Config.hpp"
 #include <exception>
 #include <string>
 #include <unistd.h>
->>>>>>> akhalidy
 #define	TIME_OUT_CLIENT	50
 #define SIZE_BUFFER		1024
 
