@@ -87,49 +87,6 @@ void	Socket::listen_socket()
 	}
 }
 
-<<<<<<< HEAD
-// void	Socket::supervise(std::map<int,  Client> &client_map)
-// {
-// 	std::map<int, Client>::const_iterator	it = client_map.begin();
-// 	std::map<int, Client>::const_iterator	end = client_map.end();
-// 	time_t	now;
-// 	static int i;
-
-// 	now = time(NULL);
-// 	if (now == -1)
-// 	{
-// 		perror("Time error !");
-// 		exit(EXIT_FAILURE);
-// 	}
-// 	for(; it != end; ++it)
-// 	{
-// 		if (now - it->second.last_activity > 5)
-// 		{
-// 			FD_CLR(it->first, &__master_rd);
-// 			FD_CLR(it->first, &__master_wr);
-// 			close(it->first);
-// 			client_map.erase(it);
-// 		}
-// 	}
-// }
-
-void	Socket::wait(const std::vector<Socket> socket_listen)
-{
-	int									ret = 0;
-	Client								client;
-	std::map<int,  Client>				client_map;
-	std::vector<Socket>::const_iterator	it = socket_listen.begin();
-	std::vector<Socket>::const_iterator	end = socket_listen.end();
-
-	
-	FD_ZERO(&__master_rd);
-	FD_ZERO(&__master_wr);
-	for(;it < end; it++)
-	{
-		std::cout << "_sokc " << it->__socket << std::endl;
-		FD_SET(it->__socket, &__master_rd);
-	}
-=======
 void	Socket::supervise(std::map<int,  Client> &client_map)
 {
 	std::map<int, Client>::const_iterator	it = client_map.begin();
@@ -327,168 +284,22 @@ void	Socket::wait(const std::vector<Socket> &socket_listen, Config config)
 	std::vector<Socket>::const_iterator	end = socket_listen.end();
 
 	init_fd_sets_timeout(it, end, timeout);
->>>>>>> akhalidy
 	while(true)
 	{
 		__reads = __master_rd;
 		__writes = __master_wr;
-<<<<<<< HEAD
-		struct timeval timeout;
-		timeout.tv_sec = 1;
-		timeout.tv_usec = 0;
 	
-		// * std::cout <<"num == >     " <<  __reads.fds_bits[0] << " " << socket_listen[0].__socket << std::endl;
-=======
-	
->>>>>>> akhalidy
 		if ((ret = select(FD_SETSIZE, &__reads, &__writes, NULL, &timeout)) == -1)
 		{
 			perror("select() failed. !");
 			continue;
 		}
-<<<<<<< HEAD
-		// supervise(client_map);
-=======
 		supervise(client_map);
->>>>>>> akhalidy
 		//? check timeout 
 		for (int i = 3; i <= max_socket; i++)
 		{
 			if(FD_ISSET(i, &__reads))
 			{
-<<<<<<< HEAD
-				if (find(socket_listen.begin(), end, i) != end)
-				{
-					client.socket_fd = accept(i, &client.address, &client.address_lenght);
-					if (client.socket_fd < 0)
-						continue;
-					//! To remove afterwards :
-						std::cout << "Socket client : " << client.socket_fd << std::endl;
-					client_map[client.socket_fd] = client;
-					client_map[client.socket_fd].last_activity = time(NULL);
-					FD_SET(client.socket_fd, &__master_rd);
-					max_socket = max_socket > client.socket_fd ? max_socket : client.socket_fd;
-	// ! fncl
-	//TODO http://gnu.ist.utl.pt/software/libc/manual/html_node/Getting-File-Status-Flags.html
-	// * http://www.gnu.org/software/libc/manual/html_node/File-Status-Flags.html#:~:text=File%20status%20flags%20are%20used,single%20opening%20of%20the%20file.
-	// * I/O Operating Modes, affect how operations such as read and write are done. They are set by open, and can be fetched or changed with fcntl.
-	// *  http://www.gnu.org/software/libc/manual/html_node/Operating-Modes.html :: O_NONBLOCK
-					if (fcntl(client.socket_fd, F_SETFL, O_NONBLOCK) == -1)
-					{
-						perror("fcntl !");
-						continue;
-					}
-				}
-				else
-				{
-					char read[SIZE_BUFFER + 1];
-					int bytes_received;
-					// ws::Response	res;
-					// if (tmp has something)
-					// {
-					// 	copy tmp to read
-					// 	bytes_received = len(tmp)
-					// 	clear tmp;
-					// }
-					// else
-                	bytes_received = recv(i, read, sizeof(read), 0);
-					if(bytes_received < 0)
-					{
-						std::cout << "Made it here !" << std::endl;
-						FD_CLR(i, &__master_rd);
-						close(i);
-						client_map.erase(i);
-						continue;
-					}
-					//1- parse_request
-					//! Request request(read);
-					std::cout << "read " << read << std::endl;
-					bool check = client_map[i].request.parseChunks(std::string(read, bytes_received));
-					if (check)
-					{
-						FD_CLR(i, &__master_rd);
-						FD_SET(i, &__master_wr);
-						//2- response = get_response()
-						// client_map[i].buffer = getHeaders();
-						// client_map[i].body_inf = getbody();
-						client_map[i].buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 54 \r\n\r\n";
-						client_map[i].body_inf = std::make_pair(std::string("hello_world.html"), false);
-						if (client_map[i].body_inf.first.size() > 0)
-							client_map[i].file.open(client_map[i].body_inf.first);
-					}
-				}
-			}
-			else if (FD_ISSET(i, &__writes))
-			{
-				if (!client_map[i].buffer.empty())
-				{
-					// if buffer.size < SIZE_BUFFER wash momkin dir problem.
-					std::cout << "size >> " << client_map[i].buffer.length() << std::endl;
-					int bytes_sent = send(i, client_map[i].buffer.c_str(), client_map[i].buffer.length(), 0);
-					std::cerr << YELLOW << client_map[i].buffer << " byte send " << bytes_sent  << std::endl << RESET;
-					if (bytes_sent <= 0)
-					{
-						perror("send() failed. !");
-						// should I close the socket ?
-						// should I throw an exception ?
-						// exit(EXIT_FAILURE);
-						//todo
-							//* close fd
-							//* remove from map
-							//* remove from fd_set
-						FD_CLR(i, &__master_wr);
-						close(i);
-						client_map.erase(i);
-						continue;
-					}
-					if (client_map[i].buffer.length() <= bytes_sent)
-						client_map[i].buffer.clear();
-					else
-						client_map[i].buffer = client_map[i].buffer.substr(bytes_sent);
-				}
-				else if (client_map[i].file.is_open())
-				{ 	
-					char	buff[SIZE_BUFFER];
-					
-					if (client_map[i].file.eof())
-					{
-						client_map[i].file.close();
-						if (client_map[i].body_inf.second)
-							if (remove(client_map[i].body_inf.first.c_str()))
-								perror("remove() failed. !");
-						FD_CLR(i, &__master_wr);
-						//todo hna 5assni checki 3la keep alive 
-						FD_SET(i, &__master_rd);
-						client_map[i].last_activity= time(NULL);
-						continue;
-					}
-					client_map[i].file.read(buff, SIZE_BUFFER);
-					// buff[client_map[i].file.gcount()] = '\0';
-					client_map[i].buffer = std::string(buff);
-					int bytes_sent = send(i, buff, client_map[i].buffer.size(), 0);
-					std::cout << YELLOW << buff << RESET << std::endl;
-					// exit(EXIT_FAILURE);
-					if (bytes_sent <= 0)
-					{
-						perror("send() failed. !");
-						// should I close the socket ?
-						// should I throw an exception ?
-						//todo
-							//* close fd
-							//* remove from map
-							//* remove from fd_set 
-						// exit(EXIT_FAILURE);
-						FD_CLR(i, &__master_wr);
-						close(i);
-						client_map.erase(i);
-						continue;
-					}
-					if (client_map[i].buffer.size() > bytes_sent)
-						client_map[i].buffer = client_map[i].buffer.substr(bytes_sent);
-					else
-						client_map[i].buffer.clear();
-				}
-=======
 				if (find(it, end, i) != end)
 				{
 					if (!accept_connection(i, client_map))
@@ -501,7 +312,6 @@ void	Socket::wait(const std::vector<Socket> &socket_listen, Config config)
 			{
 				if (write_response(i, client_map))
 					continue;
->>>>>>> akhalidy
 			}
 		}
 	}

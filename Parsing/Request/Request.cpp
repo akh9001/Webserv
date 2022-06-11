@@ -1,12 +1,9 @@
 #include "Request.hpp"
 // #include "fileHandler.hpp"
 #include "../../Includes/networking.hpp"
-<<<<<<< HEAD
-=======
 #include "../Config/Config.hpp"  
 #include "../Config/Server.hpp"  
 #include "../Config/Location.hpp"
->>>>>>> akhalidy
 
 int Request::fchuncked = 0;
 std::string Request::save = "";
@@ -24,12 +21,8 @@ Request::Request()
     this->method = "";
     this->uri = "";
     this->version = "";
-<<<<<<< HEAD
-    this->host = "";
-=======
     hostIp = "127.0.0.1";
     hostPort = 8080;
->>>>>>> akhalidy
     this->connection = "";
     this->user_agent = "";
     this->accept = "";
@@ -37,12 +30,8 @@ Request::Request()
     this->accept_language = "";
     this->accept_charset = "";
     this->content_type = "";
-<<<<<<< HEAD
-    this->content_length = 0;
-=======
     this->contentLength = 0;
     this->read = 0;
->>>>>>> akhalidy
     this->parsed = false;
 }
 
@@ -71,12 +60,8 @@ Request &Request::operator=(Request const& c)
         method = c.method;
         uri = c.uri;
         version = c.version;
-<<<<<<< HEAD
-        host = c.host;
-=======
         hostIp = c.hostIp;
         hostPort = c.hostPort;
->>>>>>> akhalidy
         connection = c.connection;
         user_agent = c.user_agent;
         accept = c.accept;
@@ -84,11 +69,7 @@ Request &Request::operator=(Request const& c)
         accept_language = c.accept_language;
         accept_charset = c.accept_charset;
         content_type = c.content_type;
-<<<<<<< HEAD
-        content_length = c.content_length;
-=======
         contentLength = c.contentLength;
->>>>>>> akhalidy
         parsed = c.parsed;
     }
     return *this;
@@ -134,68 +115,13 @@ void    Request::split_parts()
         headerPart.push_back(line);
         full_file1.erase(0, pos + 1);
     }
-<<<<<<< HEAD
-    // while ((pos = full_file1.find("\n")) != std::string::npos)
-    // {
-    //     line = full_file1.substr(0, pos);
-    //     if (line[0] == '\0')
-    //         break;
-    //     bodyPart.push_back(line);
-    //     full_file1.erase(0, pos + 1);
-    // }
-    // bodyPart.push_back(line);
-    // full_file1.erase(0, pos + 1);
-}
-
-
-// int Request::parseChunks(std::string c)
-// {
-//     size_t pos = 0;
-//     std::string line(c);
-//     if ((pos = line.find("\r\n")) != std::string::npos && fchuncked == 0)
-//     {
-//         fchuncked = 1;
-//         headerPart[headerPart.size() - 1] += line;
-//         parsefline(headerPart[headerPart.size() - 1]);
-//     }
-//     else if ((pos = line.find("\r\n")) != std::string::npos && fchuncked == 1)
-//     {
-//         if ((pos = line.find("\r\n\r\n")) == std::string::npos)
-//             headerPart[headerPart.size() - 1] += line;
-//             // headerPart.push_back(line.substr(0, pos));
-//     }
-//     else
-//     {
-//         if (headerPart.size() <= 0)
-//             headerPart.push_back(line);
-//         else
-//             headerPart[headerPart.size() - 1] += line;
-//     }
-//     return 0;
-
-// }
-
-
-int Request::parseChunks(std::string c)
-=======
 }
 
 bool Request::parseChunks(std::string c, Config config)
->>>>>>> akhalidy
 {
     if (change == 0)
         parse_header(c);
     if (change == 1 && parsed == false)
-<<<<<<< HEAD
-    {
-        parseHeaderLines();
-        for (std::map<std::string, std::string>::iterator it = headerMap.begin(); it != headerMap.end(); it++)
-            std::cout << (*it).first << " = " << (*it).second << std::endl;
-    }
-    else if (change == 1 && full == 0)
-        parse_body(c);
-    return full;
-=======
         parseHeaderLines(config);
     else if (change == 1)
         parse_body(c);
@@ -203,7 +129,6 @@ bool Request::parseChunks(std::string c, Config config)
     if (read <= 0)
         return true;
     return false;
->>>>>>> akhalidy
 }
 
 int Request::parse_header(std::string c)
@@ -212,10 +137,6 @@ int Request::parse_header(std::string c)
     std::string line(c);
     std::string tmp;
     int i = 0;
-<<<<<<< HEAD
-   // std::cout << "helqqqq" << std::endl;
-=======
->>>>>>> akhalidy
     if ((pos = line.find("\r\n") == std::string::npos))
        save += line;
     else
@@ -228,10 +149,6 @@ int Request::parse_header(std::string c)
                 fchuncked = 1;
                 tmp = line.substr(0, pos);
                 save += tmp;
-<<<<<<< HEAD
-                std::cout << save << std::endl;
-=======
->>>>>>> akhalidy
                 parsefline(save);
                 headerPart.push_back(save);
                 save = "";
@@ -239,39 +156,13 @@ int Request::parse_header(std::string c)
             else
             {
                 tmp = line.substr(0, pos);
-<<<<<<< HEAD
-               // std::cout <<  RED << "|" << tmp << "|"  << RESET << std::endl;
                 if (tmp == "\0")
                 {
-                 //   std::cout << "dasd" << std::endl;
-=======
-                if (tmp == "\0")
-                {
->>>>>>> akhalidy
                     line.erase(0, pos + 2);
                     save = line;
                     change = 1;
                     filePath = ws::fileHandler::createTmp("request_tmp_files/");
-<<<<<<< HEAD
-
-                    // std::cout << headerPart.size() << std::endl;
-                    // for (int i = 0; i < headerPart.size(); i++)
-                    //     std::cout << i << "aaa = " << headerPart[i] << std::endl;
-                    // if (save.size() > 0)
-                    // {
-                    //     int i = 0;
-                    //     std::istringstream(headerMap["Content-Length"]) >> i;
-                    //      sscanf(headerMap["Content-Length"].c_str(), "%d", &i);
-                    //     std::cout << i << std::endl;
-                    //     if (save.size() < i )
-                    //         ws::fileHandler::write(filePath, save);
-                    //save = "";
-                    // }
                     break;
-                    //return (2);
-=======
-                    break;
->>>>>>> akhalidy
                 }
                 save += line;
                 headerPart.push_back(save);
@@ -281,33 +172,6 @@ int Request::parse_header(std::string c)
         }
         save = line;
     }
-<<<<<<< HEAD
-    //parseHeaderLines();
-    return 0;
-}
-
-void Request::parseHeaderLines()
-{
-    size_t pos = 0;
-    for (int i = 1; i < headerPart.size(); i++)
-    {
-        // if (headerPart[i].find("GET") != std::string::npos)
-        // {
-        //     headerMap["method"] = "GET";
-        //     headerMap["uri"] = headerPart[i].substr(4, headerPart[i].find("HTTP/") - 4);
-        //     headerMap["version"] = headerPart[i].substr(headerPart[i].find("HTTP/") + 5, headerPart[i].find("\r\n") - headerPart[i].find("HTTP/") - 5);
-        // }
-       // std::cout << YELLOW << headerPart[i] << RESET << std::endl;
-        if ((pos = headerPart[i].find(":")) != std::string::npos)
-            headerMap[headerPart[i].substr(0, pos)] = headerPart[i].substr(pos + 2, headerPart[i].find("\r\n") - pos - 2);
-            
-    }
-    int i = 0;
-    // std::cout << headerMap["Host"] << std::endl;
-    std::istringstream(headerMap["Content-Length"]) >> i;
-    sscanf(headerMap["Content-Length"].c_str(), "%d", &i);
-    content_length = i;
-=======
     return 0;
 }
 
@@ -327,36 +191,19 @@ void Request::parseHeaderLines(Config config)
     getRightLocation();
     // std::cout << " i am here 2" << std::endl;
     checkContentLength(0);
->>>>>>> akhalidy
     parsed = true;
 }
 
 int Request::parse_body(std::string c)
 {
-<<<<<<< HEAD
-   //std::string filePath = ws::fileHandler::createTmp("request_tmp_files/");
- // std::cout << "daasad" << c << std::endl;
-   // std::cout << " aaa" << std::endl;
-=======
->>>>>>> akhalidy
     if (save.size() > 0)
     {
         save += c;
         ws::fileHandler::write(filePath, save);
     }
     else
-<<<<<<< HEAD
-    {
-        //std::cout << "qqqqqqq" << std::endl;
-        ws::fileHandler::write(filePath, c);
-    }
-    save = "";
-    // if (ws::fileHandler::getFileSize(filePath) > 100000000)
-    //         full = 1;
-=======
         ws::fileHandler::write(filePath, c);
     save = "";
->>>>>>> akhalidy
     return 0;
 }
 
@@ -373,11 +220,6 @@ int Request::parse_body(std::string c)
  {
         std::string line (c);
         size_t pos = 0;
-<<<<<<< HEAD
-        // pos = c.find("\r\n");
-        // line = c.substr(0, pos);
-=======
->>>>>>> akhalidy
         pos = line.find(" ");
         method = line.substr(0, pos);
         line.erase(0, pos + 1);
@@ -390,10 +232,7 @@ int Request::parse_body(std::string c)
         version = line.substr(0, pos);
         line.erase(0, pos + 1);
         main_error_check();
-<<<<<<< HEAD
-=======
         tmpUri = uri;
->>>>>>> akhalidy
 
 }
 
@@ -437,12 +276,6 @@ int Request::parse_body(std::string c)
         return (200);
     }
 
-<<<<<<< HEAD
-    // int checkContentLength()
-    // {
-    
-    // }
-=======
     void Request::checkContentLength(int a)
     {
         if (contentLength > location.getClientMaxBodySize()
@@ -518,4 +351,3 @@ int Request::parse_body(std::string c)
         //     throw "404";
     }
 
->>>>>>> akhalidy
