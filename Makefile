@@ -6,7 +6,7 @@
 #    By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/04 21:26:44 by akhalidy          #+#    #+#              #
-#    Updated: 2022/06/11 12:17:54 by laafilal         ###   ########.fr        #
+#    Updated: 2022/06/12 00:33:54 by laafilal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,6 +22,7 @@ SRCS = networking/client.cpp \
 		Parsing/Config/Location.cpp \
 		FileHandler/fileHandler.cpp \
 		Response/Response.cpp\
+		utility/utility.cpp\
 		main.cpp
 
 FLAGS = -Wall -Werror -Wextra -std=c++98 -g3 -fsanitize=address
