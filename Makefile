@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+         #
+#    By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/04 21:26:44 by akhalidy          #+#    #+#              #
-#    Updated: 2022/06/09 12:05:59 by mokhames         ###   ########.fr        #
+#    Updated: 2022/06/11 09:52:10 by akhalidy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,4 +39,4 @@ fclean : clean
 re : fclean all
 
 run : re
-		@./$(NAME) Makefile
+		@./$(NAME) ngnix.conf
