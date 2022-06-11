@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+         #
+#    By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/04 21:26:44 by akhalidy          #+#    #+#              #
-#    Updated: 2022/06/11 11:25:03 by akhalidy         ###   ########.fr        #
+#    Updated: 2022/06/11 12:17:54 by laafilal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,6 +21,7 @@ SRCS = networking/client.cpp \
 		Parsing/Config/Server.cpp \
 		Parsing/Config/Location.cpp \
 		FileHandler/fileHandler.cpp \
+		Response/Response.cpp\
 		main.cpp
 
 FLAGS = -Wall -Werror -Wextra -std=c++98 -g3 -fsanitize=address
