@@ -14,7 +14,11 @@ class Config
         std::string full_file;
         std::vector<std::string> lines;
         std::vector<Server> servers;
+<<<<<<< HEAD
         std::map<int, const char *> _binders;
+=======
+        std::map<int, std::string> _binders;
+>>>>>>> akhalidy
 
     public :
 
@@ -61,7 +65,11 @@ class Config
     //Server getServer(int port) const;
     Server getServer(int port, std::string &) const;
     void setfile(std::string&);
+<<<<<<< HEAD
     std::map<int, std::string> getBinders() const;
+=======
+    std::map<int, std::string > getBinders() const;
+>>>>>>> akhalidy
     // ! /////////////////////// file_Readers //////////////////////
     void main_read();
     void read_file();

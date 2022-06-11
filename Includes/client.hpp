@@ -3,10 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
+<<<<<<< HEAD
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:46:37 by akhalidy          #+#    #+#             */
 /*   Updated: 2022/06/09 01:15:47 by mokhames         ###   ########.fr       */
+=======
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/01 19:46:37 by akhalidy          #+#    #+#             */
+/*   Updated: 2022/06/09 12:14:13 by akhalidy         ###   ########.fr       */
+>>>>>>> akhalidy
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +43,10 @@ struct Client
 	std::ifstream						file;
 	std::string							buffer;
 	time_t								last_activity;
+<<<<<<< HEAD
+=======
+	bool								close_cnx;
+>>>>>>> akhalidy
 	// *constructors :
 	Client();
 	Client(const Client  &);
