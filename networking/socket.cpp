@@ -6,6 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
+/*   Updated: 2022/06/12 09:46:07 by akhalidy         ###   ########.fr       */
 /*   Updated: 2022/06/11 12:21:05 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -77,7 +78,7 @@ void	Socket::listen_socket()
 	}
 }
 
-void	Socket::supervise(std::map<int,  Client> &client_map)
+inline void	Socket::supervise(std::map<int,  Client> &client_map)
 {
 	std::map<int, Client>::const_iterator	it = client_map.begin();
 	std::map<int, Client>::const_iterator	end = client_map.end();
@@ -108,13 +109,13 @@ void	Socket::supervise(std::map<int,  Client> &client_map)
 // * I/O Operating Modes, affect how operations such as read and write are done. They are set by open, and can be fetched or changed with fcntl.
 // *  http://www.gnu.org/software/libc/manual/html_node/Operating-Modes.html :: O_NONBLOCK
 
-bool	Socket::accept_connection(int i, std::map<int,  Client> &clients)
+inline void	Socket::accept_connection(int i, std::map<int,  Client> &clients)
 {
 	Client	client;
 
 	client.socket_fd = accept(i, &client.address, &client.address_lenght);
 	if (client.socket_fd < 0 || client.socket_fd >= FD_SETSIZE)
-		return false;
+		return ;
 	//! To remove afterwards :
 	// std::cout << RED << "Socket client : " << client.socket_fd << RESET << std::endl;
 	clients[client.socket_fd] = client;
@@ -124,12 +125,11 @@ bool	Socket::accept_connection(int i, std::map<int,  Client> &clients)
 	if (fcntl(client.socket_fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		perror("fcntl !");
-		return false;
+		return ;
 	}
-	return true;
 }
 
-void	Socket::remove_client(int i, std::map<int,  Client> &clients, bool rd, bool wr)
+inline void	Socket::remove_client(int i, std::map<int,  Client> &clients, bool rd, bool wr)
 {
 	if (rd)
 		FD_CLR(i, &__master_rd);
@@ -139,15 +139,14 @@ void	Socket::remove_client(int i, std::map<int,  Client> &clients, bool rd, bool
 	clients.erase(i);	
 }
 
-void	Socket::reset_read(int i)
+inline void	Socket::reset_read(int i)
 {
 	FD_CLR(i, &__master_rd);
 	FD_SET(i, &__master_wr);
 }
 
-void	Socket::reset_write(int i, std::map<int,  Client> &clients, bool close)
+inline void	Socket::reset_write(int i, std::map<int,  Client> &clients, bool close)
 {
-	//todo hna 5assni checki 3la keep alive
 	if (close)
 		remove_client(i, clients, false, true);
 	else
@@ -159,7 +158,7 @@ void	Socket::reset_write(int i, std::map<int,  Client> &clients, bool close)
 	}
 }
 
-bool	Socket::read_request(int i, std::map<int, Client> &clients, Config config)  // config added
+inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config config)  // config added
 {
 	char read[SIZE_BUFFER + 1];
 	std::string	status = "-1";
@@ -171,7 +170,7 @@ bool	Socket::read_request(int i, std::map<int, Client> &clients, Config config) 
 	{
 		// * remove_client(int i, std::map<int,  Client> &clients, bool rd, bool wr)
 		remove_client(i, clients, true, false);
-		return false;
+		return ;
 	}
 	read[bytes_received] = '\0';
 	//! I should remove the following line it afterwards.
@@ -199,12 +198,10 @@ bool	Socket::read_request(int i, std::map<int, Client> &clients, Config config) 
 		clients[i].body_inf = std::make_pair(std::string("hello_world.html"), false);
 		if (clients[i].body_inf.first.size() > 0)
 			clients[i].file.open(clients[i].body_inf.first);
-	return true;
 	}
-	return true;
 }
 
-bool	Socket::write_response(int i, std::map<int,  Client> &clients)
+inline void	Socket::write_response(int i, std::map<int,  Client> &clients)
 {
 	int		bytes_sent;
 	int		bytes_read;
@@ -225,7 +222,7 @@ bool	Socket::write_response(int i, std::map<int,  Client> &clients)
 				if (remove(clients[i].body_inf.first.c_str()))
 					perror("remove() failed. !");
 			reset_write(i, clients, clients[i].close_cnx);
-			return false;
+			return ;
 		}
 		//! should I check if the read is correctly done ?
 		clients[i].file.read(buff, SIZE_BUFFER);
@@ -236,23 +233,24 @@ bool	Socket::write_response(int i, std::map<int,  Client> &clients)
 	else
 	{
 		reset_write(i, clients, clients[i].close_cnx);
-		return false;
+		return ;
 	}
 	// std::cout << YELLOW << clients[i].buffer << RESET << " byte send " << bytes_sent << " Bytes read : " << bytes_read << std::endl;
-	if (bytes_sent <= 0)
+	if (bytes_sent < 0)
 	{
 		perror("send() failed. !");
+		if (clients[i].file.is_open())
+			clients[i].file.close();
 		remove_client(i, clients, false, true);
-		return false;
+		return ;
 	}
 	if (clients[i].buffer.size() > bytes_sent)
 		clients[i].buffer = clients[i].buffer.substr(bytes_sent);
 	else
 		clients[i].buffer.clear();
-	return true;
 }
 
-void	Socket::init_fd_sets_timeout(std::vector<Socket>::const_iterator it, std::vector<Socket>::const_iterator end, struct timeval &timeout)
+inline void	Socket::init_fd_sets_timeout(std::vector<Socket>::const_iterator it, std::vector<Socket>::const_iterator end, struct timeval &timeout)
 {
 	signal(SIGPIPE, SIG_IGN);
 	FD_ZERO(&__master_rd);
@@ -292,18 +290,12 @@ void	Socket::wait(const std::vector<Socket> &socket_listen, Config config)
 			if(FD_ISSET(i, &__reads))
 			{
 				if (find(it, end, i) != end)
-				{
-					if (!accept_connection(i, client_map))
-						continue;
-				}
+					accept_connection(i, client_map);
 				else
 					read_request(i, client_map, config);
 			}
 			else if (FD_ISSET(i, &__writes))
-			{
-				if (write_response(i, client_map))
-					continue;
-			}
+				write_response(i, client_map);
 		}
 	}
 }
