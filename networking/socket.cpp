@@ -3,15 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
 /*   Updated: 2022/06/12 09:46:07 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/11 12:21:05 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/socket.hpp"
 #include "../Parsing/Config/Config.hpp"
+#include "../Response/Response.hpp"
 #include <exception>
 #include <string>
 #include <unistd.h>
@@ -188,6 +190,7 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 		//! clients[i].close_cnx = clients[i].request.getHeaderMap()["Connection"] == "keep-alive" ? false : true;
 		clients[i].close_cnx = true;
 		//2- response = get_response()
+		ws::Response response;
 		// std::string getHeaders(ws::Req req , string statusCode)
 		// client_map[i].buffer = getHeaders(clients[i].request, status);
 		// client_map[i].body_inf = getbody();

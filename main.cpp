@@ -3,21 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 17:31:58 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/10 12:10:36 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/12 00:51:18 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Includes/socket.hpp"
 #include "Parsing/Config/Config.hpp"
+#include "utility/utility.hpp"
 #include <vector>
-
-
 
 int	main(int argc, char **argv)
 {
+	init_statusCodeMessages();
 	//Config config("default.conf");
 	std::string a = "default.conf";
 	if (argc == 2)
