@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/12 04:01:55 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/12 04:37:55 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@ namespace ws {
 	}
 	Response::~Response(){};
 
-	std::string Response::getHeaders(Request &request, std::string statusCode)
+	std::string Response::getHeaders(Request &request, Config &config, std::string statusCode)
 	{
-		(void)request;
-		(void)statusCode;
+		
+		
 		return "";
 	}
 
