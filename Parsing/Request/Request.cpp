@@ -122,10 +122,16 @@ bool Request::parseChunks(std::string c, Config config)
     if (change == 0)
         parse_header(c);
     if (change == 1 && parsed == false)
+    {
         parseHeaderLines(config);
+        // contentLength = 9999999;
+        // read = contentLength;
+    }
     else if (change == 1)
         parse_body(c);
-    checkContentLength(c.size());
+   checkContentLength(c.size());
+   std::cout << "read = " << read << std::endl;
+  // std::cout << "--------------------------------" << std::endl;
     if (read == 0)
         return true;
     return false;
@@ -189,7 +195,6 @@ void Request::parseHeaderLines(Config config)
     std::cout << " i am here 1" << std::endl;
     getRightServer(config);
     getRightLocation();
-    std::cout << " i am here 2" << std::endl;
     checkContentLength(0);
     parsed = true;
 }
@@ -339,6 +344,7 @@ int Request::parse_body(std::string c)
         for (int i = 0; i < n; i++) {
             if (server.getLocation()[i].getLocation_match() == tmpUri) {
                 location = server.getLocation()[i];
+                std::cout << "Location" << i << std::endl;
                 return ;
             }
         }
@@ -347,7 +353,7 @@ int Request::parse_body(std::string c)
         tmpUri.erase(0, pos);
         if (pos != 0)
             getRightLocation();
-        else
-            throw "404";
+        // else
+        //     throw "404";
     }
 

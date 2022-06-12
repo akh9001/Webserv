@@ -3,7 +3,7 @@
 
   // ! Constuctors and destructor
  Server::Server() : serverline(), serverName(), _listen(), _locations(), root(), _allowed_methods(), _index(), redirect_uri(), errorPages(), cgiPath(), _autoindex() {
-
+     setClientMaxBodySize(10000000000);
  }
  Server::~Server() {}
  Server::Server(Server const& c)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:46:37 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/09 12:14:13 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/11 06:10:00 by trevor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "../Parsing/Request/Request.hpp"
 #include "networking.hpp"
 #include <string>
-#include <sys/_types/_socklen_t.h>
+// #include <sys/_types/_socklen_t.h>
 
 /*
 	wait a maximum of 1.5 seconds

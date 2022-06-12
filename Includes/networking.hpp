@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   networking.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:48:05 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/05 00:53:16 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/11 06:15:47 by trevor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,10 @@
 #include <utility>
 
 // #include <iostream>
+#include <algorithm>
 #include <fstream>
+#include <string>
+#include <cstring>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/select.h>
