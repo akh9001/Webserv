@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/12 04:37:32 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/12 09:21:18 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 # include "../FileHandler/fileHandler.hpp"
 # include "../Parsing/Request/Request.hpp"
 # include "../Parsing/Config/Config.hpp"
+# include "../Parsing/Config/Server.hpp"
+# include "../Parsing/Config/Location.hpp"
 # include <map>
 
 namespace ws {
@@ -33,6 +35,14 @@ namespace ws {
 		private:
 			int buildResponseTry;
 			std::string bodyPath;
+			std::map<std::string, std::string> headers_list;
+
+		private:
+			void setDateHeader();
+			void setContentLength(std::string filePath);
+			void setHeader(std::string key, std::string value);
+
+			long long getFileSize(std::string filePath);
 		
 	};
 
