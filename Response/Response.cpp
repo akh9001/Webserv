@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/12 09:22:31 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/12 09:28:24 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,28 @@ namespace ws {
 
 		setDateHeader();	
 		setContentLength(this->bodyPath);
-		return "";
+		return (headerBuilder());
 	}
 
 	std::pair<std::string, bool> Response::getbody()
 	{
 		return std::pair<std::string,bool>(this->bodyPath,this->response_is_tmp);
+	}
+
+
+	std::string Response::headerBuilder()
+	{
+		std::stringstream headers;
+
+		//build status line
+		headers << "HTTP/1.1 "+ this->statusCode +" "+getMessage(this->statusCode)+"\r\n";
+		//build headers
+		std::map<std::string,std::string>::iterator it;
+		for (it = this->headers_list.begin(); it != this->headers_list.end(); ++it)
+    			headers << it->first << ": " << it->second << "\r\n";
+		headers << "\r\n";
+		
+		return headers.str();
 	}
 
 	void Response::setDateHeader()
@@ -78,5 +94,13 @@ namespace ws {
 			return st.st_size;
 		}
 		return 0;
+	}
+
+	std::string Response::getMessage(std::string statusCode)
+	{
+		if(statusCodeMessages.find(statusCode) != statusCodeMessages.end())
+			return statusCodeMessages.find(statusCode)->second;
+		//else throw error
+		return "";
 	}
 }
