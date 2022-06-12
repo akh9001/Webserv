@@ -1,6 +1,0 @@
-make --dry-run --keep-going --print-directory
-make: Entering directory `/Users/akhalidy/Desktop/merged_version'
-make: `webserv' is up to date.
- 
-make: Leaving directory `/Users/akhalidy/Desktop/merged_version'
- 

@@ -129,10 +129,9 @@ bool Request::parseChunks(std::string c, Config config)
     }
     else if (change == 1)
         parse_body(c);
-   checkContentLength(c.size());
-   std::cout << "read = " << read << std::endl;
-  // std::cout << "--------------------------------" << std::endl;
-    if (read == 0)
+    checkContentLength(c.size());
+    std::cout << "i am here "  << read << std::endl;
+    if (read <= 0)
         return true;
     return false;
 }
@@ -185,14 +184,14 @@ void Request::parseHeaderLines(Config config)
 {
 
     size_t pos = 0;
-    std::cout << "i am here" << std::endl;
+    // std::cout << "i am here" << std::endl;
     for (int i = 1; i < headerPart.size(); i++)
     {
         if ((pos = headerPart[i].find(":")) != std::string::npos)
             headerMap[headerPart[i].substr(0, pos)] = headerPart[i].substr(pos + 2, headerPart[i].find("\r\n") - pos - 2);   
     }
     fetchContentLength();
-    std::cout << " i am here 1" << std::endl;
+
     getRightServer(config);
     getRightLocation();
     checkContentLength(0);
@@ -314,9 +313,9 @@ int Request::parse_body(std::string c)
 
     void Request::fetchContentLength()
     {
-        unsigned long i = 0;
+        long long i = 0;
         std::istringstream(headerMap["Content-Length"]) >> i;
-        sscanf(headerMap["Content-Length"].c_str(), "%ld", &i);
+        sscanf(headerMap["Content-Length"].c_str(), "%lld", &i);
         contentLength = i;
         read = contentLength;
     }
@@ -344,7 +343,6 @@ int Request::parse_body(std::string c)
         for (int i = 0; i < n; i++) {
             if (server.getLocation()[i].getLocation_match() == tmpUri) {
                 location = server.getLocation()[i];
-                std::cout << "Location" << i << std::endl;
                 return ;
             }
         }
@@ -353,7 +351,7 @@ int Request::parse_body(std::string c)
         tmpUri.erase(0, pos);
         if (pos != 0)
             getRightLocation();
-        // else
-        //     throw "404";
+        else
+            throw "404";
     }
 

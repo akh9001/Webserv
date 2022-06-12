@@ -6,12 +6,14 @@
 /*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/11 06:33:00 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/12 04:19:42 by trevor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/socket.hpp"
 #include "../Parsing/Config/Config.hpp"
+#include <exception>
+#include <string>
 #include <unistd.h>
 #define	TIME_OUT_CLIENT	50
 #define SIZE_BUFFER		1024
@@ -159,6 +161,7 @@ void	Socket::reset_write(int i, std::map<int,  Client> &clients, bool close)
 bool	Socket::read_request(int i, std::map<int, Client> &clients, Config config)  // config added
 {
 	char read[SIZE_BUFFER + 1];
+	std::string	status = "-1";
 	int bytes_received;
 	bool check;
 
@@ -169,17 +172,26 @@ bool	Socket::read_request(int i, std::map<int, Client> &clients, Config config) 
 		remove_client(i, clients, true, false);
 		return false;
 	}
-	// read[bytes_received] = '\0';
+	//read[bytes_received] = '\0';
 	//! I should remove the following line it afterwards.
-	std::cout << "read " << read << std::endl;
-	check = clients[i].request.parseChunks(std::string(read, bytes_received), config); // added the config
+	// std::cout << "read " << read << std::endl;
+	try
+	{
+		check = clients[i].request.parseChunks(std::string(read, bytes_received), config); // added the config
+	}
+	catch (const char *flag)
+	{
+		status = std::string(flag);
+	}
+	// check = true;
 	if (check)
 	{
 		reset_read(i);
 		//! clients[i].close_cnx = clients[i].request.getHeaderMap()["Connection"] == "keep-alive" ? false : true;
 		clients[i].close_cnx = true;
 		//2- response = get_response()
-		// client_map[i].buffer = getHeaders();
+		// std::string getHeaders(ws::Req req , string statusCode)
+		// client_map[i].buffer = getHeaders(clients[i].request, status);
 		// client_map[i].body_inf = getbody();
 		clients[i].buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 54\r\nConnection: close\r\n\r\n";
 		clients[i].body_inf = std::make_pair(std::string("hello_world.html"), false);
@@ -240,6 +252,7 @@ bool	Socket::write_response(int i, std::map<int,  Client> &clients)
 
 void	Socket::init_fd_sets_timeout(std::vector<Socket>::const_iterator it, std::vector<Socket>::const_iterator end, struct timeval &timeout)
 {
+	//signal(SIGPIPE, SIG_IGN);
 	FD_ZERO(&__master_rd);
 	FD_ZERO(&__master_wr);
 	timeout.tv_sec	= 1;

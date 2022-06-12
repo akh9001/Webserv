@@ -166,13 +166,20 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
  {
     std::string tmp = c.substr(14, c.size() - 14);
     size_t pos = 0;
+    int flag = 0;
     while ((pos = tmp.find(" ")) != std::string::npos || (pos = tmp.find("\t")) != std::string::npos)
     {
         std::string str = tmp.substr(0,pos);
-        if (str != "GET" && str != "POST" && str != "PUT" && str != "DELETE")
+        if (str != "GET" && str != "POST" && str != "DELETE")
             throw WrongMethod();
         _allowed_methods.push_back(str);
+        flag = 1;
         tmp.erase(0, pos + 1);
+    }
+    if (flag == 0)
+    {
+           if (tmp != "GET" && tmp != "POST" && tmp != "DELETE")
+            throw WrongMethod();
     }
     _allowed_methods.push_back(tmp.substr(0,pos));
     tmp.erase(0, pos + 1);

@@ -33,12 +33,12 @@ class Request
         Server server;
         Location location;
         
-        unsigned long contentLength;
+        long long contentLength;
         std::map<std::string, std::string> headerMap;
 
 
         static int fchuncked;
-        unsigned long read;
+        long long read;
         static std::string save;
         std::string tmpUri;
         static int full;

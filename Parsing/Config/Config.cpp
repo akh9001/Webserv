@@ -90,6 +90,8 @@ void Config::main_read()
     main_error_check();
     parse_server();
     parse_bind_map();
+        /* code */
+    
 }
 
 void Config::read_file()
