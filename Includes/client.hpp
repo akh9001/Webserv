@@ -6,6 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:46:37 by akhalidy          #+#    #+#             */
+/*   Updated: 2022/06/11 14:46:25 by akhalidy         ###   ########.fr       */
 /*   Updated: 2022/06/11 11:10:55 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -26,8 +27,8 @@
 struct Client
 {
 	//*static variables :
-	static socklen_t			address_lenght;
-	const static struct timeval	timeout;
+	static socklen_t					address_lenght;
+	const static struct timeval			timeout;
 	//*variables :
 	struct sockaddr						address;
 	int									socket_fd;
