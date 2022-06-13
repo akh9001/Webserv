@@ -49,6 +49,7 @@ class Server
         std::string                redirect_uri;
         std::map<int , std::string> errorPages;
         std::string cgiPath;
+        std::string uploadPath;
         unsigned long _clinet_max_body_size;
         bool _autoindex;
         bool default_serv;
@@ -104,7 +105,8 @@ class Server
         void setAutoIndex(bool f) { _autoindex = f;}
         std::map<int, std::string> getErrorPages() const { return errorPages;}
         void setErrorPages(std::map<int, std::string> &c) { errorPages = c;}
-        
+        std::string getUploadPath() const { return uploadPath;}
+        void setUploadPath(const std::string &uploadPath) { this->uploadPath = uploadPath;}
 
 
         
@@ -126,6 +128,7 @@ class Server
         void fetch_errorPage(std::string& c);
         void fetch_cgi(std::string& c);
         void fetchErrorPage(std::string& c);
+        void fetch_upload(std::string& c);
 
         // ! ///////////////////////////// Error  ///////////////////
         // ! ///////////////////////////// checkers  /////////////////////

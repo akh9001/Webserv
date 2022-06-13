@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 17:31:58 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/13 01:54:03 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/13 04:18:39 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ int	main(int argc, char **argv)
 	}
 	catch (std::exception& e) {
 		std::cout << e.what() << std::endl;
+		exit(1);
 	}
 	std::map<int, std::string>  servers = config.getBinders();//  {{8080, "127.0.0.1"}, {8081, "google.com"}}
 	std::vector<Socket>	socket_list(servers.size());

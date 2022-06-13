@@ -3,13 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/12 09:46:07 by akhalidy         ###   ########.fr       */
-/*   Updated: 2022/06/11 12:21:05 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/12 22:10:22 by trevor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "../Includes/socket.hpp"
 #include "../Parsing/Config/Config.hpp"
@@ -172,7 +172,7 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 		remove_client(i, clients, true, false);
 		return ;
 	}
-	read[bytes_received] = '\0';
+	//read[bytes_received] = '\0';
 	//! I should remove the following line it afterwards.
 	// std::cout << "read " << read << std::endl;
 	try
@@ -252,7 +252,7 @@ inline void	Socket::write_response(int i, std::map<int,  Client> &clients)
 
 inline void	Socket::init_fd_sets_timeout(std::vector<Socket>::const_iterator it, std::vector<Socket>::const_iterator end, struct timeval &timeout)
 {
-	signal(SIGPIPE, SIG_IGN);
+	//signal(SIGPIPE, SIG_IGN);
 	FD_ZERO(&__master_rd);
 	FD_ZERO(&__master_wr);
 	timeout.tv_sec	= 1;

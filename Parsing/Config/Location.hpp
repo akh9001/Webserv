@@ -27,7 +27,7 @@ class Location : public Server
         void setLocation_match(std::string c);
         // std::string getRoot() const { return root;}
         // void setRoot(const std::string &c) {root = c;}
-
+        void checkMissingFields() const;
 };
 
 #endif 

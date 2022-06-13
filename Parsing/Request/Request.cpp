@@ -126,6 +126,7 @@ bool Request::parseChunks(std::string c, Config config)
     else if (change == 1)
         parse_body(c);
     checkContentLength(c.size());
+    //std::cout << "read : " << read << std::endl;
     if (read <= 0)
         return true;
     return false;
@@ -189,7 +190,6 @@ void Request::parseHeaderLines(Config config)
 
     getRightServer(config);
     getRightLocation();
-    // std::cout << " i am here 2" << std::endl;
     checkContentLength(0);
     parsed = true;
 }
@@ -249,8 +249,8 @@ int Request::parse_body(std::string c)
     {
         if (method != "GET" && method != "POST" && method != "DELETE")
         {
-            throw WrongMethod();
-            return (405);
+            throw "404";
+           
         }
         return (200);
     }
@@ -261,16 +261,18 @@ int Request::parse_body(std::string c)
         for (int i = 0; i < uri.size(); i++)
         {
             if (allowedchars.find(uri[i]) == std::string::npos)
-                return (400);
+                throw "400";
         }
-
+        if (uri.size() > 2048)
+            throw "414";
         return (200);
     }
 
     int Request::checkVersion()
     {
-        if (version != "HTTP/1.1" || version != "HTTP/1.0")
+        if (version != "HTTP/1.1" && version != "HTTP/1.0")
         {
+            throw "400";
             return (400); // 505 HTTP Version Not Supported
         }
         return (200);
@@ -290,8 +292,14 @@ int Request::parse_body(std::string c)
 
     void Request::clear()
     {
+        Server a;
+        Location b;
         headerPart.clear();
         headerMap.clear();
+        // server.~Server();
+        server = a;
+        location = b;
+        // location.~Location();
         save = "";
         filePath = "";
         parsed = false;
@@ -335,6 +343,8 @@ int Request::parse_body(std::string c)
     {
         size_t pos = 0;
         std::string clone(tmpUri);
+        std::cout << "clone = " << clone << std::endl;
+        std::cout << "Uri = " << uri << std::endl;
         int n = server.getLocation().size();
         for (int i = 0; i < n; i++) {
             if (server.getLocation()[i].getLocation_match() == tmpUri) {
@@ -347,7 +357,7 @@ int Request::parse_body(std::string c)
         tmpUri.erase(0, pos);
         if (pos != 0)
             getRightLocation();
-        // else
-        //     throw "404";
+        else
+            throw "404";
     }
 

@@ -3,7 +3,7 @@
 
   // ! Constuctors and destructor
  Server::Server() : serverline(), serverName(), _listen(), _locations(), root(), _allowed_methods(), _index(), redirect_uri(), errorPages(), cgiPath(), _autoindex() {
-
+     setClientMaxBodySize(10000000000);
  }
  Server::~Server() {}
  Server::Server(Server const& c)
@@ -24,6 +24,7 @@
     redirect_uri = c.redirect_uri;
     errorPages = c.errorPages;
     cgiPath = c.cgiPath;
+    uploadPath = c.uploadPath;
     _clinet_max_body_size = c._clinet_max_body_size;
     _autoindex = c._autoindex;
    // std::cout << _listen.getIp() << std::endl;
@@ -62,6 +63,8 @@ void Server::parseLines()
             fetch_redirect(*it);
         else if ((*it).find("autoindex") != std::string::npos)
             fetch_autoindex(*it);
+          else if ((*it).find("upload") != std::string::npos)
+            fetch_upload(*it);
         else if ((*it).find("index") != std::string::npos)
             fetch_index(*it);
         else if ((*it).find("location") != std::string::npos)
@@ -109,6 +112,13 @@ void Server::parseLines()
     this->setredirectUri(c.substr(9, c.size() - 9));
 
  }
+  void Server::fetch_upload(std::string& c)
+ {
+     //std::cout << "root insde fetch " <<  c << std::endl;
+    this->setUploadPath(c.substr(7, c.size() - 7));
+
+ }
+
  void Server::fetch_cgi(std::string& c)
  {
      //std::cout << "root insde fetch " <<  c << std::endl;
@@ -166,13 +176,20 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
  {
     std::string tmp = c.substr(14, c.size() - 14);
     size_t pos = 0;
+    int flag = 0;
     while ((pos = tmp.find(" ")) != std::string::npos || (pos = tmp.find("\t")) != std::string::npos)
     {
         std::string str = tmp.substr(0,pos);
-        if (str != "GET" && str != "POST" && str != "PUT" && str != "DELETE")
+        if (str != "GET" && str != "POST" && str != "DELETE")
             throw WrongMethod();
         _allowed_methods.push_back(str);
+        flag = 1;
         tmp.erase(0, pos + 1);
+    }
+    if (flag == 0)
+    {
+           if (tmp.substr(0,pos) != "GET" && tmp.substr(0,pos) != "POST" && tmp.substr(0,pos) != "DELETE")
+            throw WrongMethod();
     }
     _allowed_methods.push_back(tmp.substr(0,pos));
     tmp.erase(0, pos + 1);
