@@ -233,8 +233,6 @@ int Request::parse_body(std::string c)
         pos = line.find(" ");
         version = line.substr(0, pos);
         line.erase(0, pos + 1);
-        std::cout << uri << std::endl;
-        std::cout << version << std::endl;
         main_error_check();
         tmpUri = uri;
 
