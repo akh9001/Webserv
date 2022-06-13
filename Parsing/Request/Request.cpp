@@ -122,15 +122,11 @@ bool Request::parseChunks(std::string c, Config config)
     if (change == 0)
         parse_header(c);
     if (change == 1 && parsed == false)
-    {
         parseHeaderLines(config);
-        // contentLength = 9999999;
-        // read = contentLength;
-    }
     else if (change == 1)
         parse_body(c);
     checkContentLength(c.size());
-    std::cout << "i am here "  << read << std::endl;
+    //std::cout << "read : " << read << std::endl;
     if (read <= 0)
         return true;
     return false;
@@ -253,7 +249,7 @@ int Request::parse_body(std::string c)
     {
         if (method != "GET" && method != "POST" && method != "DELETE")
         {
-            throw WrongMethod();
+            throw "404";
            
         }
         return (200);
@@ -274,7 +270,7 @@ int Request::parse_body(std::string c)
 
     int Request::checkVersion()
     {
-        if (version != "HTTP/1.1" || version != "HTTP/1.0")
+        if (version != "HTTP/1.1" && version != "HTTP/1.0")
         {
             throw "400";
             return (400); // 505 HTTP Version Not Supported
@@ -296,8 +292,14 @@ int Request::parse_body(std::string c)
 
     void Request::clear()
     {
+        Server a;
+        Location b;
         headerPart.clear();
         headerMap.clear();
+        // server.~Server();
+        server = a;
+        location = b;
+        // location.~Location();
         save = "";
         filePath = "";
         parsed = false;
@@ -341,6 +343,8 @@ int Request::parse_body(std::string c)
     {
         size_t pos = 0;
         std::string clone(tmpUri);
+        std::cout << "clone = " << clone << std::endl;
+        std::cout << "Uri = " << uri << std::endl;
         int n = server.getLocation().size();
         for (int i = 0; i < n; i++) {
             if (server.getLocation()[i].getLocation_match() == tmpUri) {
