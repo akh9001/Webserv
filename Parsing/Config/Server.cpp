@@ -188,7 +188,7 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
     }
     if (flag == 0)
     {
-           if (tmp != "GET" && tmp != "POST" && tmp != "DELETE")
+           if (tmp.substr(0,pos) != "GET" && tmp.substr(0,pos) != "POST" && tmp.substr(0,pos) != "DELETE")
             throw WrongMethod();
     }
     _allowed_methods.push_back(tmp.substr(0,pos));
