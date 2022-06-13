@@ -6,7 +6,7 @@
 /*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/13 10:11:41 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/13 10:24:00 by trevor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,6 +184,7 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 	catch (const char *flag)
 	{
 		status = std::string(flag);
+		ws::fileHandler::removeFile(clients[i].request.getFilePath());
 		check = true;
 		//std::cout << status << std::endl;
 	}
