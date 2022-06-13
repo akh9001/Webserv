@@ -6,9 +6,10 @@
 /*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:46:37 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/11 06:10:00 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/12 22:10:25 by trevor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #pragma once
 #include "../Parsing/Request/Request.hpp"
@@ -26,8 +27,8 @@
 struct Client
 {
 	//*static variables :
-	static socklen_t			address_lenght;
-	const static struct timeval	timeout;
+	static socklen_t					address_lenght;
+	const static struct timeval			timeout;
 	//*variables :
 	struct sockaddr						address;
 	int									socket_fd;

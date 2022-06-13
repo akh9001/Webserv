@@ -6,18 +6,18 @@
 /*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 17:31:58 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/12 04:31:00 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/12 22:10:09 by trevor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Includes/socket.hpp"
 #include "Parsing/Config/Config.hpp"
+#include "utility/utility.hpp"
 #include <vector>
-
-
 
 int	main(int argc, char **argv)
 {
+	init_statusCodeMessages();
 	//Config config("default.conf");
 	std::string a = "default.conf";
 	if (argc == 2)

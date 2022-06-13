@@ -24,6 +24,7 @@
     redirect_uri = c.redirect_uri;
     errorPages = c.errorPages;
     cgiPath = c.cgiPath;
+    uploadPath = c.uploadPath;
     _clinet_max_body_size = c._clinet_max_body_size;
     _autoindex = c._autoindex;
    // std::cout << _listen.getIp() << std::endl;
@@ -62,6 +63,8 @@ void Server::parseLines()
             fetch_redirect(*it);
         else if ((*it).find("autoindex") != std::string::npos)
             fetch_autoindex(*it);
+          else if ((*it).find("upload") != std::string::npos)
+            fetch_upload(*it);
         else if ((*it).find("index") != std::string::npos)
             fetch_index(*it);
         else if ((*it).find("location") != std::string::npos)
@@ -109,6 +112,13 @@ void Server::parseLines()
     this->setredirectUri(c.substr(9, c.size() - 9));
 
  }
+  void Server::fetch_upload(std::string& c)
+ {
+     //std::cout << "root insde fetch " <<  c << std::endl;
+    this->setUploadPath(c.substr(7, c.size() - 7));
+
+ }
+
  void Server::fetch_cgi(std::string& c)
  {
      //std::cout << "root insde fetch " <<  c << std::endl;

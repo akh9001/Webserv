@@ -254,7 +254,7 @@ int Request::parse_body(std::string c)
         if (method != "GET" && method != "POST" && method != "DELETE")
         {
             throw WrongMethod();
-            return (405);
+           
         }
         return (200);
     }
@@ -265,9 +265,10 @@ int Request::parse_body(std::string c)
         for (int i = 0; i < uri.size(); i++)
         {
             if (allowedchars.find(uri[i]) == std::string::npos)
-                return (400);
+                throw "400";
         }
-
+        if (uri.size() > 2048)
+            throw "414";
         return (200);
     }
 
@@ -275,6 +276,7 @@ int Request::parse_body(std::string c)
     {
         if (version != "HTTP/1.1" || version != "HTTP/1.0")
         {
+            throw "400";
             return (400); // 505 HTTP Version Not Supported
         }
         return (200);

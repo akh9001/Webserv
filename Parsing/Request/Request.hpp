@@ -1,3 +1,5 @@
+#ifndef REQUEST_HPP
+#define REQUEST_HPP
 #include "../webServer.hpp"
 #include "../../FileHandler/fileHandler.hpp"
 #include "../Config/Config.hpp"  
@@ -109,3 +111,4 @@ class Request
 // ! ////////////////////// clear //////////////////
     void clear();
 };
+#endif

@@ -34,3 +34,22 @@ Location &Location::operator=(Location const& c) {
         // ! /////////////////////// Getters & Setters //////////////////////
         std::string Location::getLocation_match() const { return location_match;}
         void Location::setLocation_match(std::string c) { location_match = c;}
+        void Location::checkMissingFields() const
+        {
+             if (uploadPath.empty())
+             {
+                 throw std::runtime_error("uploadPath is missing");
+             }
+             if (redirect_uri.empty())
+             {
+                 throw std::runtime_error("redict path is missing");
+             }
+             if (_allowed_methods.size() == 0)
+             {
+                 throw std::runtime_error("methods are missing");
+             }
+             if (_index.size() == 0)
+               {
+                    throw std::runtime_error("index is missing");
+               }
+        }
