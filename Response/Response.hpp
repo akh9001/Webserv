@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/13 01:54:40 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/13 10:20:02 by trevor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include "../Parsing/Config/Location.hpp"
 # include "../utility/utility.hpp"
 # include <map>
+# include <iomanip> // only for linux
 
 namespace ws {
 	

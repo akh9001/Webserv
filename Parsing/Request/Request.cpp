@@ -17,7 +17,7 @@ Request::Request()
     this->bodyPart.clear();
     this->method = "";
     this->uri = "";
-    this->version = "";
+    this->version = "HTTP/1.1";
     hostIp = "127.0.0.1";
     hostPort = 8080;
     this->connection = "";
@@ -120,6 +120,7 @@ void    Request::split_parts()
 
 bool Request::parseChunks(std::string c, Config config)
 {
+    
     if (change == 0)
         parse_header(c);
     if (change == 1 && parsed == false)
@@ -128,7 +129,7 @@ bool Request::parseChunks(std::string c, Config config)
         parse_body(c);
     checkContentLength(c.size());
     //std::cout << "read : " << read << std::endl;
-    if (read <= 0)
+    if (read <= 0 && change == 1)
         return true;
     return false;
 }
@@ -232,6 +233,8 @@ int Request::parse_body(std::string c)
         pos = line.find(" ");
         version = line.substr(0, pos);
         line.erase(0, pos + 1);
+        std::cout << uri << std::endl;
+        std::cout << version << std::endl;
         main_error_check();
         tmpUri = uri;
 
@@ -250,7 +253,7 @@ int Request::parse_body(std::string c)
     {
         if (method != "GET" && method != "POST" && method != "DELETE")
         {
-            throw "404";
+            throw "400";
            
         }
         return (200);
@@ -262,7 +265,7 @@ int Request::parse_body(std::string c)
         for (int i = 0; i < uri.size(); i++)
         {
             if (allowedchars.find(uri[i]) == std::string::npos)
-                throw "400";
+                throw "409";
         }
         if (uri.size() > 2048)
             throw "414";

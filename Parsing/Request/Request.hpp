@@ -81,7 +81,7 @@ class Request
      int getContentLenth() const { return contentLength; }
     Server getServer() const { return server; }
     Location getLocation() const { return location; }
-
+    std::string getFilePath() const { return filePath; }
     // ! /////////////////////// file_Readers //////////////////////
 
         void main_read();
@@ -100,6 +100,7 @@ class Request
     void fetchHost();
     void getRightServer(Config config);
     void getRightLocation();
+    
 
 
    // ! /////////////////////// erros check //////////////////
