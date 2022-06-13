@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/12 22:10:22 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/13 06:35:04 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,8 +187,8 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 	if (check)
 	{
 		reset_read(i);
-		//! clients[i].close_cnx = clients[i].request.getHeaderMap()["Connection"] == "keep-alive" ? false : true;
-		clients[i].close_cnx = true;
+		clients[i].close_cnx = clients[i].request.getHeaderMap()["Connection"] == "keep-alive" ? false : true;
+		// clients[i].close_cnx = true;
 		//2- response = get_response()
 		ws::Response response;
 		// std::string getHeaders(ws::Req req , string statusCode)
@@ -252,7 +252,7 @@ inline void	Socket::write_response(int i, std::map<int,  Client> &clients)
 
 inline void	Socket::init_fd_sets_timeout(std::vector<Socket>::const_iterator it, std::vector<Socket>::const_iterator end, struct timeval &timeout)
 {
-	//signal(SIGPIPE, SIG_IGN);
+	signal(SIGPIPE, SIG_IGN);
 	FD_ZERO(&__master_rd);
 	FD_ZERO(&__master_wr);
 	timeout.tv_sec	= 1;
