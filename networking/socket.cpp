@@ -6,7 +6,7 @@
 /*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/13 09:55:41 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/13 10:11:41 by trevor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,8 +191,8 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 	if (check)
 	{
 		reset_read(i);
-		//clients[i].close_cnx = clients[i].request.getHeaderMap()["Connection"] == "keep-alive" ? false : true;
-		clients[i].close_cnx = false;	
+		clients[i].close_cnx = clients[i].request.getHeaderMap()["Connection"] == "keep-alive" ? false : true;
+		// clients[i].close_cnx = true;
 		//2- response = get_response()
 		ws::Response response;
 		std::cout << status << std::endl;
