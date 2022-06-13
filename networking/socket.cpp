@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/13 10:11:41 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/13 10:22:02 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "../Response/Response.hpp"
 #include <exception>
 #include <string>
+#include <strings.h>
 #include <unistd.h>
 #include <signal.h>
 
@@ -167,8 +168,9 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 	int bytes_received;
 	bool check;
 
+	bzero(read, SIZE_BUFFER + 1);
 	bytes_received = recv(i, read, sizeof(read), 0);
-	if (bytes_received < 0)
+	if (bytes_received <= 0)
 	{
 		// * remove_client(int i, std::map<int,  Client> &clients, bool rd, bool wr)
 		remove_client(i, clients, true, false);
