@@ -284,8 +284,6 @@ int Request::parse_body(std::string c)
         if (contentLength > location.getClientMaxBodySize()
             || contentLength < 0)
         {
-           std::cout << "Content-Length: " << contentLength << std::endl;
-           std::cout << "a "  << location.getClientMaxBodySize() << std::endl;
             throw "413";
         }
         read -= a;
@@ -344,8 +342,6 @@ int Request::parse_body(std::string c)
     {
         size_t pos = 0;
         std::string clone(tmpUri);
-        std::cout << "clone = " << clone << std::endl;
-        std::cout << "Uri = " << uri << std::endl;
         int n = server.getLocation().size();
         for (int i = 0; i < n; i++) {
             if (server.getLocation()[i].getLocation_match() == tmpUri) {

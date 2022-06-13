@@ -45,7 +45,7 @@ class Server
 
         std::string root;
         std::vector<std::string>                _allowed_methods;
-        std::string                _index;
+        std::vector<std::string>                 _index;
         std::string                redirect_uri;
         std::map<int , std::string> errorPages;
         std::string cgiPath;
@@ -97,8 +97,8 @@ class Server
         void setLocation(std::vector<Location> c) { _locations = c;}
         std::vector<std::string> getAllowedMethods() const { return _allowed_methods;}
         void setAllowedMethods(std::vector<std::string> methods) { _allowed_methods = methods;}
-        std::string getIndex() const { return _index;}
-        void setIndex(std::string index) { _index = index;}
+        std::vector<std::string> getIndex() const { return _index;}
+        void setIndex(std::vector<std::string> index) { _index = index;}
         unsigned long getClientMaxBodySize() const { return _clinet_max_body_size;}
         void setClientMaxBodySize(unsigned long c) { _clinet_max_body_size = c;}
         bool getAutoIndex() const { return _autoindex;}

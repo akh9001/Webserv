@@ -132,10 +132,10 @@ void Server::parseLines()
     this->setRoot(c.substr(5, c.size() - 5));
 
  }
- void Server::fetch_index(std::string& c)
- {
-    setIndex(c.substr(6, c.size() - 6));
- }
+//  void Server::fetch_index(std::string& c)
+//  {
+//     setIndex(c.substr(6, c.size() - 6));
+//  }
 int Server::fetch_location(std::vector<std::string>::iterator it)
 {
     int i = 1;
@@ -172,6 +172,21 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
     _locations.push_back(tmp);
     return i;
 }
+
+void Server::fetch_index(std::string& c)
+ {
+    std::string tmp = c.substr(6, c.size() - 6);
+    size_t pos = 0;
+    int flag = 0;
+    while ((pos = tmp.find(" ")) != std::string::npos || (pos = tmp.find("\t")) != std::string::npos)
+    {
+        std::string str = tmp.substr(0,pos);
+        _index.push_back(str);
+        tmp.erase(0, pos + 1);
+    }
+    _index.push_back(tmp.substr(0,pos));
+    tmp.erase(0, pos + 1);
+ }
  void Server::fetch_allowed_methods(std::string& c)
  {
     std::string tmp = c.substr(14, c.size() - 14);
