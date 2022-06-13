@@ -5,10 +5,7 @@
 #include "../Config/Server.hpp"  
 #include "../Config/Location.hpp"
 
-int Request::fchuncked = 0;
-std::string Request::save = "";
-int Request::change = 0;
-int Request::full = 0;
+
 
  // ! Constuctors and destructor
 Request::Request()
@@ -33,6 +30,10 @@ Request::Request()
     this->contentLength = 0;
     this->read = 0;
     this->parsed = false;
+    fchuncked = 0;
+    save = "";
+    change = 0;
+    full = 0;
 }
 
 Request::Request(std::string file)

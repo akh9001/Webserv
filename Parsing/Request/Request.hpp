@@ -39,16 +39,16 @@ class Request
         std::map<std::string, std::string> headerMap;
 
 
-        static int fchuncked;
+         int fchuncked;
         long long read;
-        static std::string save;
+         std::string save;
         std::string tmpUri;
-        static int full;
+         int full;
         bool parsed;
        // ws::fileHandler fh;
         std::fstream file;
         std::string filePath;
-        static int change;
+         int change;
     public :
 
 
