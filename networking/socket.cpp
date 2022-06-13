@@ -6,7 +6,7 @@
 /*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/12 22:10:22 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/13 09:55:41 by trevor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include <exception>
 #include <string>
 #include <unistd.h>
+#include <signal.h>
+
 #define	TIME_OUT_CLIENT	50
 #define SIZE_BUFFER		1024
 
@@ -174,7 +176,7 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 	}
 	//read[bytes_received] = '\0';
 	//! I should remove the following line it afterwards.
-	// std::cout << "read " << read << std::endl;
+//	std::cout << "read " << read << std::endl;
 	try
 	{
 		check = clients[i].request.parseChunks(std::string(read, bytes_received), config); // added the config
@@ -182,15 +184,18 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 	catch (const char *flag)
 	{
 		status = std::string(flag);
+		check = true;
+		//std::cout << status << std::endl;
 	}
-	// check = true;
+	//check = true;
 	if (check)
 	{
 		reset_read(i);
-		//! clients[i].close_cnx = clients[i].request.getHeaderMap()["Connection"] == "keep-alive" ? false : true;
-		clients[i].close_cnx = true;
+		//clients[i].close_cnx = clients[i].request.getHeaderMap()["Connection"] == "keep-alive" ? false : true;
+		clients[i].close_cnx = false;	
 		//2- response = get_response()
 		ws::Response response;
+		std::cout << status << std::endl;
 		// std::string getHeaders(ws::Req req , string statusCode)
 		// client_map[i].buffer = getHeaders(clients[i].request, status);
 		// client_map[i].body_inf = getbody();
@@ -252,7 +257,7 @@ inline void	Socket::write_response(int i, std::map<int,  Client> &clients)
 
 inline void	Socket::init_fd_sets_timeout(std::vector<Socket>::const_iterator it, std::vector<Socket>::const_iterator end, struct timeval &timeout)
 {
-	//signal(SIGPIPE, SIG_IGN);
+	signal(SIGPIPE, SIG_IGN);
 	FD_ZERO(&__master_rd);
 	FD_ZERO(&__master_wr);
 	timeout.tv_sec	= 1;
