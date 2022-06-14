@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/13 01:54:33 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/14 10:43:34 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,37 @@
 #include <string>
 #include <cstring>
 #include <sstream>
+#include <iterator>
 
 namespace ws {
 
 	Response::Response():buildResponseTry(0),response_is_tmp(false)
 	{
+		init_statusCodeMessages();
 		setHeader("Server","WebServ/1.0");
 		setHeader("Content-Type","text/html");
 	}
 	Response::~Response(){};
 
-	std::string Response::getHeaders(Request &request, Config &config, std::string statusCode)
+	std::string Response::getHeaders(Request &request,Location &location, Config &config, std::string &statusCode)
 	{
-
-		
+		//set current location and statuscode
+		this->currentLocation = location;
+		this->statusCode = statusCode;
+		if(statusCode != "-1")
+		{	
+			buildResponse(request);
+		}
+		else if(isMethodeAllowed(request))
+		{
+			//TODO
+			std::cout << "working on this" << std::endl;
+		}
+		else
+		{
+			this->statusCode = "405";
+			buildResponse(request);
+		}
 
 		setDateHeader();	
 		setContentLength(this->bodyPath);
@@ -55,6 +72,60 @@ namespace ws {
 		headers << "\r\n";
 		
 		return headers.str();
+	}
+
+	void	Response::buildResponse(Request &request)
+	{
+		// check if errorpage exist
+		bool error_pages = false;
+		std::string errorPath = std::string();
+		//search for error page path
+		if(isErrorPage())//
+		{
+			errorPath = getErrorPage();
+			std::cout << "Working on this" << std::endl;
+			//TODO
+			//...
+		}
+
+		this->buildResponseTry = 0;
+
+		if(!error_pages)
+		{
+			// call template
+			std::string responsePath;
+			try
+			{
+				responsePath = ws::fileHandler::createTmp("./response_tmp_files");
+			}
+			catch(const std::exception& e)
+			{
+				std::cerr << e.what() << '\n';
+			}
+			bodyDefaultTemplate(responsePath);
+			this->bodyPath = responsePath;
+			this->response_is_tmp = true;
+		}
+
+	}
+
+	void Response::bodyDefaultTemplate(std::string &responsePath)
+	{
+		std::string message = getMessage(this->statusCode);
+		std::string response(
+				"<html>"
+					"<head>"
+						"<title>"+ statusCode + " " +message +"</title>"
+					"</head>"
+					"<body>"
+						"<center>"
+							"<h1>"+ statusCode + " " +message +"</h1>"
+						"</center>"
+						"<hr>"
+						"<center>webserv/1.1</center>"
+					"</body>"
+				"</html>\r\n\r\n");
+		fileHandler::write(responsePath,response);
 	}
 
 	void Response::setDateHeader()
@@ -84,7 +155,7 @@ namespace ws {
 		this->headers_list.insert(std::make_pair(key, value));
 	}
 
-	long long Response::getFileSize(std::string filePath)
+	long long Response::getFileSize(std::string &filePath)
 	{
 		struct stat st;
 
@@ -96,11 +167,77 @@ namespace ws {
 		return 0;
 	}
 
-	std::string Response::getMessage(std::string statusCode)
+	std::string Response::getMessage(std::string &statusCode)
 	{
-		if(statusCodeMessages.find(statusCode) != statusCodeMessages.end())
-			return statusCodeMessages.find(statusCode)->second;
+		if(statusCodeMessages.find(this->statusCode) != statusCodeMessages.end())
+			return statusCodeMessages.find(this->statusCode)->second;
 		//else throw error
 		return "";
+	}
+
+	bool Response::isMethodeAllowed(Request &request)
+	{
+		// std::string reqMethod = get methode
+		// return find(loc.allowedMethod.begin(), loc.allowedMethod.end(), reqMethod) != loc.allowedMethod.end();
+		return false;
+	}
+
+
+	bool Response::isErrorPage()
+	{
+		int status;
+		std::istringstream(this->statusCode) >> status;
+		std::map<int, std::string> errorPagesList = this->currentLocation.getErrorPages();
+		return ((errorPagesList.size() > 0) && (errorPagesList.find(status) != errorPagesList.end()));
+	}
+
+	std::string Response::getErrorPage()
+	{
+		int status;
+		std::istringstream(this->statusCode) >> status;
+		std::map<int, std::string> errorPagesList = this->currentLocation.getErrorPages();
+		return errorPagesList.find(status)->second;
+	}
+
+	void init_statusCodeMessages()
+	{
+		statusCodeMessages["100"] = "Continue";
+		statusCodeMessages["200"] = "OK";
+		statusCodeMessages["201"] = "Created";
+		statusCodeMessages["202"] = "Accepted";
+		statusCodeMessages["203"] = "Non-Authoritative Information";
+		statusCodeMessages["204"] = "No Content";
+		statusCodeMessages["205"] = "Reset Content";
+		statusCodeMessages["206"] = "Partial Content";
+		statusCodeMessages["300"] = "Multiple Choices";
+		statusCodeMessages["301"] = "Moved Permanently";
+		statusCodeMessages["302"] = "Found";
+		statusCodeMessages["303"] = "See Other";
+		statusCodeMessages["304"] = "Not Modified";
+		statusCodeMessages["305"] = "Use Proxy";
+		statusCodeMessages["307"] = "Temporary Redirect";
+		statusCodeMessages["400"] = "Bad Request";
+		statusCodeMessages["401"] = "Unauthorized";
+		statusCodeMessages["403"] = "Forbidden";
+		statusCodeMessages["404"] = "Not Found";
+		statusCodeMessages["405"] = "Method Not Allowed";
+		statusCodeMessages["406"] = "Not Acceptable";
+		statusCodeMessages["407"] = "Proxy Authentication Required";
+		statusCodeMessages["408"] = "Request Time-out";
+		statusCodeMessages["409"] = "Conflict";
+		statusCodeMessages["410"] = "Gone";
+		statusCodeMessages["411"] = "Length Required";
+		statusCodeMessages["412"] = "Precondition Failed";
+		statusCodeMessages["413"] = "Request Entity Too Large";
+		statusCodeMessages["414"] = "Request-URI Too Large";
+		statusCodeMessages["415"] = "Unsupported Media Type";
+		statusCodeMessages["416"] = "Requested range not satisfiable";
+		statusCodeMessages["417"] = "Expectation Failed";
+		statusCodeMessages["500"] = "Internal Server Error";
+		statusCodeMessages["501"] = "Not Implemented";
+		statusCodeMessages["502"] = "Bad Gateway";
+		statusCodeMessages["503"] = "Service Unavailable";
+		statusCodeMessages["504"] = "Gateway Time-out";
+		statusCodeMessages["505"] = "HTTP Version not supported";
 	}
 }
