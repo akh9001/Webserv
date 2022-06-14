@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/14 18:01:22 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/14 18:08:28 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ namespace ws {
 			if(!isRedirection())
 			{	
 				std::cout << "no redirection" << std::endl;
-				// defineMethode(request);
+				defineMethode(request);
 			}
 			else
 			{	
@@ -223,6 +223,22 @@ namespace ws {
 		return path;
 	}
 
+	void Response::defineMethode(Request &request)
+	{
+		if(getMethod(request) == "GET")
+		{
+			
+		}
+		else if(getMethod(request) == "POST")
+		{
+
+		}
+		else if(getMethod(request) == "DELETE")
+		{
+
+		}
+	}
+
 	void Response::setDateHeader()
 	{
 		time_t curr_time;
@@ -278,12 +294,16 @@ namespace ws {
 		return errorPagesList.find(status)->second;
 	}
 
+	std::string  Response::getMethod(Request &request)
+	{
+		return request.getMethod();
+	}
+
 	bool Response::isMethodeAllowed(Request &request)
 	{
 
 		std::vector<std::string> Methods = this->currentLocation.getAllowedMethods();
-		std::cout << (find(Methods.begin(),Methods.end(),request.getMethod()) != Methods.end()) << std::endl;
-		return (find(Methods.begin(),Methods.end(),request.getMethod()) != Methods.end());
+		return (find(Methods.begin(),Methods.end(), getMethod(request)) != Methods.end());
 	}
 
 

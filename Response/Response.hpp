@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/14 17:51:55 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/14 18:07:11 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,9 @@ namespace ws {
 			void	buildResponse(Request &request);
 			void	bodyDefaultTemplate(std::string &responsePath);
 
+			//routing
+			void defineMethode(Request &request);
+
 			//helpers
 			std::string builPath(std::string &resourcePath);
 
@@ -59,6 +62,7 @@ namespace ws {
 			long long getFileSize(std::string &filePath);
 			std::string getMessage(std::string &statusCode);
 			std::string getErrorPage();
+			std::string getMethod(Request &request);
 
 			//checkers
 			bool isMethodeAllowed(Request &request);
