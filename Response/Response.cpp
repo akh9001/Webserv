@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/13 01:54:33 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/14 03:40:18 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,27 @@ namespace ws {
 	}
 	Response::~Response(){};
 
-	std::string Response::getHeaders(Request &request, Config &config, std::string statusCode)
+	std::string Response::getHeaders(Request &request, Config &config, std::string &statusCode)
 	{
-
-		
+		//set current location and statuscode
+		this->currentLocation = request.getLocation();
+		this->statusCode = statusCode;
+		// std::cout << currentLocation.getLocation_match() << std::endl;
+		if(statusCode != "-1")
+		{
+			// std::cout << statusCode << std::endl;
+			buildResponse(request);
+		}
+		else if(isMethodeAllowed(request))
+		{
+			//
+		}
+		else
+		{
+			this->statusCode = "405";
+			buildResponse(request);
+			// std::cout << "405" << std::endl;
+		}
 
 		setDateHeader();	
 		setContentLength(this->bodyPath);
@@ -55,6 +72,14 @@ namespace ws {
 		headers << "\r\n";
 		
 		return headers.str();
+	}
+
+	void	Response::buildResponse(Request &request)
+	{
+		//check if errorpage exist
+		// bool error_pages = false;
+		// std::string errorPath = std::string();
+		std::cout << this->statusCode << std::endl;
 	}
 
 	void Response::setDateHeader()
@@ -84,7 +109,7 @@ namespace ws {
 		this->headers_list.insert(std::make_pair(key, value));
 	}
 
-	long long Response::getFileSize(std::string filePath)
+	long long Response::getFileSize(std::string &filePath)
 	{
 		struct stat st;
 
@@ -96,11 +121,18 @@ namespace ws {
 		return 0;
 	}
 
-	std::string Response::getMessage(std::string statusCode)
+	std::string Response::getMessage(std::string &statusCode)
 	{
 		if(statusCodeMessages.find(statusCode) != statusCodeMessages.end())
 			return statusCodeMessages.find(statusCode)->second;
 		//else throw error
 		return "";
+	}
+
+	bool Response::isMethodeAllowed(Request &request)
+	{
+		// std::string reqMethod = get methode
+		// return find(loc.allowedMethod.begin(), loc.allowedMethod.end(), reqMethod) != loc.allowedMethod.end();
+		return false;
 	}
 }
