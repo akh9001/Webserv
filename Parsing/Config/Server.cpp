@@ -47,7 +47,9 @@ void Server::parseLines()
     for (;it != serverline.end();it++)
     {
        // std::cout << *it << std::endl;
-        if ((*it).find("server_name") != std::string::npos)
+        if ((*it)[0] == '#')
+            it++;
+        else if ((*it).find("server_name") != std::string::npos)
             fetch_server_name(*it);
         else if ((*it).find("listen") != std::string::npos)
             fetch_host(*it);
@@ -108,8 +110,27 @@ void Server::parseLines()
 
  void Server::fetch_redirect(std::string& c)
  {
-     //std::cout << "root insde fetch " <<  c << std::endl;
-    this->setredirectUri(c.substr(9, c.size() - 9));
+    std::string tmp = c.substr(9, c.size() - 9);
+    int i = 0;
+    for (;tmp[i] == ' '; i++);
+    tmp = tmp.substr(i, tmp.size() - i);
+    std::vector<std::string> a;
+     size_t pos = 0;
+    while ((pos = tmp.find(" ")) != std::string::npos || (pos = tmp.find("\t")) != std::string::npos)
+    {
+        a.push_back(tmp.substr(0, pos));
+        tmp.erase(0, pos + 1);
+    }
+    a.push_back(tmp.substr(0, pos));
+    tmp.erase(0, pos + 1);
+    if (a.size() != 2)
+        throw NotacceptableError();
+    if (a[0].size() != 3)
+        throw NotacceptableError();
+    int q = 0;
+    std::istringstream(a[0]) >> q;
+    sscanf(a[0].c_str(), "%d", &q);
+    redirect_uri.insert(std::make_pair(q, a[1]));
 
  }
   void Server::fetch_upload(std::string& c)
@@ -148,7 +169,9 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
     it++;
     while (*it != "}")
     {
-        if ((*it).find("root") != std::string::npos)
+        if ((*it)[0] == '#')
+            it++;
+        else if ((*it).find("root") != std::string::npos)
             tmp.fetch_root(*it);
         else if ((*it).find("allow_methods") != std::string::npos)
             tmp.fetch_allowed_methods(*it);
@@ -251,6 +274,7 @@ void Server::fetchErrorPage(std::string& c)
     sscanf(a[0].c_str(), "%d", &q);
     errorPages.insert(std::make_pair(q, a[1]));
 }
+
 // ! ///////////////////////////// Error pages ////////////////////
 
 // void Server::checkStatusCode(std::string& c)
