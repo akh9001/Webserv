@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/14 10:43:34 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/14 17:21:47 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <cstring>
 #include <sstream>
 #include <iterator>
+#include <unistd.h>
 
 namespace ws {
 
@@ -33,14 +34,16 @@ namespace ws {
 		//set current location and statuscode
 		this->currentLocation = location;
 		this->statusCode = statusCode;
-		if(statusCode != "-1")
+		int status;
+		std::istringstream(this->statusCode) >> status;
+		if(statusCode != "-1" && status >= 400)
 		{	
 			buildResponse(request);
 		}
 		else if(isMethodeAllowed(request))
 		{
 			//TODO
-			std::cout << "working on this" << std::endl;
+			std::cout << "working on this later" << std::endl;
 		}
 		else
 		{
@@ -78,14 +81,80 @@ namespace ws {
 	{
 		// check if errorpage exist
 		bool error_pages = false;
-		std::string errorPath = std::string();
+		std::string originErrorPath = std::string();
+		std::cout << this->statusCode << " " << getErrorPage() << std::endl;
 		//search for error page path
-		if(isErrorPage())//
+		
+		// if(isErrorPage())//
+		if(true)//
 		{
-			errorPath = getErrorPage();
-			std::cout << "Working on this" << std::endl;
-			//TODO
-			//...
+			// originErrorPath = getErrorPage();
+			originErrorPath = "/dir";
+			std::cout << "Working on this error page" << std::endl;
+			if(originErrorPath.at(0) == '/')
+			{
+				std::cout << "start with /" << std::endl;
+				std::string errorPath = builPath(originErrorPath);
+				//if errorPath source exist in root
+				if(ws::fileHandler::checkIfExist(errorPath))
+				{
+					std::cout << errorPath << " exist"<< std::endl;
+					// check permission valid
+					if(isPermission(errorPath, "r"))
+					{
+						// std::cout << errorPath << " have permission "<< std::endl;
+						//check if errorPath is a directory
+						if(isDir(errorPath))
+						{
+							// std::cout << errorPath << " is a directory "<< std::endl;
+							int endPos = errorPath.length();
+							--endPos;
+							if(errorPath.at(endPos) == '/')// errorPath ends with /
+							{
+								std::cout << errorPath << " ends w / "<< std::endl;
+								//TODO
+							}
+							else // errorPath doesnt ends with /
+							{	
+								std::cout << errorPath << " no / at end "<< std::endl;
+								originErrorPath = originErrorPath + "/";
+								std::cout << "301" << std::endl;
+								error_pages = false;
+								this->statusCode = "301";
+								setHeader("Location",originErrorPath);
+							}
+
+						}
+						else if(isFile(errorPath))// else if file
+						{
+							// std::cout << errorPath << " is a file "<< std::endl;
+							error_pages = true;
+							this->bodyPath = errorPath;
+						}
+					}
+					else
+					{
+						// std::cout << errorPath << " have no permission "<< std::endl;
+						std::cout << "403" << std::endl;
+						error_pages = false;
+						this->statusCode = "403";
+					}
+				}
+				else
+				{
+					// std::cout << errorPath << " not exist"<< std::endl;
+					std::cout << "404" << std::endl;
+					error_pages = false;
+					this->statusCode = "404";
+				}
+			}
+			else
+			{
+				// std::cout << "302" << std::endl;
+				error_pages = false;
+				this->statusCode = "302";
+				setHeader("Location",originErrorPath);
+			}
 		}
 
 		this->buildResponseTry = 0;
@@ -126,6 +195,18 @@ namespace ws {
 					"</body>"
 				"</html>\r\n\r\n");
 		fileHandler::write(responsePath,response);
+	}
+
+	std::string Response::builPath(std::string &resourcePath)
+	{
+		std::string backSlash;
+		char tmp[2048];
+		getcwd(tmp, 2048);
+
+		if(resourcePath.at(0) != '/')
+			backSlash = "/";
+		std::string path =   std::string(tmp) + this->currentLocation.getRoot() + backSlash + resourcePath;
+		return path;
 	}
 
 	void Response::setDateHeader()
@@ -175,11 +256,20 @@ namespace ws {
 		return "";
 	}
 
+	std::string Response::getErrorPage()
+	{
+		int status;
+		std::istringstream(this->statusCode) >> status;
+		std::map<int, std::string> errorPagesList = this->currentLocation.getErrorPages();
+		return errorPagesList.find(status)->second;
+	}
+
 	bool Response::isMethodeAllowed(Request &request)
 	{
-		// std::string reqMethod = get methode
-		// return find(loc.allowedMethod.begin(), loc.allowedMethod.end(), reqMethod) != loc.allowedMethod.end();
-		return false;
+
+		std::vector<std::string> Methods = this->currentLocation.getAllowedMethods();
+		std::cout << (find(Methods.begin(),Methods.end(),request.getMethod()) != Methods.end()) << std::endl;
+		return (find(Methods.begin(),Methods.end(),request.getMethod()) != Methods.end());
 	}
 
 
@@ -191,12 +281,50 @@ namespace ws {
 		return ((errorPagesList.size() > 0) && (errorPagesList.find(status) != errorPagesList.end()));
 	}
 
-	std::string Response::getErrorPage()
+	bool Response::isPermission(std::string &path, std::string permission)
 	{
-		int status;
-		std::istringstream(this->statusCode) >> status;
-		std::map<int, std::string> errorPagesList = this->currentLocation.getErrorPages();
-		return errorPagesList.find(status)->second;
+		(void)permission;
+		struct stat fileStat;
+
+		if(stat(path.c_str(),&fileStat) < 0)    
+			return false;
+
+		// printf("File Permissions: \n");
+		// printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
+		// printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
+		// printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
+		// printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
+		// printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
+		// printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
+		// printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
+		// printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
+		// printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
+		// printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
+		// printf("\n");
+		if(permission == "r")
+			return (fileStat.st_mode & S_IRUSR);
+		if(permission == "w")
+			return (fileStat.st_mode & S_IWUSR);
+		if(permission == "x")
+			return (fileStat.st_mode & S_IXUSR);
+		
+		return false;
+	}
+
+	bool Response::isDir(std::string &resourcePath)
+	{
+		struct stat info;
+
+		stat( resourcePath.c_str(), &info );
+		return (info.st_mode & S_IFDIR);
+	}
+	
+	bool Response::isFile(std::string &resourcePath)
+	{
+		struct stat info;
+
+		stat( resourcePath.c_str(), &info );
+		return (info.st_mode & S_IFREG);
 	}
 
 	void init_statusCodeMessages()

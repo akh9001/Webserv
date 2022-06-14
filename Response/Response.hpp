@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/14 10:39:16 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/14 16:20:32 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,20 +42,30 @@ namespace ws {
 			Location currentLocation;
 
 		private:
+			//response builders
 			std::string headerBuilder();
 			void	buildResponse(Request &request);
 			void	bodyDefaultTemplate(std::string &responsePath);
 
+			//helpers
+			std::string builPath(std::string &resourcePath);
+
+			//setters
 			void setDateHeader();
 			void setContentLength(std::string filePath);
 			void setHeader(std::string key, std::string value);
 
+			//getters
 			long long getFileSize(std::string &filePath);
 			std::string getMessage(std::string &statusCode);
 			std::string getErrorPage();
 
+			//checkers
 			bool isMethodeAllowed(Request &request);
 			bool isErrorPage();
+			bool isPermission(std::string &path, std::string permission);
+			bool isDir(std::string &resourcePath);
+			bool isFile(std::string &resourcePath);
 
 	};
 	
