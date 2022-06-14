@@ -294,7 +294,7 @@ int Request::parse_body(std::string c)
         if (headerMap.find("Transfer-Encoding") != headerMap.end() && headerMap["Transfer-Encoding"] != "chunked")
             throw "501";
         if ((headerMap.find("Transfer-Encoding") == headerMap.end()) && (headerMap.find("contentLength") == headerMap.end()) && method == "POST")
-            throw "400"; 
+            throw "411";
         if (headerMap.find("contentLength") != headerMap.end() && headerMap["contentLength"] != "0")
             filePath = ws::fileHandler::createTmp("request_tmp_files/");
         
