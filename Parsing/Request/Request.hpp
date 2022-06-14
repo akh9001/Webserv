@@ -79,6 +79,12 @@ class Request
       // ! /////////////////////// Getters & Setters //////////////////////
      std::map<std::string, std::string> getHeaderMap() const { return headerMap; }
      int getContentLenth() const { return contentLength; }
+        std::string getMethod() const { return method; }
+        std::string getUri() const { return uri; }
+        std::string getVersion() const { return version; }
+        std::string getHostIp() const { return hostIp; }
+        int getHostPort() const { return hostPort; }
+
     Server getServer() const { return server; }
     Location getLocation() const { return location; }
     std::string getFilePath() const { return filePath; }
@@ -109,6 +115,7 @@ class Request
     int checkURI();
     int checkVersion();
     void checkContentLength(int a);
+    void checkTransferEncoding();
 // ! ////////////////////// clear //////////////////
     void clear();
 };

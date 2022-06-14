@@ -164,7 +164,7 @@ int Request::parse_header(std::string c)
                     line.erase(0, pos + 2);
                     save = line;
                     change = 1;
-                    filePath = ws::fileHandler::createTmp("request_tmp_files/");
+                    // filePath = ws::fileHandler::createTmp("request_tmp_files/");
                     break;
                 }
                 save += line;
@@ -188,10 +188,10 @@ void Request::parseHeaderLines(Config config)
         if ((pos = headerPart[i].find(":")) != std::string::npos)
             headerMap[headerPart[i].substr(0, pos)] = headerPart[i].substr(pos + 2, headerPart[i].find("\r\n") - pos - 2);   
     }
-    fetchContentLength();
-
     getRightServer(config);
+    fetchContentLength();
     getRightLocation();
+    checkTransferEncoding();
     checkContentLength(0);
     parsed = true;
 }
@@ -289,7 +289,17 @@ int Request::parse_body(std::string c)
         }
         read -= a;
     }
-
+    void Request::checkTransferEncoding()
+    {
+        if (headerMap.find("Transfer-Encoding") != headerMap.end() && headerMap["Transfer-Encoding"] != "chunked")
+            throw "501";
+        if ((headerMap.find("Transfer-Encoding") == headerMap.end()) && (headerMap.find("contentLength") == headerMap.end()) && method == "POST")
+            throw "400"; 
+        if (headerMap.find("contentLength") != headerMap.end() && headerMap["contentLength"] != "0")
+            filePath = ws::fileHandler::createTmp("request_tmp_files/");
+        
+    }
+    // ! ///////////////////////clear  //////////////////
     void Request::clear()
     {
         Server a;
@@ -318,6 +328,7 @@ int Request::parse_body(std::string c)
     void Request::fetchContentLength()
     {
         long long i = 0;
+        
         std::istringstream(headerMap["Content-Length"]) >> i;
         sscanf(headerMap["Content-Length"].c_str(), "%lld", &i);
         contentLength = i;

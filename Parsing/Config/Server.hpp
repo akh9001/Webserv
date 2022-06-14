@@ -46,7 +46,7 @@ class Server
         std::string root;
         std::vector<std::string>                _allowed_methods;
         std::vector<std::string>                 _index;
-        std::string                redirect_uri;
+        std::map<int , std::string>              redirect_uri;
         std::map<int , std::string> errorPages;
         std::string cgiPath;
         std::string uploadPath;
@@ -89,8 +89,8 @@ class Server
         void setPort(int port) { _listen.setPort(port);}
         std::string getIp() const { return _listen.getIp();}
         void setIp(std::string ip) { _listen.setIp(ip);}
-        std::string getRedirectUri() const { return redirect_uri;}
-        void setredirectUri(std::string uri) { redirect_uri = uri;}
+        std::map<int , std::string> getRedirectUri() const { return redirect_uri;}
+        //void setredirectUri(std::string uri) { redirect_uri = uri;}
         std::string getCgiPath() const { return cgiPath;}
         void setCgiPath(std::string cgiPath) { this->cgiPath = cgiPath;}
         std::vector<Location> getLocation() const { return _locations;}
