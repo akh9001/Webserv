@@ -46,10 +46,10 @@ void Server::parseLines()
     it +=2;
     for (;it != serverline.end();it++)
     {
-       // std::cout << *it << std::endl;
+      // std::cout << *it << std::endl;
         if ((*it)[0] == '#')
-            it++;
-        else if ((*it).find("server_name") != std::string::npos)
+            continue;
+        if ((*it).find("server_name") != std::string::npos)
             fetch_server_name(*it);
         else if ((*it).find("listen") != std::string::npos)
             fetch_host(*it);
@@ -62,7 +62,7 @@ void Server::parseLines()
         else if ((*it).find("redirect") != std::string::npos)
             fetch_redirect(*it);
         else if ((*it).find("cgi_path") != std::string::npos)
-            fetch_redirect(*it);
+            fetch_cgi(*it);
         else if ((*it).find("autoindex") != std::string::npos)
             fetch_autoindex(*it);
           else if ((*it).find("upload") != std::string::npos)
@@ -167,11 +167,15 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
     pos = a.find(" ");
     tmp.setLocation_match(a.substr(0, pos));
     it++;
-    while (*it != "}")
+      while (*it != "}")
     {
         if ((*it)[0] == '#')
+        {
+            i++;
             it++;
-        else if ((*it).find("root") != std::string::npos)
+            continue;
+        }
+        if ((*it).find("root") != std::string::npos)
             tmp.fetch_root(*it);
         else if ((*it).find("allow_methods") != std::string::npos)
             tmp.fetch_allowed_methods(*it);
@@ -186,7 +190,7 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
         else if ((*it).find("redirect") != std::string::npos)
             fetch_redirect(*it);
         else if ((*it).find("cgi_path") != std::string::npos)
-            fetch_redirect(*it);
+            fetch_cgi(*it);
         else
              throw NotacceptableError();
         i++;
