@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/13 11:32:28 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/14 02:15:06 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,9 +200,9 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 		ws::Response response;
 		std::cout << status << std::endl;
 		// std::string getHeaders(ws::Req req , string statusCode)
-		// client_map[i].buffer = getHeaders(clients[i].request, status);
+		clients[i].buffer = response.getHeaders(clients[i].request, config ,status);
 		// client_map[i].body_inf = getbody();
-		clients[i].buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 54\r\nConnection: close\r\n\r\n";
+		// clients[i].buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 54\r\nConnection: close\r\n\r\n";
 		clients[i].body_inf = std::make_pair(std::string("hello_world.html"), false);
 		if (clients[i].body_inf.first.size() > 0)
 			clients[i].file.open(clients[i].body_inf.first);
