@@ -46,7 +46,7 @@ class Server
         std::string root;
         std::vector<std::string>                _allowed_methods;
         std::vector<std::string>                 _index;
-        std::string                redirect_uri;
+        std::map<int , std::string>              redirect_uri;
         std::map<int , std::string> errorPages;
         std::string cgiPath;
         std::string uploadPath;
