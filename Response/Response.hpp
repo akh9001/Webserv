@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/14 16:20:32 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/14 17:51:55 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ namespace ws {
 			bool isPermission(std::string &path, std::string permission);
 			bool isDir(std::string &resourcePath);
 			bool isFile(std::string &resourcePath);
+			bool isRedirection();
 
 	};
 	

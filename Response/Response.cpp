@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/14 17:21:47 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/14 18:01:22 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,21 @@ namespace ws {
 		else if(isMethodeAllowed(request))
 		{
 			//TODO
-			std::cout << "working on this later" << std::endl;
+			std::cout << "methode allowed" << std::endl;
+			if(!isRedirection())
+			{	
+				std::cout << "no redirection" << std::endl;
+				// defineMethode(request);
+			}
+			else
+			{	
+				std::cout << "redirection" << std::endl;//TODO check with khamis config issue
+				//TODO need to be tested after the merge it need new location to work
+				// getRedirectionStatus();//no need anymore
+				// getRedirectionPath();
+				// setHeader("Location",redirectionPath);
+				// buildResponse("301", req , loc);
+			}
 		}
 		else
 		{
@@ -325,6 +339,11 @@ namespace ws {
 
 		stat( resourcePath.c_str(), &info );
 		return (info.st_mode & S_IFREG);
+	}
+
+	bool Response::isRedirection()
+	{
+		return (this->currentLocation.getRedirectUri().size() > 0);
 	}
 
 	void init_statusCodeMessages()
