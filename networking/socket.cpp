@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/14 10:45:10 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/14 10:58:17 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,7 +178,7 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 	}
 	//read[bytes_received] = '\0';
 	//! I should remove the following line it afterwards.
-	std::cout << "read " << read << std::endl;
+	// std::cout << "read " << read << std::endl;
 	try
 	{
 		check = clients[i].request.parseChunks(std::string(read, bytes_received), config); // added the config
