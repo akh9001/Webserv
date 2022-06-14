@@ -188,10 +188,10 @@ void Request::parseHeaderLines(Config config)
         if ((pos = headerPart[i].find(":")) != std::string::npos)
             headerMap[headerPart[i].substr(0, pos)] = headerPart[i].substr(pos + 2, headerPart[i].find("\r\n") - pos - 2);   
     }
-    checkTransferEncoding();
-    fetchContentLength();
     getRightServer(config);
+    fetchContentLength();
     getRightLocation();
+    checkTransferEncoding();
     checkContentLength(0);
     parsed = true;
 }
