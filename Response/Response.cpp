@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/15 10:48:12 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/15 13:01:30 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ namespace ws {
 		// check if errorpage exist
 		bool error_pages = false;
 		std::string originErrorPath = std::string();
-		// std::cout << this->statusCode << " " << getErrorPage() << " " << (this->currentLocation.getErrorPages().find(404))->second << std::endl;
+		std::cout << this->statusCode << " " << getErrorPage() << " " << (this->currentLocation.getErrorPages().find(404))->second << std::endl;
 		//search for error page path
 		
 		if(isErrorPage())//
@@ -201,7 +201,7 @@ namespace ws {
 		{
 			// std::cout << "location wrong"<< std::endl;
 			// get root location
-			this->statusCode = "404";
+			// this->statusCode = "404";
 			//search for location
 			Server s = request.getServer();
 			std::vector<Location> locs = s.getLocation();
@@ -216,6 +216,8 @@ namespace ws {
 				}
 			}
 		}
+		
+		
 		//check methode allowed
 		if(isMethodeAllowed(request))
 		{
@@ -225,16 +227,17 @@ namespace ws {
 				// std::cout << "status now " << this->statusCode << std::endl;
 				// std::cout << "no redirection"<< std::endl;
 				//check status code
-				if(this->statusCode != "-1")
-				{
-					buildResponse(request);
-				}
-				else
-				{
+				// if(this->statusCode != "-1")
+				// {
+				// 	buildResponse(request);
+				// }
+				// else
+				// {
+					std::cout << "define method "<< request.getUri() << std::endl;
 					defineMethode(request);					
-				}
+				// }
 			}
-			else // redirection function
+			else //TODO redirection function
 			{
 				//before redirecting
 				//if code between 3xx 
@@ -261,15 +264,135 @@ namespace ws {
 	{
 		if(getMethod(request) == "GET")
 		{
-			
+			craftGetRequests(request);
 		}
 		else if(getMethod(request) == "POST")
 		{
-
+			//TODO
 		}
 		else if(getMethod(request) == "DELETE")
 		{
+			//TODO
+		}
+	}
 
+	void	Response::craftGetRequests(Request &request)
+	{
+		//check resource if exist
+		std::string requestResource = request.getUri();
+		std::string absoluteResourcePath = builPath(requestResource);
+		//if errorPath source exist in root
+		if(ws::fileHandler::checkIfExist(absoluteResourcePath))
+		{
+			std::cout << "GET "<< absoluteResourcePath << std::endl;
+			// check permission valid
+			if(isPermission(absoluteResourcePath, "r"))
+			{
+				if(isDir(absoluteResourcePath))
+				{
+					
+					int endPos = requestResource.length();
+					--endPos;
+					if(requestResource.at(endPos) != '/')
+					{
+						this->statusCode = "301";
+						setHeader("Location",requestResource+"/");
+						buildResponse(request);
+					}
+					else
+					{
+						///search in locations
+						Server s = request.getServer();
+						std::vector<Location> locs = s.getLocation();
+						std::vector<Location>::iterator it;
+						for (it = locs.begin(); it != locs.end() ;++it)
+						{
+							Location  l1= *it;
+							if(l1.getLocation_match() == rtrim(requestResource))
+							{	
+								// std::cout << l1.getLocation_match() << std::endl;
+								this->currentLocation = *it;
+								break;
+							}
+						}
+						if(it == locs.end()) //no location
+						{
+							this->statusCode = "403";
+							buildResponse(request);
+						}
+						else
+						{
+							//TODO
+							//check on indexs
+							if(isIndexes()) 
+							{
+								std::vector<std::string> indexList = getIndexes();
+								for (size_t i = 0; i < indexList.size(); i++)
+								{
+									// indexList[i]
+									//if exist 
+									//	is dir not implimented 501 return
+									//	else file
+									//		check permessions check cgi if not 200 return
+									//		if no permistion 403 return
+									
+								}
+								if(isAutoIndexOn())
+								{
+									this->statusCode = "200";
+									//build autoindex and push it to bodypath and tmp true
+								}
+								else
+								{
+									this->statusCode = "403";
+									buildResponse(request);
+								}
+
+							}
+							else
+							{
+								if(ws::fileHandler::checkIfExist(absoluteResourcePath+"index.html"))
+								{
+									//TODO
+									//check permission
+									// else
+									// this->statusCode = "403";
+									// buildResponse(request);
+								}
+								if(isAutoIndexOn())
+								{
+									this->statusCode = "200";
+									//build autoindex and push it to bodypath and tmp true
+								}
+								else
+								{
+									this->statusCode = "403";
+									buildResponse(request);
+								}
+							}
+						}
+					}
+				}
+				else if(isFile(absoluteResourcePath))// else if file
+				{
+					//TODO
+					//check cgi
+					// ...
+					//else
+						this->statusCode = "200";
+						this->bodyPath = absoluteResourcePath;
+				}
+			}
+			else
+			{
+				this->statusCode = "403";
+				buildResponse(request);
+			}
+		}
+		else
+		{
+			this->statusCode = "404";
+			buildResponse(request);
 		}
 	}
 
@@ -331,6 +454,11 @@ namespace ws {
 	std::string  Response::getMethod(Request &request)
 	{
 		return request.getMethod();
+	}
+
+	std::vector<std::string> Response::getIndexes()
+	{
+		return this->currentLocation.getIndex();
 	}
 
 	bool Response::isMethodeAllowed(Request &request)
@@ -398,6 +526,16 @@ namespace ws {
 	bool Response::isRedirection()
 	{
 		return (this->currentLocation.getRedirectUri().size() > 0);
+	}
+
+	bool Response::isIndexes()
+	{
+		return (this->currentLocation.getIndex().size() > 0);
+	}
+
+	bool Response::isAutoIndexOn()
+	{
+		return (this->currentLocation.getAutoIndex() == true);
 	}
 
 	void init_statusCodeMessages()
