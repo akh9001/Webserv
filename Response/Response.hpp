@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/15 09:27:53 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/15 10:47:56 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ namespace ws {
 			int buildResponseTry;
 			std::string bodyPath;
 			std::string statusCode;
-			std::string headers;
 			std::map<std::string, std::string> headers_list;
 			Location currentLocation;
 

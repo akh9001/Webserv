@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/15 10:43:07 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/15 10:48:12 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,7 @@ namespace ws {
 
 		setDateHeader();	
 		setContentLength(this->bodyPath);
-		this->headers = headerBuilder();
-		return (this->headers);
+		return (headerBuilder());
 	}
 
 	std::pair<std::string, bool> Response::getbody()
@@ -80,73 +79,25 @@ namespace ws {
 		// check if errorpage exist
 		bool error_pages = false;
 		std::string originErrorPath = std::string();
-		std::cout << this->statusCode << " " << getErrorPage() << " " << (this->currentLocation.getErrorPages().find(404))->second << std::endl;
+		// std::cout << this->statusCode << " " << getErrorPage() << " " << (this->currentLocation.getErrorPages().find(404))->second << std::endl;
 		//search for error page path
 		
 		if(isErrorPage())//
 		{
 			originErrorPath = getErrorPage();
 			// originErrorPath = "/dir";
-			std::cout << "Working on this error page" << std::endl;
+			// std::cout << "Working on this error page" << std::endl;
 			if(originErrorPath.at(0) == '/')
 			{
 				std::string errorPath = builPath(originErrorPath);
-				std::cout << "start with / "<< errorPath << std::endl;
+				// std::cout << "start with / "<< errorPath << std::endl;
 				//if errorPath source exist in root
 				if(ws::fileHandler::checkIfExist(errorPath))
 				{
-					std::cout << errorPath << " exist"<< std::endl;
+					// std::cout << errorPath << " exist"<< std::endl;
 					// check permission valid
 					if(isPermission(errorPath, "r"))
 					{
-						// std::cout << errorPath << " have permission "<< std::endl;
-						//check if errorPath is a directory
-						// if(isDir(errorPath))
-						// {
-						// 	// std::cout << errorPath << " is a directory "<< std::endl;
-						// 	int endPos = errorPath.length();
-						// 	--endPos;
-						// 	if(errorPath.at(endPos) == '/')// errorPath ends with /
-						// 	{
-						// 		std::cout << errorPath << " ends w / "<< std::endl;
-						// 		std::cout << originErrorPath << " origin "<< std::endl;
-						// 		//search for location
-						// 		Server s = request.getServer();
-						// 		std::vector<Location> locs = s.getLocation();
-						// 		for (std::vector<Location>::iterator it = locs.begin(); it != locs.end() ;++it)
-						// 		{
-						// 			Location  l1= *it;
-						// 			if(l1.getLocation_match() == rtrim(originErrorPath))
-						// 			{	
-						// 				std::cout << "yeeey matched" <<l1.getLocation_match() << std::endl;
-						// 				// this->statusCode = "-1";
-						// 				this->currentLocation = l1;
-						// 				std::cout << "status now" << this->statusCode << std::endl;
-						// 				std::string s("-1");
-						// 				getHeaders(request, l1, s);
-						// 				// std::cout << "body "<< getbody().first << std::endl;
-										
-						// 				error_pages = true;
-						// 				this->bodyPath = getbody().first;
-										
-						// 				return ;
-						// 				// break;
-						// 			}
-						// 		}
-						// 		// std::cout << "403" << std::endl;
-						// 	}
-						// 	else // errorPath doesnt ends with /
-						// 	{	
-						// 		std::cout << errorPath << " no / at end "<< std::endl;
-						// 		originErrorPath = originErrorPath + "/";
-						// 		std::cout << "301" << std::endl;
-						// 		error_pages = false;
-						// 		this->statusCode = "301";
-						// 		setHeader("Location",originErrorPath);
-						// 	}
-
-						// }
-						// else 
 						if(isFile(errorPath))// else if file
 						{
 							// std::cout << errorPath << " is a file "<< std::endl;
@@ -155,6 +106,7 @@ namespace ws {
 						}
 						else
 						{
+							//directories not implimented
 							error_pages = false;
 							this->statusCode = "501";
 						}
@@ -162,7 +114,7 @@ namespace ws {
 					else
 					{
 						// std::cout << errorPath << " have no permission "<< std::endl;
-						std::cout << "403" << std::endl;
+						// std::cout << "403" << std::endl;
 						error_pages = false;
 						this->statusCode = "403";
 					}
@@ -170,7 +122,7 @@ namespace ws {
 				else
 				{
 					// std::cout << errorPath << " not exist"<< std::endl;
-					std::cout << "404" << std::endl;
+					// std::cout << "404" << std::endl;
 					error_pages = false;
 					this->statusCode = "404";
 				}
@@ -180,7 +132,7 @@ namespace ws {
 				// std::cout << "302" << std::endl;
 				error_pages = false;
 				this->statusCode = "302";
-				std::cout << "Location: " << originErrorPath << std::endl;
+				// std::cout << "Location: " << originErrorPath << std::endl;
 				setHeader("Location",originErrorPath);
 			}
 		}
@@ -244,25 +196,10 @@ namespace ws {
 
 	void Response::checkResource(Request &request)
 	{
-		//check location 
-		// bool locexist = false;
-		// Server s = request.getServer();
-		// std::vector<Location> locs = s.getLocation();
-		// for (std::vector<Location>::iterator it = locs.begin(); it != locs.end() ;++it)
-		// {
-		// 	Location  l1= *it;
-		// 	if(l1.getLocation_match() == this->currentLocation.getLocation_match())
-		// 	{	
-		// 		std::cout << l1.getLocation_match() << std::endl;
-		// 		// this->currentLocation = *it;
-		// 		locexist = true;
-		// 		break;
-		// 	}
-		// }
-		// std::cout << "cur loc " << this->currentLocation.getLocation_match() << " and "<< rtrim(request.getUri()) << std::endl;
+		
 		if(request.getRightLocation() == 0)//location doesnt exist
 		{
-			std::cout << "location wrong"<< std::endl;
+			// std::cout << "location wrong"<< std::endl;
 			// get root location
 			this->statusCode = "404";
 			//search for location
@@ -273,9 +210,8 @@ namespace ws {
 				Location  l1= *it;
 				if(l1.getLocation_match() == "/")
 				{	
-					std::cout << l1.getLocation_match() << std::endl;
+					// std::cout << l1.getLocation_match() << std::endl;
 					this->currentLocation = *it;
-					// getHeaders(request,this->currentLocation, this->statusCode);
 					break;
 				}
 			}
@@ -283,11 +219,11 @@ namespace ws {
 		//check methode allowed
 		if(isMethodeAllowed(request))
 		{
-			std::cout << "right location and right methodes"<< std::endl;
+			// std::cout << "right location and right methodes"<< std::endl;
 			if(!isRedirection())
 			{
-				std::cout << "status now " << this->statusCode << std::endl;
-				std::cout << "no redirection"<< std::endl;
+				// std::cout << "status now " << this->statusCode << std::endl;
+				// std::cout << "no redirection"<< std::endl;
 				//check status code
 				if(this->statusCode != "-1")
 				{
@@ -306,7 +242,7 @@ namespace ws {
 				//	if not redirect to that path
 				//else
 				//	put code as status and path as body
-				std::cout << "redirection"<< std::endl;
+				// std::cout << "redirection"<< std::endl;
 				std::string redirectionPath = this->currentLocation.getRedirectUri().find(301)->second;
 				this->statusCode = "301";
 				setHeader("Location",redirectionPath);
