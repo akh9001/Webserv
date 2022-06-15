@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/14 10:39:16 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/15 10:47:56 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ namespace ws {
 		public:
 			Response();
 			~Response();
-			std::string getHeaders(Request &request,Location &location, Config &config, std::string &statusCode);
+			std::string getHeaders(Request &request,Location &location, std::string &statusCode);
 			std::pair<std::string, bool> getbody();
 			
 		private:
@@ -42,25 +42,43 @@ namespace ws {
 			Location currentLocation;
 
 		private:
+			//response builders
 			std::string headerBuilder();
 			void	buildResponse(Request &request);
 			void	bodyDefaultTemplate(std::string &responsePath);
 
+			//routing
+			void checkResource(Request &request);
+			void defineMethode(Request &request);
+
+			//helpers
+			std::string builPath(std::string &resourcePath);
+
+			//setters
 			void setDateHeader();
 			void setContentLength(std::string filePath);
 			void setHeader(std::string key, std::string value);
 
+			//getters
 			long long getFileSize(std::string &filePath);
 			std::string getMessage(std::string &statusCode);
 			std::string getErrorPage();
+			std::string getMethod(Request &request);
 
+			//checkers
 			bool isMethodeAllowed(Request &request);
 			bool isErrorPage();
+			bool isPermission(std::string &path, std::string permission);
+			bool isDir(std::string &resourcePath);
+			bool isFile(std::string &resourcePath);
+			bool isRedirection();
 
 	};
 	
 	static std::map<std::string,std::string> statusCodeMessages;
 	void init_statusCodeMessages();
+	std::string ltrim(const std::string &s);
+	std::string rtrim(const std::string &s);
+	std::string trim(const std::string &s);
 }
-
 #endif

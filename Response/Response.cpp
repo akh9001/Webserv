@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/14 10:43:34 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/15 10:48:12 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <cstring>
 #include <sstream>
 #include <iterator>
+#include <unistd.h>
 
 namespace ws {
 
@@ -28,24 +29,23 @@ namespace ws {
 	}
 	Response::~Response(){};
 
-	std::string Response::getHeaders(Request &request,Location &location, Config &config, std::string &statusCode)
+	std::string Response::getHeaders(Request &request,Location &location, std::string &statusCode)
 	{
 		//set current location and statuscode
 		this->currentLocation = location;
 		this->statusCode = statusCode;
-		if(statusCode != "-1")
+		int status;
+		std::istringstream(statusCode) >> status;
+
+		// 
+		//check if exist
+		if(statusCode != "-1" && status >= 400)
 		{	
 			buildResponse(request);
 		}
-		else if(isMethodeAllowed(request))
-		{
-			//TODO
-			std::cout << "working on this" << std::endl;
-		}
 		else
 		{
-			this->statusCode = "405";
-			buildResponse(request);
+			checkResource(request);
 		}
 
 		setDateHeader();	
@@ -78,14 +78,63 @@ namespace ws {
 	{
 		// check if errorpage exist
 		bool error_pages = false;
-		std::string errorPath = std::string();
+		std::string originErrorPath = std::string();
+		// std::cout << this->statusCode << " " << getErrorPage() << " " << (this->currentLocation.getErrorPages().find(404))->second << std::endl;
 		//search for error page path
+		
 		if(isErrorPage())//
 		{
-			errorPath = getErrorPage();
-			std::cout << "Working on this" << std::endl;
-			//TODO
-			//...
+			originErrorPath = getErrorPage();
+			// originErrorPath = "/dir";
+			// std::cout << "Working on this error page" << std::endl;
+			if(originErrorPath.at(0) == '/')
+			{
+				std::string errorPath = builPath(originErrorPath);
+				// std::cout << "start with / "<< errorPath << std::endl;
+				//if errorPath source exist in root
+				if(ws::fileHandler::checkIfExist(errorPath))
+				{
+					// std::cout << errorPath << " exist"<< std::endl;
+					// check permission valid
+					if(isPermission(errorPath, "r"))
+					{
+						if(isFile(errorPath))// else if file
+						{
+							// std::cout << errorPath << " is a file "<< std::endl;
+							error_pages = true;
+							this->bodyPath = errorPath;
+						}
+						else
+						{
+							//directories not implimented
+							error_pages = false;
+							this->statusCode = "501";
+						}
+					}
+					else
+					{
+						// std::cout << errorPath << " have no permission "<< std::endl;
+						// std::cout << "403" << std::endl;
+						error_pages = false;
+						this->statusCode = "403";
+					}
+				}
+				else
+				{
+					// std::cout << errorPath << " not exist"<< std::endl;
+					// std::cout << "404" << std::endl;
+					error_pages = false;
+					this->statusCode = "404";
+				}
+			}
+			else
+			{
+				// std::cout << "302" << std::endl;
+				error_pages = false;
+				this->statusCode = "302";
+				// std::cout << "Location: " << originErrorPath << std::endl;
+				setHeader("Location",originErrorPath);
+			}
 		}
 
 		this->buildResponseTry = 0;
@@ -126,6 +175,102 @@ namespace ws {
 					"</body>"
 				"</html>\r\n\r\n");
 		fileHandler::write(responsePath,response);
+	}
+
+	std::string Response::builPath(std::string &resourcePath)
+	{
+		std::string backSlash;
+		std::string root;
+		char tmp[2048];
+		getcwd(tmp, 2048);
+
+		if(resourcePath.at(0) != '/')
+			backSlash = "/";
+		root = this->currentLocation.getRoot();
+		root  = ltrim(root);
+		std::string path =   std::string(tmp) + root + backSlash + resourcePath;
+		return path;
+	}
+
+	
+
+	void Response::checkResource(Request &request)
+	{
+		
+		if(request.getRightLocation() == 0)//location doesnt exist
+		{
+			// std::cout << "location wrong"<< std::endl;
+			// get root location
+			this->statusCode = "404";
+			//search for location
+			Server s = request.getServer();
+			std::vector<Location> locs = s.getLocation();
+			for (std::vector<Location>::iterator it = locs.begin(); it != locs.end() ;++it)
+			{
+				Location  l1= *it;
+				if(l1.getLocation_match() == "/")
+				{	
+					// std::cout << l1.getLocation_match() << std::endl;
+					this->currentLocation = *it;
+					break;
+				}
+			}
+		}
+		//check methode allowed
+		if(isMethodeAllowed(request))
+		{
+			// std::cout << "right location and right methodes"<< std::endl;
+			if(!isRedirection())
+			{
+				// std::cout << "status now " << this->statusCode << std::endl;
+				// std::cout << "no redirection"<< std::endl;
+				//check status code
+				if(this->statusCode != "-1")
+				{
+					buildResponse(request);
+				}
+				else
+				{
+					defineMethode(request);					
+				}
+			}
+			else // redirection function
+			{
+				//before redirecting
+				//if code between 3xx 
+				//	check if error page 
+				//	if not redirect to that path
+				//else
+				//	put code as status and path as body
+				// std::cout << "redirection"<< std::endl;
+				std::string redirectionPath = this->currentLocation.getRedirectUri().find(301)->second;
+				this->statusCode = "301";
+				setHeader("Location",redirectionPath);
+				buildResponse(request);
+			}
+		}
+		else
+		{
+			this->statusCode = "405";
+			buildResponse(request);
+		}
+	}
+
+
+	void Response::defineMethode(Request &request)
+	{
+		if(getMethod(request) == "GET")
+		{
+			
+		}
+		else if(getMethod(request) == "POST")
+		{
+
+		}
+		else if(getMethod(request) == "DELETE")
+		{
+
+		}
 	}
 
 	void Response::setDateHeader()
@@ -175,11 +320,24 @@ namespace ws {
 		return "";
 	}
 
+	std::string Response::getErrorPage()
+	{
+		int status;
+		std::istringstream(this->statusCode) >> status;
+		std::map<int, std::string> errorPagesList = this->currentLocation.getErrorPages();
+		return errorPagesList.find(status)->second;
+	}
+
+	std::string  Response::getMethod(Request &request)
+	{
+		return request.getMethod();
+	}
+
 	bool Response::isMethodeAllowed(Request &request)
 	{
-		// std::string reqMethod = get methode
-		// return find(loc.allowedMethod.begin(), loc.allowedMethod.end(), reqMethod) != loc.allowedMethod.end();
-		return false;
+
+		std::vector<std::string> Methods = this->currentLocation.getAllowedMethods();
+		return (find(Methods.begin(),Methods.end(), getMethod(request)) != Methods.end());
 	}
 
 
@@ -191,12 +349,55 @@ namespace ws {
 		return ((errorPagesList.size() > 0) && (errorPagesList.find(status) != errorPagesList.end()));
 	}
 
-	std::string Response::getErrorPage()
+	bool Response::isPermission(std::string &path, std::string permission)
 	{
-		int status;
-		std::istringstream(this->statusCode) >> status;
-		std::map<int, std::string> errorPagesList = this->currentLocation.getErrorPages();
-		return errorPagesList.find(status)->second;
+		(void)permission;
+		struct stat fileStat;
+
+		if(stat(path.c_str(),&fileStat) < 0)    
+			return false;
+
+		// printf("File Permissions: \n");
+		// printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
+		// printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
+		// printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
+		// printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
+		// printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
+		// printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
+		// printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
+		// printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
+		// printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
+		// printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
+		// printf("\n");
+		if(permission == "r")
+			return (fileStat.st_mode & S_IRUSR);
+		if(permission == "w")
+			return (fileStat.st_mode & S_IWUSR);
+		if(permission == "x")
+			return (fileStat.st_mode & S_IXUSR);
+		
+		return false;
+	}
+
+	bool Response::isDir(std::string &resourcePath)
+	{
+		struct stat info;
+
+		stat( resourcePath.c_str(), &info );
+		return (info.st_mode & S_IFDIR);
+	}
+	
+	bool Response::isFile(std::string &resourcePath)
+	{
+		struct stat info;
+
+		stat( resourcePath.c_str(), &info );
+		return (info.st_mode & S_IFREG);
+	}
+
+	bool Response::isRedirection()
+	{
+		return (this->currentLocation.getRedirectUri().size() > 0);
 	}
 
 	void init_statusCodeMessages()
@@ -239,5 +440,23 @@ namespace ws {
 		statusCodeMessages["503"] = "Service Unavailable";
 		statusCodeMessages["504"] = "Gateway Time-out";
 		statusCodeMessages["505"] = "HTTP Version not supported";
+	}
+
+	const std::string WHITESPACE = " \n\r\t\f\v./";
+ 
+	std::string ltrim(const std::string &s)
+	{
+		size_t start = s.find_first_not_of(WHITESPACE);
+		return (start == std::string::npos) ? "" : s.substr(start);
+	}
+	
+	std::string rtrim(const std::string &s)
+	{
+		size_t end = s.find_last_not_of(WHITESPACE);
+		return (end == std::string::npos) ? "" : s.substr(0, end + 1);
+	}
+	
+	std::string trim(const std::string &s) {
+		return rtrim(ltrim(s));
 	}
 }
