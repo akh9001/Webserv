@@ -5,7 +5,7 @@
         Location::~Location() {}
         Location::Location(Location const& c) {*this = c;}
         
-        Location::Location(Server const& c) { 
+        Location::Location(Server & c) { 
              this->root = c.getRoot();
              this->_allowed_methods = c.getAllowedMethods();
              this->_index = c.getIndex();
@@ -14,6 +14,7 @@
              this->redirect_uri = c.getRedirectUri();
              this->errorPages = c.getErrorPages();
              this->cgiPath = c.getCgiPath();
+                this->uploadPath = c.getUploadPath();
 
 
         }

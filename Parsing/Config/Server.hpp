@@ -103,7 +103,7 @@ class Server
         void setClientMaxBodySize(unsigned long c) { _clinet_max_body_size = c;}
         bool getAutoIndex() const { return _autoindex;}
         void setAutoIndex(bool f) { _autoindex = f;}
-        std::map<int, std::string> getErrorPages() const { return errorPages;}
+        std::map<int, std::string> &getErrorPages()  { return errorPages;}
         void setErrorPages(std::map<int, std::string> &c) { errorPages = c;}
         std::string getUploadPath() const { return uploadPath;}
         void setUploadPath(const std::string &uploadPath) { this->uploadPath = uploadPath;}

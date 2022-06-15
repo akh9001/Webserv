@@ -21,7 +21,7 @@ class Location : public Server
         ~Location();
         Location(Location const& c);
         Location &operator=(Location const& c);
-        Location(Server const& c);
+        Location(Server & c);
         // ! /////////////////////// Getters & Setters //////////////////////
         std::string getLocation_match() const;
         void setLocation_match(std::string c);

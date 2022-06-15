@@ -1,6 +1,7 @@
 #include "Config.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
+#include <map>
 
 // ! //////////////////// Constuctors and destructor /////////////////
 

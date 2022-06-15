@@ -366,7 +366,6 @@ int Request::parse_body(std::string c)
         tmpUri.erase(0, pos);
         if (pos != 0)
             getRightLocation();
-        else
-            return 0;
+        return 0;
     }
 
