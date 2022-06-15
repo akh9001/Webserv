@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   networking.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:48:05 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/11 06:15:47 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/13 15:18:18 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,18 @@
 #include <vector>
 #include <map>
 #include <utility>
-
-// #include <iostream>
+#include <exception>
 #include <algorithm>
 #include <fstream>
 #include <string>
+//* c headers
 #include <cstring>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/select.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */
