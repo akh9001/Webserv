@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/14 18:07:11 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/15 09:27:53 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,14 @@ namespace ws {
 		public:
 			Response();
 			~Response();
-			std::string getHeaders(Request &request,Location &location, Config &config, std::string &statusCode);
+			std::string getHeaders(Request &request,Location &location, std::string &statusCode);
 			std::pair<std::string, bool> getbody();
 			
 		private:
 			int buildResponseTry;
 			std::string bodyPath;
 			std::string statusCode;
+			std::string headers;
 			std::map<std::string, std::string> headers_list;
 			Location currentLocation;
 
@@ -48,6 +49,7 @@ namespace ws {
 			void	bodyDefaultTemplate(std::string &responsePath);
 
 			//routing
+			void checkResource(Request &request);
 			void defineMethode(Request &request);
 
 			//helpers
@@ -76,6 +78,8 @@ namespace ws {
 	
 	static std::map<std::string,std::string> statusCodeMessages;
 	void init_statusCodeMessages();
+	std::string ltrim(const std::string &s);
+	std::string rtrim(const std::string &s);
+	std::string trim(const std::string &s);
 }
-
 #endif
