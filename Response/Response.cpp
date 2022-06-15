@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/15 21:05:12 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/16 00:23:22 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,49 +330,89 @@ namespace ws {
 							//check on indexs
 							if(isIndexes()) 
 							{
+								bool isIndex = false;
 								std::vector<std::string> indexList = getIndexes();
 								for (size_t i = 0; i < indexList.size(); i++)
 								{
-									std::cout << indexList[i] << std::endl;
-									// indexList[i]
-									//if exist 
-									//	is dir not implimented 501 return
-									//	else file
-									//		check permessions check cgi if not 200 return
-									//		if no permistion 403 return
-									
+									std::string indexPath = absoluteResourcePath+indexList[i];
+									std::cout << "index is " << indexPath << std::endl;
+									if(ws::fileHandler::checkIfExist(indexPath))
+									{
+										if(isPermission(indexPath, "r"))
+										{
+											if(isDir(indexPath))
+											{
+												std::cout << "index is dir" << std::endl;
+												this->statusCode = "501";
+												buildResponse(request);
+												isIndex = true;
+												break;
+											}
+											else if(isFile(indexPath))
+											{
+												std::cout << "index is file" << std::endl;
+												//TODO
+												// check if cgi
+												// else
+													this->statusCode = "200";
+													this->bodyPath = indexPath;
+												isIndex = true;
+												break;
+											}
+										}
+									}
 								}
-								if(isAutoIndexOn())
+								if(!isIndex)
 								{
-									this->statusCode = "200";
-									//build autoindex and push it to bodypath and tmp true
+									if(isAutoIndexOn())
+									{
+										//TODO
+										std::cout << "index is autoindex" << std::endl;
+										this->statusCode = "200";
+										//build autoindex and push it to bodypath and tmp true
+										this->bodyPath = "/Users/laafilal/Desktop/webserv1/autoindex.html";
+									}
+									else
+									{
+										std::cout << "index is 403 0" << std::endl;
+										this->statusCode = "403";
+										buildResponse(request);
+									}
 								}
-								else
-								{
-									this->statusCode = "403";
-									buildResponse(request);
-								}
-
 							}
 							else
 							{
-								if(ws::fileHandler::checkIfExist(absoluteResourcePath+"index.html"))
+								std::string defaultIndexPath = absoluteResourcePath+"index.html";
+								
+								std::cout << "index is exist " << ws::fileHandler::checkIfExist(defaultIndexPath)<< std::endl;
+								if(ws::fileHandler::checkIfExist(defaultIndexPath))
 								{
 									//TODO
+
 									//check permission
 									// else
 									// this->statusCode = "403";
 									// buildResponse(request);
-								}
-								if(isAutoIndexOn())
-								{
+									std::cout << "index is index.html " << defaultIndexPath<< std::endl;
 									this->statusCode = "200";
-									//build autoindex and push it to bodypath and tmp true
+									this->bodyPath = defaultIndexPath;
 								}
 								else
 								{
-									this->statusCode = "403";
-									buildResponse(request);
+									if(isAutoIndexOn())
+									{
+										//TODO
+										//build autoindex and push it to bodypath and tmp true
+										std::cout << "index is autoindex" << std::endl;
+										this->statusCode = "200";
+										this->bodyPath = "/Users/laafilal/Desktop/webserv1/autoindex.html";
+									}
+									else
+									{
+										std::cout << "index is 403 1" << std::endl;
+										this->statusCode = "403";
+										buildResponse(request);
+									}
 								}
 							}
 						}
@@ -527,7 +567,7 @@ namespace ws {
 		struct stat info;
 
 		stat( resourcePath.c_str(), &info );
-		return (info.st_mode & S_IFREG & !S_IFDIR);
+		return (info.st_mode & S_IFREG);
 	}
 
 	bool Response::isRedirection()
