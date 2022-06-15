@@ -49,30 +49,30 @@ void Server::parseLines()
     //   std::cout << *it << std::endl;
         if ((*it)[0] == '#')
             continue;
-        if ((*it).find("server_name") != std::string::npos)
+        if ((*it).find("server_name ") != std::string::npos)
             fetch_server_name(*it);
-        else if ((*it).find("listen") != std::string::npos)
+        else if ((*it).find("listen ") != std::string::npos)
             fetch_host(*it);
         else if ((*it).find("root") != std::string::npos)
             fetch_root(*it);
-        else if ((*it).find("allow_methods") != std::string::npos)
+        else if ((*it).find("allow_methods ") != std::string::npos)
              fetch_allowed_methods(*it);
-        else if ((*it).find("client_body_buffer_size") != std::string::npos)
+        else if ((*it).find("client_body_buffer_size ") != std::string::npos)
             fetch_cbbs(*it);
-        else if ((*it).find("redirect") != std::string::npos)
+        else if ((*it).find("redirect ") != std::string::npos)
             fetch_redirect(*it);
-        else if ((*it).find("cgi_path") != std::string::npos)
+        else if ((*it).find("cgi_path ") != std::string::npos)
             fetch_cgi(*it);
-        else if ((*it).find("autoindex") != std::string::npos)
+        else if ((*it).find("autoindex ") != std::string::npos)
             fetch_autoindex(*it);
-          else if ((*it).find("upload") != std::string::npos)
+        else if ((*it).find("upload ") != std::string::npos)
             fetch_upload(*it);
-        else if ((*it).find("index") != std::string::npos)
+        else if ((*it).find("index ") != std::string::npos)
             fetch_index(*it);
-        else if ((*it).find("location") != std::string::npos)
-            it += fetch_location(it);
         else if ((*it).find("error_page ") != std::string::npos)
             fetchErrorPage(*it);
+        else if ((*it).find("location ") != std::string::npos)
+            it += fetch_location(it);
         else if ((*it).find("}") != std::string::npos)
                 continue;
         else
@@ -178,19 +178,19 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
     
         if ((*it).find("root") != std::string::npos)
             tmp.fetch_root(*it);
-        else if ((*it).find("allow_methods") != std::string::npos)
+        else if ((*it).find("allow_methods ") != std::string::npos)
             tmp.fetch_allowed_methods(*it);
-        else if ((*it).find("client_body_buffer_size") != std::string::npos)
+        else if ((*it).find("client_body_buffer_size ") != std::string::npos)
             tmp.fetch_cbbs(*it);
-        else if ((*it).find("autoindex") != std::string::npos)
+        else if ((*it).find("autoindex ") != std::string::npos)
             tmp.fetch_autoindex(*it);
-        else if ((*it).find("index") != std::string::npos)
+        else if ((*it).find("index ") != std::string::npos)
             tmp.fetch_index(*it);
         else if ((*it).find("error_page ") != std::string::npos)
             fetchErrorPage(*it);
-        else if ((*it).find("redirect") != std::string::npos)
+        else if ((*it).find("redirect ") != std::string::npos)
             fetch_redirect(*it);
-        else if ((*it).find("cgi_path") != std::string::npos)
+        else if ((*it).find("cgi_path ") != std::string::npos)
             fetch_cgi(*it);
         else
              throw NotacceptableError();
@@ -278,6 +278,7 @@ void Server::fetchErrorPage(std::string& c)
     std::istringstream(a[0]) >> q;
     sscanf(a[0].c_str(), "%d", &q);
     errorPages.insert(std::make_pair(q, a[1]));
+    // std::cout << q << std::endl;
 }
 
 // ! ///////////////////////////// Error pages ////////////////////
