@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/14 10:58:17 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/15 10:44:55 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,7 +201,7 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 		
 		Location location = clients[i].request.getLocation();
 		
-		clients[i].buffer = response.getHeaders(clients[i].request, location, config ,status);
+		clients[i].buffer = response.getHeaders(clients[i].request, location ,status);
 		clients[i].body_inf = response.getbody();
 		
 		// clients[i].buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 54\r\nConnection: close\r\n\r\n";
