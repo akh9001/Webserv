@@ -153,6 +153,14 @@ void Config::parse_server()
 {
     for (int i = 0; i < servers.size(); i++)
         servers[i].parseLines();
+    //  for (int i = 0; i < servers.size(); i++)
+    // {
+    //     //std::cout << "dadad" << std::endl;
+    //     for (std::map<int, std::string>::iterator it = servers[i].getErrorPages().begin(); it != servers[i].getErrorPages().end(); it++)
+    //     {
+    //        std::cout << it->first << " " << it->second << std::endl;
+    //     }
+    // }
 }
 
 void Config::parse_bind_map()
