@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/15 13:01:30 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/15 21:05:12 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ namespace ws {
 		// check if errorpage exist
 		bool error_pages = false;
 		std::string originErrorPath = std::string();
-		std::cout << this->statusCode << " " << getErrorPage() << " " << (this->currentLocation.getErrorPages().find(404))->second << std::endl;
+		std::cout << this->statusCode << " " << getErrorPage() << " page |" << getErrorPage() <<"|"<< std::endl;
 		//search for error page path
 		
 		if(isErrorPage())//
@@ -90,7 +90,7 @@ namespace ws {
 			if(originErrorPath.at(0) == '/')
 			{
 				std::string errorPath = builPath(originErrorPath);
-				// std::cout << "start with / "<< errorPath << std::endl;
+				std::cout << "start with / "<< errorPath << std::endl;
 				//if errorPath source exist in root
 				if(ws::fileHandler::checkIfExist(errorPath))
 				{
@@ -210,7 +210,7 @@ namespace ws {
 				Location  l1= *it;
 				if(l1.getLocation_match() == "/")
 				{	
-					// std::cout << l1.getLocation_match() << std::endl;
+					std::cout << l1.getLocation_match() << std::endl;
 					this->currentLocation = *it;
 					break;
 				}
@@ -264,6 +264,7 @@ namespace ws {
 	{
 		if(getMethod(request) == "GET")
 		{
+			std::cout <<"GET crafting "<< std::endl;
 			craftGetRequests(request);
 		}
 		else if(getMethod(request) == "POST")
@@ -284,17 +285,19 @@ namespace ws {
 		//if errorPath source exist in root
 		if(ws::fileHandler::checkIfExist(absoluteResourcePath))
 		{
-			std::cout << "GET "<< absoluteResourcePath << std::endl;
+			std::cout << "GET "<< absoluteResourcePath <<" exist "<< ws::fileHandler::checkIfExist(absoluteResourcePath) << std::endl;
 			// check permission valid
 			if(isPermission(absoluteResourcePath, "r"))
 			{
 				if(isDir(absoluteResourcePath))
 				{
 					
+					std::cout << "test dir" << std::endl;
 					int endPos = requestResource.length();
 					--endPos;
 					if(requestResource.at(endPos) != '/')
 					{
+						std::cout << "redirect" << std::endl;
 						this->statusCode = "301";
 						setHeader("Location",requestResource+"/");
 						buildResponse(request);
@@ -315,6 +318,7 @@ namespace ws {
 								break;
 							}
 						}
+						// std::cout << this->currentLocation.getLocation_match() << std::endl;
 						if(it == locs.end()) //no location
 						{
 							this->statusCode = "403";
@@ -329,6 +333,7 @@ namespace ws {
 								std::vector<std::string> indexList = getIndexes();
 								for (size_t i = 0; i < indexList.size(); i++)
 								{
+									std::cout << indexList[i] << std::endl;
 									// indexList[i]
 									//if exist 
 									//	is dir not implimented 501 return
@@ -379,8 +384,9 @@ namespace ws {
 					//check cgi
 					// ...
 					//else
-						this->statusCode = "200";
-						this->bodyPath = absoluteResourcePath;
+					std::cout << "test file" << std::endl;
+					this->statusCode = "200";
+					this->bodyPath = absoluteResourcePath;
 				}
 			}
 			else
@@ -391,6 +397,7 @@ namespace ws {
 		}
 		else
 		{
+			
 			this->statusCode = "404";
 			buildResponse(request);
 		}
@@ -520,7 +527,7 @@ namespace ws {
 		struct stat info;
 
 		stat( resourcePath.c_str(), &info );
-		return (info.st_mode & S_IFREG);
+		return (info.st_mode & S_IFREG & !S_IFDIR);
 	}
 
 	bool Response::isRedirection()
