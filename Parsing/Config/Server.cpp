@@ -46,7 +46,7 @@ void Server::parseLines()
     it +=2;
     for (;it != serverline.end();it++)
     {
-      // std::cout << *it << std::endl;
+    //   std::cout << *it << std::endl;
         if ((*it)[0] == '#')
             continue;
         if ((*it).find("server_name") != std::string::npos)
@@ -175,6 +175,7 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
             it++;
             continue;
         }
+    
         if ((*it).find("root") != std::string::npos)
             tmp.fetch_root(*it);
         else if ((*it).find("allow_methods") != std::string::npos)

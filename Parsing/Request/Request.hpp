@@ -105,7 +105,7 @@ class Request
     void fetchContentLength();
     void fetchHost();
     void getRightServer(Config config);
-    void getRightLocation();
+    int getRightLocation();
     
 
 

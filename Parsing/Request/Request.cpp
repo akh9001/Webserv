@@ -350,7 +350,7 @@ int Request::parse_body(std::string c)
         }
     }
 
-    void  Request::getRightLocation()
+    int  Request::getRightLocation()
     {
         size_t pos = 0;
         std::string clone(tmpUri);
@@ -358,7 +358,7 @@ int Request::parse_body(std::string c)
         for (int i = 0; i < n; i++) {
             if (server.getLocation()[i].getLocation_match() == tmpUri) {
                 location = server.getLocation()[i];
-                return ;
+                return 1;
             }
         }
         while (clone.size() > 0 && (pos = clone.find("/")) != std::string::npos && pos != 0)
@@ -367,6 +367,6 @@ int Request::parse_body(std::string c)
         if (pos != 0)
             getRightLocation();
         else
-            throw "404";
+            return 0;
     }
 
