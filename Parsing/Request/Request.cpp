@@ -294,7 +294,7 @@ int Request::parse_body(std::string c)
         if (headerMap.find("Transfer-Encoding") != headerMap.end() && headerMap["Transfer-Encoding"] != "chunked")
             throw "501";
         if ((headerMap.find("Transfer-Encoding") == headerMap.end()) && (headerMap.find("contentLength") == headerMap.end()) && method == "POST")
-            throw "400"; 
+            throw "411";
         if (headerMap.find("contentLength") != headerMap.end() && headerMap["contentLength"] != "0")
             filePath = ws::fileHandler::createTmp("request_tmp_files/");
         
@@ -350,7 +350,7 @@ int Request::parse_body(std::string c)
         }
     }
 
-    void  Request::getRightLocation()
+    int  Request::getRightLocation()
     {
         size_t pos = 0;
         std::string clone(tmpUri);
@@ -358,7 +358,7 @@ int Request::parse_body(std::string c)
         for (int i = 0; i < n; i++) {
             if (server.getLocation()[i].getLocation_match() == tmpUri) {
                 location = server.getLocation()[i];
-                return ;
+                return 1;
             }
         }
         while (clone.size() > 0 && (pos = clone.find("/")) != std::string::npos && pos != 0)
@@ -367,6 +367,6 @@ int Request::parse_body(std::string c)
         if (pos != 0)
             getRightLocation();
         else
-            throw "404";
+            return 0;
     }
 
