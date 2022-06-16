@@ -192,6 +192,8 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
             fetch_redirect(*it);
         else if ((*it).find("cgi_path ") != std::string::npos)
             fetch_cgi(*it);
+        else if ((*it).find("upload ") != std::string::npos)
+            fetch_upload(*it);
         else
              throw NotacceptableError();
         i++;

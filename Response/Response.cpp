@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/16 05:45:31 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/16 07:44:37 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <sstream>
 #include <iterator>
 #include <unistd.h>
+#include "../Includes/networking.hpp"
 
 namespace ws {
 
