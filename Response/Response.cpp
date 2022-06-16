@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/15 10:48:12 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/15 19:50:42 by trevor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <sstream>
 #include <iterator>
 #include <unistd.h>
+#include "../Includes/networking.hpp"
 
 namespace ws {
 
