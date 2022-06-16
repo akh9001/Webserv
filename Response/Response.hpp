@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/15 12:45:36 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/16 02:49:11 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,12 @@ namespace ws {
 			void	buildResponse(Request &request);
 			void	bodyDefaultTemplate(std::string &responsePath);
 			void	craftGetRequests(Request &request);
+			void	craftPostRequests(Request &request);
 
 			//routing
-			void checkResource(Request &request);
+			void checkResourceLocation(Request &request);
 			void defineMethode(Request &request);
+			void checkResource(Request &request);
 
 			//helpers
 			std::string builPath(std::string &resourcePath);
@@ -76,6 +78,7 @@ namespace ws {
 			bool isRedirection();
 			bool isIndexes();
 			bool isAutoIndexOn();
+			bool hasUpload(Request &request);
 
 	};
 	
