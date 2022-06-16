@@ -26,6 +26,7 @@ class Request
         std::string query;
         std::string hostIp;
         int hostPort;
+       // std::string query;
         // std::string connection;
         // std::string user_agent;
         // std::string accept;
@@ -103,6 +104,7 @@ class Request
    void  print_header();
    void parsefline(std::string &);
    void parseHeaderLines(Config config);
+   void parseUri();
     // ! ////////////////////// fetch server or location //////////////////////
     void fetchContentLength();
     void fetchHost();

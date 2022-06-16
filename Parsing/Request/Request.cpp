@@ -32,6 +32,7 @@ Request::Request()
     this->parsed = false;
     fchuncked = 0;
     save = "";
+    query = "";
     change = 0;
     full = 0;
 }
@@ -63,6 +64,7 @@ Request &Request::operator=(Request const& c)
         version = c.version;
         hostIp = c.hostIp;
         hostPort = c.hostPort;
+        query = c.query;
         // connection = c.connection;
         // user_agent = c.user_agent;
         // accept = c.accept;
@@ -194,6 +196,9 @@ void Request::parseHeaderLines(Config config)
     checkTransferEncoding();
     checkContentLength(0);
     parsed = true;
+    std::cout << uri << std::endl;
+    std::cout << query << std::endl;
+    exit(0);
 }
 
 int Request::parse_body(std::string c)
@@ -234,8 +239,19 @@ int Request::parse_body(std::string c)
         version = line.substr(0, pos);
         line.erase(0, pos + 1);
         main_error_check();
+        parseUri();
         tmpUri = uri;
 
+}
+
+void Request::parseUri()
+{
+    if (size_t pos = uri.find("?") != std::string::npos)
+    {
+        
+        query = uri.substr(uri.find("?"), uri.size() - pos);
+        uri.erase(uri.find("?"), uri.size());
+    }
 }
 
 // ! /////////////////////// erros check //////////////////
