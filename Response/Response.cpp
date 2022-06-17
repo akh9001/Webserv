@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 01:52:25 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 02:59:31 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,16 +44,16 @@ namespace ws {
 		}
 		else
 		{
-			// try
-			// {
+			try
+			{
 				checkResourceLocation(request);
-				// checkRedirection(request);
-				//checkAllowedMethods()
-			// }
-			// catch(int done)
-			// {
-			// 	std::cerr << "done" << done << '\n';
-			// }
+				checkRedirection(request);
+			// 	// checkAllowedMethods()
+			}
+			catch(const char *done)
+			{
+				std::cout << done << '\n';
+			}
 			
 		}
 
@@ -88,11 +88,11 @@ namespace ws {
 		// check if errorpage exist
 		bool error_pages = false;
 		std::string originErrorPath = std::string();
-		std::cout << this->statusCode << " " << getErrorPage() << " page |" << getErrorPage() <<"|"<< std::endl;
 		//search for error page path
 		
 		if(isErrorPage())//
 		{
+			std::cout << this->statusCode << " " << getErrorPage() << " page |" << getErrorPage() <<"|"<< std::endl;
 			originErrorPath = getErrorPage();
 			// originErrorPath = "/dir";
 			// std::cout << "Working on this error page" << std::endl;
@@ -198,7 +198,8 @@ namespace ws {
 			backSlash = "/";
 		root = this->currentLocation.getRoot();
 		root  = ltrim(root);
-		std::string path =   std::string(tmp) + root + backSlash + resourcePath;
+		std::string s = "/";
+		std::string path =   std::string(tmp) +s+ root + backSlash + resourcePath;
 		return path;
 	}
 
@@ -245,54 +246,53 @@ namespace ws {
 			std::cout << " result " << this->currentLocation.getLocation_match() << std::endl;
 			//////////////////////////////////
 		}
-
 		//check methode allowed
 		if(isMethodeAllowed(request))
 		{
 			std::cout << "red "<< this->currentLocation.getLocation_match() << " " << isRedirection()<< std::endl;
 			
-			if(!isRedirection())
-			{
+			// if(!isRedirection())
+			// {
 				// std::cout << "define method "<< request.getUri() << std::endl;
 				//check if root exist
-				if(this->currentLocation.getRoot().empty())
-				{
-					this->statusCode = "404";
-					buildResponse(request);
-					return ;
-				}
-				defineMethode(request);					
-			}
-			else //TODO redirection function
+			if(this->currentLocation.getRoot().empty())
 			{
-				//before redirecting
-				//if code between 3xx 
-				//	check if error page 
-				//	if not redirect to that path
-				//else
-				//	put code as status and path as body
-				// std::cout << "redirection"<< std::endl;
-				// int s;
-				// std::stringstream status(this)
-				// if()
-				std::cout << "redirection test " << getRedirection().first << " " << getRedirection().second;
-				std::string redirectionPath = getRedirection().second;
-				int status = getRedirection().first;
-				this->statusCode = std::to_string(status);
-				if(status >= 300 && status < 400)
-				{	
-					setHeader("Location",redirectionPath);
-					buildResponse(request);
-				}
-				else
-				{
-					// TODO ADD ABS PATH
-					std::string tmpPath = ws::fileHandler::createTmp("/Users/laafilal/Desktop/webserv1/response_tmp_files");
-					ws::fileHandler::write(tmpPath,redirectionPath);
-					this->bodyPath = tmpPath;
-					this->response_is_tmp = true;
-				}
+				this->statusCode = "404";
+				buildResponse(request);
+				return ;
 			}
+			defineMethode(request);					
+			// }
+			// else //TODO redirection function
+			// {
+			// 	//before redirecting
+			// 	//if code between 3xx 
+			// 	//	check if error page 
+			// 	//	if not redirect to that path
+			// 	//else
+			// 	//	put code as status and path as body
+			// 	// std::cout << "redirection"<< std::endl;
+			// 	// int s;
+			// 	// std::stringstream status(this)
+			// 	// if()
+			// 	std::cout << "redirection test " << getRedirection().first << " " << getRedirection().second;
+			// 	std::string redirectionPath = getRedirection().second;
+			// 	int status = getRedirection().first;
+			// 	this->statusCode = std::to_string(status);
+			// 	if(status >= 300 && status < 400)
+			// 	{	
+			// 		setHeader("Location",redirectionPath);
+			// 		buildResponse(request);
+			// 	}
+			// 	else
+			// 	{
+			// 		// TODO ADD ABS PATH
+			// 		std::string tmpPath = ws::fileHandler::createTmp("/Users/laafilal/Desktop/webserv1/response_tmp_files");
+			// 		ws::fileHandler::write(tmpPath,redirectionPath);
+			// 		this->bodyPath = tmpPath;
+			// 		this->response_is_tmp = true;
+			// 	}
+			// }
 		}
 		else
 		{
@@ -322,7 +322,7 @@ namespace ws {
 				this->bodyPath = tmpPath;
 				this->response_is_tmp = true;
 			}
-			// throw -1;
+			throw "Redirection";
 		}
 	}
 	
