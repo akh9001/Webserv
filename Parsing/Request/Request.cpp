@@ -196,9 +196,6 @@ void Request::parseHeaderLines(Config config)
     checkTransferEncoding();
     checkContentLength(0);
     parsed = true;
-    std::cout << uri << std::endl;
-    std::cout << query << std::endl;
-    exit(0);
 }
 
 int Request::parse_body(std::string c)
