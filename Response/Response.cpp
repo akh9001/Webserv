@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 12:33:08 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 12:38:59 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,6 +226,7 @@ namespace ws {
 			}
 			else
 			{
+				
 				std::string tmpDirectory = ("response_tmp_files");
 				std::string tmpDirectoryPath = buildPath(tmpDirectory);
 				std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
