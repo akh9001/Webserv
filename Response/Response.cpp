@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 12:20:25 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 12:33:08 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,8 +226,9 @@ namespace ws {
 			}
 			else
 			{
-				// TODO ADD ABS PATH
-				std::string tmpPath = ws::fileHandler::createTmp("/Users/laafilal/Desktop/webserv1/response_tmp_files");
+				std::string tmpDirectory = ("response_tmp_files");
+				std::string tmpDirectoryPath = buildPath(tmpDirectory);
+				std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
 				ws::fileHandler::write(tmpPath,redirectionPath);
 				this->bodyPath = tmpPath;
 				this->response_is_tmp = true;
