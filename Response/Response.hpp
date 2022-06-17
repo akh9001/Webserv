@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 00:49:05 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 01:47:17 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ namespace ws {
 			void checkResourceLocation(Request &request);
 			void defineMethode(Request &request);
 			void checkResource(Request &request);
+			void checkRedirection(Request &request);
 
 			//helpers
 			std::string buildPath(std::string &resourcePath);

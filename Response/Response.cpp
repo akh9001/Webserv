@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 01:19:34 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 01:52:25 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,17 @@ namespace ws {
 		}
 		else
 		{
-			checkResourceLocation(request);
-			//checkRedirection()
-			//checkAllowedMethods()
+			// try
+			// {
+				checkResourceLocation(request);
+				// checkRedirection(request);
+				//checkAllowedMethods()
+			// }
+			// catch(int done)
+			// {
+			// 	std::cerr << "done" << done << '\n';
+			// }
+			
 		}
 
 		setDateHeader();	
@@ -237,8 +245,7 @@ namespace ws {
 			std::cout << " result " << this->currentLocation.getLocation_match() << std::endl;
 			//////////////////////////////////
 		}
-		
-		
+
 		//check methode allowed
 		if(isMethodeAllowed(request))
 		{
@@ -294,7 +301,31 @@ namespace ws {
 		}
 	}
 
-
+	void Response::checkRedirection(Request &request)
+	{
+		if(isRedirection())
+		{
+			std::cout << "redirection test " << getRedirection().first << " " << getRedirection().second;
+			std::string redirectionPath = getRedirection().second;
+			int status = getRedirection().first;
+			this->statusCode = std::to_string(status);
+			if(status >= 300 && status < 400)
+			{	
+				setHeader("Location",redirectionPath);
+				buildResponse(request);
+			}
+			else
+			{
+				// TODO ADD ABS PATH
+				std::string tmpPath = ws::fileHandler::createTmp("/Users/laafilal/Desktop/webserv1/response_tmp_files");
+				ws::fileHandler::write(tmpPath,redirectionPath);
+				this->bodyPath = tmpPath;
+				this->response_is_tmp = true;
+			}
+			// throw -1;
+		}
+	}
+	
 	void Response::defineMethode(Request &request)
 	{
 		// std::cout <<getMethod(request)<< std::endl;
