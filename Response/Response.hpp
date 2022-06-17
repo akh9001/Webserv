@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/16 02:49:11 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 00:49:05 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ namespace ws {
 			void checkResource(Request &request);
 
 			//helpers
-			std::string builPath(std::string &resourcePath);
+			std::string buildPath(std::string &resourcePath);
 
 			//setters
 			void setDateHeader();
@@ -68,6 +68,7 @@ namespace ws {
 			std::string getErrorPage();
 			std::string getMethod(Request &request);
 			std::vector<std::string> getIndexes();
+			std::pair<int,std::string>	getRedirection();
 
 			//checkers
 			bool isMethodeAllowed(Request &request);

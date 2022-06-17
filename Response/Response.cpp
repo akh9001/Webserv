@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/16 07:44:37 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 01:19:34 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,6 @@ namespace ws {
 		int status;
 		std::istringstream(statusCode) >> status;
 
-		// 
-		//check if exist
 		if(statusCode != "-1" && status >= 400)
 		{	
 			buildResponse(request);
@@ -47,6 +45,8 @@ namespace ws {
 		else
 		{
 			checkResourceLocation(request);
+			//checkRedirection()
+			//checkAllowedMethods()
 		}
 
 		setDateHeader();	
@@ -90,7 +90,8 @@ namespace ws {
 			// std::cout << "Working on this error page" << std::endl;
 			if(originErrorPath.at(0) == '/')
 			{
-				std::string errorPath = builPath(originErrorPath);
+				
+				std::string errorPath = buildPath(originErrorPath);
 				std::cout << "start with / "<< errorPath << std::endl;
 				//if errorPath source exist in root
 				if(ws::fileHandler::checkIfExist(errorPath))
@@ -103,7 +104,7 @@ namespace ws {
 						{
 							// std::cout << errorPath << " is a file "<< std::endl;
 							error_pages = true;
-							this->bodyPath = errorPath;
+							this->bodyPath = errorPath;//TODO problem
 						}
 						else
 						{
@@ -178,7 +179,7 @@ namespace ws {
 		fileHandler::write(responsePath,response);
 	}
 
-	std::string Response::builPath(std::string &resourcePath)
+	std::string Response::buildPath(std::string &resourcePath)
 	{
 		std::string backSlash;
 		std::string root;
@@ -204,28 +205,55 @@ namespace ws {
 			// get root location
 			// this->statusCode = "404";
 			//search for location
+			///////////////////////////////////////
+			// Server s = request.getServer();
+			// std::vector<Location> locs = s.getLocation();
+			// for (std::vector<Location>::iterator it = locs.begin(); it != locs.end() ;++it)
+			// {
+			// 	Location  l1= *it;
+			// 	if(l1.getLocation_match() == "/")
+			// 	{	
+			// 		std::cout << l1.getLocation_match() << std::endl;
+			// 		this->currentLocation = *it;
+			// 		break;
+			// 	}
+			// }
+			///////////////////////////////////////search for best location
 			Server s = request.getServer();
 			std::vector<Location> locs = s.getLocation();
+			int locationLength = 0;
 			for (std::vector<Location>::iterator it = locs.begin(); it != locs.end() ;++it)
 			{
 				Location  l1= *it;
-				if(l1.getLocation_match() == "/")
+				if(locationLength <= l1.getLocation_match().length() && strncasecmp(l1.getLocation_match().c_str(), request.getUri().c_str(), l1.getLocation_match().length()) == 0)
 				{	
+					locationLength = l1.getLocation_match().length();
 					std::cout << l1.getLocation_match() << std::endl;
 					this->currentLocation = *it;
-					break;
+					// break;
 				}
 			}
+			// std::cout << " result " << this->currentLocation.getLocation_match() << this->currentLocation.getRedirectUri().begin()->second << std::endl;
+			std::cout << " result " << this->currentLocation.getLocation_match() << std::endl;
+			//////////////////////////////////
 		}
 		
 		
 		//check methode allowed
 		if(isMethodeAllowed(request))
 		{
-			// std::cout << "right location and right methodes"<< std::endl;
+			std::cout << "red "<< this->currentLocation.getLocation_match() << " " << isRedirection()<< std::endl;
+			
 			if(!isRedirection())
 			{
-				std::cout << "define method "<< request.getUri() << std::endl;
+				// std::cout << "define method "<< request.getUri() << std::endl;
+				//check if root exist
+				if(this->currentLocation.getRoot().empty())
+				{
+					this->statusCode = "404";
+					buildResponse(request);
+					return ;
+				}
 				defineMethode(request);					
 			}
 			else //TODO redirection function
@@ -237,10 +265,26 @@ namespace ws {
 				//else
 				//	put code as status and path as body
 				// std::cout << "redirection"<< std::endl;
-				std::string redirectionPath = this->currentLocation.getRedirectUri().find(301)->second;
-				this->statusCode = "301";
-				setHeader("Location",redirectionPath);
-				buildResponse(request);
+				// int s;
+				// std::stringstream status(this)
+				// if()
+				std::cout << "redirection test " << getRedirection().first << " " << getRedirection().second;
+				std::string redirectionPath = getRedirection().second;
+				int status = getRedirection().first;
+				this->statusCode = std::to_string(status);
+				if(status >= 300 && status < 400)
+				{	
+					setHeader("Location",redirectionPath);
+					buildResponse(request);
+				}
+				else
+				{
+					// TODO ADD ABS PATH
+					std::string tmpPath = ws::fileHandler::createTmp("/Users/laafilal/Desktop/webserv1/response_tmp_files");
+					ws::fileHandler::write(tmpPath,redirectionPath);
+					this->bodyPath = tmpPath;
+					this->response_is_tmp = true;
+				}
 			}
 		}
 		else
@@ -253,10 +297,10 @@ namespace ws {
 
 	void Response::defineMethode(Request &request)
 	{
-		std::cout <<getMethod(request)<< std::endl;
+		// std::cout <<getMethod(request)<< std::endl;
 		if(getMethod(request) == "GET")
 		{
-			std::cout <<"GET crafting "<< std::endl;
+			// std::cout <<"GET crafting "<< std::endl;
 			craftGetRequests(request);
 		}
 		else if(getMethod(request) == "POST")
@@ -274,11 +318,11 @@ namespace ws {
 	{
 		//check resource if exist
 		std::string requestResource = request.getUri();
-		std::string absoluteResourcePath = builPath(requestResource);
+		std::string absoluteResourcePath = buildPath(requestResource);
 		//if errorPath source exist in root
+		std::cout << "GET "<< absoluteResourcePath <<" exist "<< ws::fileHandler::checkIfExist(absoluteResourcePath) << std::endl;
 		if(ws::fileHandler::checkIfExist(absoluteResourcePath))
 		{
-			std::cout << "GET "<< absoluteResourcePath <<" exist "<< ws::fileHandler::checkIfExist(absoluteResourcePath) << std::endl;
 			// check permission valid
 			if(isPermission(absoluteResourcePath, "r"))
 			{
@@ -298,34 +342,53 @@ namespace ws {
 					else
 					{
 						///search in locations
+						// Server s = request.getServer();
+						// std::vector<Location> locs = s.getLocation();
+						// std::vector<Location>::iterator it;
+						// for (it = locs.begin(); it != locs.end() ;++it)
+						// {
+						// 	Location  l1= *it;
+						// 	if(l1.getLocation_match() == rtrim(requestResource))
+						// 	{	
+						// 		// std::cout << l1.getLocation_match() << std::endl;
+						// 		this->currentLocation = *it;
+						// 		break;
+						// 	}
+						// }
+						///////////////////////////////////////
 						Server s = request.getServer();
 						std::vector<Location> locs = s.getLocation();
+						int locationLength = 0;
 						std::vector<Location>::iterator it;
 						for (it = locs.begin(); it != locs.end() ;++it)
 						{
 							Location  l1= *it;
-							if(l1.getLocation_match() == rtrim(requestResource))
+							if(locationLength <= l1.getLocation_match().length() && strncasecmp(l1.getLocation_match().c_str(), request.getUri().c_str(), l1.getLocation_match().length()) == 0)
 							{	
-								// std::cout << l1.getLocation_match() << std::endl;
+								locationLength = l1.getLocation_match().length();
+								std::cout << l1.getLocation_match() << std::endl;
 								this->currentLocation = *it;
-								break;
+								// break;
 							}
 						}
-						if(it == locs.end()) //no location
-						{
-							this->statusCode = "403";
-							buildResponse(request);
-						}
-						else
-						{
+						//////////////////////////////////
+						// if(it == locs.end()) //no location
+						// {
+						// 	std::cout << " result " << this->currentLocation.getLocation_match() << this->currentLocation.getIndex()[0] << std::endl;
+						// 	this->statusCode = "403";
+						// 	buildResponse(request);
+						// }
+						// else
+						// {
 							if(isIndexes()) 
 							{
 								bool isIndex = false;
 								std::vector<std::string> indexList = getIndexes();
+								std::cout << " result " << this->currentLocation.getLocation_match() << this->currentLocation.getIndex()[0] <<  "ab path" << absoluteResourcePath<< std::endl;
 								for (size_t i = 0; i < indexList.size(); i++)
 								{
-									//check if indexList[i] starts with /
-									std::string indexPath = absoluteResourcePath+indexList[i];
+									std::string indexPath = buildPath(indexList[i]);
+									// std::string indexPath = absoluteResourcePath+indexList[i];
 									std::cout << "index is " << indexPath << std::endl;
 									if(ws::fileHandler::checkIfExist(indexPath))
 									{
@@ -343,7 +406,7 @@ namespace ws {
 											{
 												std::cout << "index is file" << getMethod(request)<< std::endl;
 												//TODO
-												// check if cgi
+												// check if cgi 
 												// else
 													this->statusCode = "200";
 													this->bodyPath = indexPath;
@@ -407,7 +470,7 @@ namespace ws {
 									}
 								}
 							}
-						}
+						// }
 					}
 				}
 				else if(isFile(absoluteResourcePath))// else if file
@@ -440,7 +503,7 @@ namespace ws {
 		// if(hasUpload(request))
 		//check resource if exist
 		std::string requestResource = request.getUri();
-		std::string absoluteResourcePath = builPath(requestResource);
+		std::string absoluteResourcePath = buildPath(requestResource);
 		//if errorPath source exist in root
 		if(ws::fileHandler::checkIfExist(absoluteResourcePath))
 		{
@@ -451,7 +514,7 @@ namespace ws {
 				if(isDir(absoluteResourcePath))
 				{
 					
-					std::cout << "test dir" << std::endl;
+					// std::cout << "test dir" << std::endl;
 					int endPos = requestResource.length();
 					--endPos;
 					if(requestResource.at(endPos) != '/')
@@ -507,7 +570,7 @@ namespace ws {
 											}
 											else if(isFile(indexPath))
 											{
-												std::cout << "index is file" << getMethod(request)<< std::endl;
+												// std::cout << "index is file" << getMethod(request)<< std::endl;
 												//TODO
 												// check if cgi
 												// else
@@ -629,7 +692,7 @@ namespace ws {
 	{
 		// //check resource if exist
 		// std::string requestResource = request.getUri();
-		// std::string absoluteResourcePath = builPath(requestResource);
+		// std::string absoluteResourcePath = buildPath(requestResource);
 		// //if errorPath source exist in root
 		// if(ws::fileHandler::checkIfExist(absoluteResourcePath))
 		// {
@@ -859,6 +922,11 @@ namespace ws {
 	std::vector<std::string> Response::getIndexes()
 	{
 		return this->currentLocation.getIndex();
+	}
+
+	std::pair<int,std::string>	Response::getRedirection()
+	{
+		return std::make_pair<int , std::string>(this->currentLocation.getRedirectUri().begin()->first,this->currentLocation.getRedirectUri().begin()->second);
 	}
 
 	bool Response::isMethodeAllowed(Request &request)
