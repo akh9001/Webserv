@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 07:07:59 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 07:52:14 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,6 +265,7 @@ namespace ws {
 		}
 		else if(getMethod(request) == "POST")
 		{
+			//TODO
 			// std::cout <<"POST crafting "<< std::endl;
 			// craftPostRequests(request);
 		}
@@ -288,7 +289,7 @@ namespace ws {
 
 	void Response::checkIndexes()
 	{
-		bool isIndex = false;
+		// bool isIndex = false;
 		std::vector<std::string> indexList = getIndexes();
 		for (size_t i = 0; i < indexList.size(); i++)
 		{
@@ -301,40 +302,41 @@ namespace ws {
 					{
 						this->statusCode = "501";
 						buildResponse();
-						isIndex = true;
+						// isIndex = true;
 						throw "dir as index not supported";
 					}
 					else if(isFile(indexPath))
 					{
 						// std::cout << "index is file" << getMethod(request)<< std::endl;
-						//TODO
-						// check if cgi 
-						// else
-							this->statusCode = "200";
-							this->bodyPath = indexPath;
-						isIndex = true;
+						if(isCgi())
+						{
+							//call cgi handler
+							throw "calling cgi";
+						}
+						this->statusCode = "200";
+						this->bodyPath = indexPath;
+						// isIndex = true;
 						throw "index delevered success 1";
 					}
 				}
 			}
 		}
-		if(!isIndex)
+		if(isAutoIndexOn())
 		{
-			if(isAutoIndexOn())
-			{
-				//TODO
-				// std::cout << "index is autoindex" << std::endl;
-				this->statusCode = "200";
-				//build autoindex and push it to bodypath and tmp true
-				this->bodyPath = "/Users/laafilal/Desktop/webserv1/autoindex.html";
-				throw "autoindex";
-			}
-			else
-			{
-				this->statusCode = "403";
-				buildResponse();
-				throw "index have an issue";
-			}
+			//TODO
+			std::string tmpPath = ws::fileHandler::createTmp("/Users/laafilal/Desktop/webserv1/response_tmp_files");
+			//////////////
+			ws::fileHandler::write(tmpPath,"autoindex page");
+			/////////////
+			this->statusCode = "200";
+			this->bodyPath = tmpPath;
+			throw "autoindex";
+		}
+		else
+		{
+			this->statusCode = "403";
+			buildResponse();
+			throw "index have an issue";
 		}
 	}
 
@@ -375,7 +377,6 @@ namespace ws {
 		{
 			throw msg;
 		}
-		
 		if(isDir(absoluteResourcePath))
 		{
 			//check the end slash
@@ -390,11 +391,13 @@ namespace ws {
 			else 
 			{
 				checkDefaultIndex(absoluteResourcePath);
+				std::cout << absoluteResourcePath << std::endl;
 				if(isAutoIndexOn())
 				{
 					//TODO
 					//build autoindex and push it to bodypath and tmp true
 					// std::cout << "index is autoindex" << std::endl;
+					
 					this->statusCode = "200";
 					this->bodyPath = "/Users/laafilal/Desktop/webserv1/autoindex.html";
 					throw "autoindex delever";
@@ -410,12 +413,11 @@ namespace ws {
 		}
 		else if(isFile(absoluteResourcePath))// else if file
 		{
-			
-			//TODO
-			//check cgi
-			// ...
-			//else
-			// std::cout << "test file" <<  getMethod(request)<< std::endl;
+			if(isCgi())
+			{
+				//call cgi handler
+				throw "calling cgi";
+			}
 			this->statusCode = "200";
 			this->bodyPath = absoluteResourcePath;
 			throw "File response with success";
@@ -778,6 +780,11 @@ namespace ws {
 			buildResponse();
 			throw "Resource doesnt exist";
 		}
+	}
+
+	bool Response::isCgi()
+	{
+		return (!this->currentLocation.getCgiPath().empty());
 	}
 
 	void init_statusCodeMessages()

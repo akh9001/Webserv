@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 07:07:40 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 07:20:48 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ namespace ws {
 			bool hasUpload();
 			void isResourceValid(std::string &resourcePath);
 			void isResourceEndSlash(Request &request);
-			void isCgi(Request &request);
+			bool isCgi();
 
 	};
 	
