@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/15 12:45:36 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 07:20:48 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,16 +44,25 @@ namespace ws {
 		private:
 			//response builders
 			std::string headerBuilder();
-			void	buildResponse(Request &request);
+			void	buildResponse();
 			void	bodyDefaultTemplate(std::string &responsePath);
 			void	craftGetRequests(Request &request);
+			void	craftPostRequests(Request &request);
+			void 	checkIndexes();
+			void	checkDefaultIndex(std::string &absoluteResourcePath);
+
 
 			//routing
+			void checkResourceLocation(Request &request);
 			void checkResource(Request &request);
+			void checkRedirection();
+			void checkAllowedMethods(Request &request);
 			void defineMethode(Request &request);
 
 			//helpers
-			std::string builPath(std::string &resourcePath);
+			std::string buildPath(std::string &resourcePath);
+			std::string buildAbsolutePath(Request &request);
+			void	searchForLocation(Request &request);
 
 			//setters
 			void setDateHeader();
@@ -62,10 +71,11 @@ namespace ws {
 
 			//getters
 			long long getFileSize(std::string &filePath);
-			std::string getMessage(std::string &statusCode);
+			std::string getMessage();
 			std::string getErrorPage();
 			std::string getMethod(Request &request);
 			std::vector<std::string> getIndexes();
+			std::pair<int,std::string>	getRedirection();
 
 			//checkers
 			bool isMethodeAllowed(Request &request);
@@ -76,6 +86,10 @@ namespace ws {
 			bool isRedirection();
 			bool isIndexes();
 			bool isAutoIndexOn();
+			bool hasUpload();
+			void isResourceValid(std::string &resourcePath);
+			void isResourceEndSlash(Request &request);
+			bool isCgi();
 
 	};
 	
