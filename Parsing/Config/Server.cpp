@@ -195,13 +195,13 @@ int Server::fetch_location(std::vector<std::string>::iterator it)
         else if ((*it).find("index ") != std::string::npos)
             tmp.fetch_index(*it);
         else if ((*it).find("error_page ") != std::string::npos)
-            fetchErrorPage(*it);
+            tmp.fetchErrorPage(*it);
         else if ((*it).find("redirect ") != std::string::npos)
-            fetch_redirect(*it);
+            tmp.fetch_redirect(*it);
         else if ((*it).find("cgi_path ") != std::string::npos)
-            fetch_cgi(*it);
+            tmp.fetch_cgi(*it);
         else if ((*it).find("upload ") != std::string::npos)
-            fetch_upload(*it);
+            tmp.fetch_upload(*it);
         else
              throw NotacceptableError();
         i++;
