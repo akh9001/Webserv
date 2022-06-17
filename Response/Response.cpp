@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 02:59:31 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 03:30:32 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,11 @@ namespace ws {
 			{
 				checkResourceLocation(request);
 				checkRedirection(request);
-			// 	// checkAllowedMethods()
+				checkAllowedMethods(request);
 			}
 			catch(const char *done)
 			{
-				std::cout << done << '\n';
+				std::cout << done << std::endl;
 			}
 			
 		}
@@ -190,6 +190,7 @@ namespace ws {
 	std::string Response::buildPath(std::string &resourcePath)
 	{
 		std::string backSlash;
+		std::string s ;
 		std::string root;
 		char tmp[2048];
 		getcwd(tmp, 2048);
@@ -198,7 +199,8 @@ namespace ws {
 			backSlash = "/";
 		root = this->currentLocation.getRoot();
 		root  = ltrim(root);
-		std::string s = "/";
+		if(!root.empty())
+			s = "/";
 		std::string path =   std::string(tmp) +s+ root + backSlash + resourcePath;
 		return path;
 	}
@@ -246,59 +248,6 @@ namespace ws {
 			std::cout << " result " << this->currentLocation.getLocation_match() << std::endl;
 			//////////////////////////////////
 		}
-		//check methode allowed
-		if(isMethodeAllowed(request))
-		{
-			std::cout << "red "<< this->currentLocation.getLocation_match() << " " << isRedirection()<< std::endl;
-			
-			// if(!isRedirection())
-			// {
-				// std::cout << "define method "<< request.getUri() << std::endl;
-				//check if root exist
-			if(this->currentLocation.getRoot().empty())
-			{
-				this->statusCode = "404";
-				buildResponse(request);
-				return ;
-			}
-			defineMethode(request);					
-			// }
-			// else //TODO redirection function
-			// {
-			// 	//before redirecting
-			// 	//if code between 3xx 
-			// 	//	check if error page 
-			// 	//	if not redirect to that path
-			// 	//else
-			// 	//	put code as status and path as body
-			// 	// std::cout << "redirection"<< std::endl;
-			// 	// int s;
-			// 	// std::stringstream status(this)
-			// 	// if()
-			// 	std::cout << "redirection test " << getRedirection().first << " " << getRedirection().second;
-			// 	std::string redirectionPath = getRedirection().second;
-			// 	int status = getRedirection().first;
-			// 	this->statusCode = std::to_string(status);
-			// 	if(status >= 300 && status < 400)
-			// 	{	
-			// 		setHeader("Location",redirectionPath);
-			// 		buildResponse(request);
-			// 	}
-			// 	else
-			// 	{
-			// 		// TODO ADD ABS PATH
-			// 		std::string tmpPath = ws::fileHandler::createTmp("/Users/laafilal/Desktop/webserv1/response_tmp_files");
-			// 		ws::fileHandler::write(tmpPath,redirectionPath);
-			// 		this->bodyPath = tmpPath;
-			// 		this->response_is_tmp = true;
-			// 	}
-			// }
-		}
-		else
-		{
-			this->statusCode = "405";
-			buildResponse(request);
-		}
 	}
 
 	void Response::checkRedirection(Request &request)
@@ -326,6 +275,29 @@ namespace ws {
 		}
 	}
 	
+	void Response::checkAllowedMethods(Request &request)
+	{
+		//check methode allowed
+		if(isMethodeAllowed(request))
+		{
+			std::cout << "red "<< this->currentLocation.getLocation_match() << " " << isRedirection()<< std::endl;
+			if(this->currentLocation.getRoot().empty())
+			{
+				this->statusCode = "404";
+				buildResponse(request);
+				throw "There is no root";
+				// return ;
+			}
+			defineMethode(request);
+		}
+		else
+		{
+			this->statusCode = "405";
+			buildResponse(request);
+			throw "Method not allowed";
+		}
+	}
+
 	void Response::defineMethode(Request &request)
 	{
 		// std::cout <<getMethod(request)<< std::endl;
