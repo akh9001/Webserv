@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 03:10:14 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 06:00:55 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,9 @@ namespace ws {
 			void	bodyDefaultTemplate(std::string &responsePath);
 			void	craftGetRequests(Request &request);
 			void	craftPostRequests(Request &request);
+			void checkIndexes(Request &request);
+			void	checkDefaultIndex(std::string &absoluteResourcePath);
+
 
 			//routing
 			void checkResourceLocation(Request &request);
@@ -58,6 +61,8 @@ namespace ws {
 
 			//helpers
 			std::string buildPath(std::string &resourcePath);
+			std::string buildAbsolutePath(Request &request);
+			void	searchForLocation(Request &request);
 
 			//setters
 			void setDateHeader();
@@ -82,6 +87,8 @@ namespace ws {
 			bool isIndexes();
 			bool isAutoIndexOn();
 			bool hasUpload(Request &request);
+			void isResourceValid(Request &request, std::string &resourcePath);
+			void isResourceEndSlash(Request &request);
 
 	};
 	
