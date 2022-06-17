@@ -107,7 +107,7 @@ class Server
         void setErrorPages(std::map<int, std::string> &c) { errorPages = c;}
         std::string getUploadPath() const { return uploadPath;}
         void setUploadPath(const std::string &uploadPath) { this->uploadPath = uploadPath;}
-
+        
 
         
 
@@ -129,6 +129,7 @@ class Server
         void fetch_cgi(std::string& c);
         void fetchErrorPage(std::string& c);
         void fetch_upload(std::string& c);
+        int spaceCount(std::string &c, int a) const;
 
         // ! ///////////////////////////// Error  ///////////////////
         // ! ///////////////////////////// checkers  /////////////////////
