@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 06:00:55 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 07:07:40 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,18 +44,18 @@ namespace ws {
 		private:
 			//response builders
 			std::string headerBuilder();
-			void	buildResponse(Request &request);
+			void	buildResponse();
 			void	bodyDefaultTemplate(std::string &responsePath);
 			void	craftGetRequests(Request &request);
 			void	craftPostRequests(Request &request);
-			void checkIndexes(Request &request);
+			void 	checkIndexes();
 			void	checkDefaultIndex(std::string &absoluteResourcePath);
 
 
 			//routing
 			void checkResourceLocation(Request &request);
 			void checkResource(Request &request);
-			void checkRedirection(Request &request);
+			void checkRedirection();
 			void checkAllowedMethods(Request &request);
 			void defineMethode(Request &request);
 
@@ -71,7 +71,7 @@ namespace ws {
 
 			//getters
 			long long getFileSize(std::string &filePath);
-			std::string getMessage(std::string &statusCode);
+			std::string getMessage();
 			std::string getErrorPage();
 			std::string getMethod(Request &request);
 			std::vector<std::string> getIndexes();
@@ -86,9 +86,10 @@ namespace ws {
 			bool isRedirection();
 			bool isIndexes();
 			bool isAutoIndexOn();
-			bool hasUpload(Request &request);
-			void isResourceValid(Request &request, std::string &resourcePath);
+			bool hasUpload();
+			void isResourceValid(std::string &resourcePath);
 			void isResourceEndSlash(Request &request);
+			void isCgi(Request &request);
 
 	};
 	
