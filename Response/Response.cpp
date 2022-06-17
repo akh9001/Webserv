@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 07:52:14 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/17 12:20:25 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <sstream>
 #include <iterator>
 #include <unistd.h>
+#include <dirent.h>
 #include "../Includes/networking.hpp"
 
 namespace ws {
@@ -323,13 +324,43 @@ namespace ws {
 		}
 		if(isAutoIndexOn())
 		{
-			//TODO
-			std::string tmpPath = ws::fileHandler::createTmp("/Users/laafilal/Desktop/webserv1/response_tmp_files");
+			//TODO more structuring 
+			std::string tmpDirectory = ("response_tmp_files");
+			std::string tmpDirectoryPath = buildPath(tmpDirectory);
+			std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
 			//////////////
-			ws::fileHandler::write(tmpPath,"autoindex page");
+			std::string autoindexPageFirstPart = 	"<html><head>"
+													"<title>Index of "+ this->currentLocation.getLocation_match()+"</title></head>"
+													"<body>"
+													"<h1>Index of "+ this->currentLocation.getLocation_match()+"</h1>"
+													"<hr><pre>";
+			std::string autoindexPageSecondPart	=	"</pre><hr></body></html>";				
+			
+			ws::fileHandler::write(tmpPath,autoindexPageFirstPart);
+			////////////
+			DIR *dir;
+			struct dirent *ent;
+			std::string currLoc = this->currentLocation.getLocation_match();
+			std::string absPath = buildPath(currLoc);
+			std::cout << absPath<< std::endl;
+			if ((dir = opendir(absPath.c_str())) != NULL) {
+				/* print all the files and directories within directory */
+				while ((ent = readdir(dir)) != NULL) {
+					printf ("%s\n", ent->d_name);
+					std::string autoindexPageInnerPart = "<a href='"+std::string(ent->d_name)+"'>"+std::string(ent->d_name)+"</a><br>";
+					ws::fileHandler::write(tmpPath,autoindexPageInnerPart);
+				}
+				closedir(dir);
+			} else {
+				/* could not open directory */
+				throw "Could not open directory";
+			}
+			//////////
+			ws::fileHandler::write(tmpPath,autoindexPageSecondPart);
 			/////////////
 			this->statusCode = "200";
 			this->bodyPath = tmpPath;
+			this->response_is_tmp = true;
 			throw "autoindex";
 		}
 		else
@@ -386,7 +417,16 @@ namespace ws {
 
 			if(isIndexes()) 
 			{
-				checkIndexes();
+				try
+				{
+					checkIndexes();
+				}
+				catch(const char* msg)
+				{
+					throw msg;
+				}
+				
+				
 			}
 			else 
 			{
@@ -394,13 +434,44 @@ namespace ws {
 				std::cout << absoluteResourcePath << std::endl;
 				if(isAutoIndexOn())
 				{
-					//TODO
-					//build autoindex and push it to bodypath and tmp true
-					// std::cout << "index is autoindex" << std::endl;
+					//TODO more structuring 
+					std::string tmpDirectory = ("response_tmp_files");
+					std::string tmpDirectoryPath = buildPath(tmpDirectory);
+					std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
+					//////////////
+					std::string autoindexPageFirstPart = 	"<html><head>"
+															"<title>Index of "+ this->currentLocation.getLocation_match()+"</title></head>"
+															"<body>"
+															"<h1>Index of "+ this->currentLocation.getLocation_match()+"</h1>"
+															"<hr><pre>";
+					std::string autoindexPageSecondPart	=	"</pre><hr></body></html>";				
 					
+					ws::fileHandler::write(tmpPath,autoindexPageFirstPart);
+					////////////
+					DIR *dir;
+					struct dirent *ent;
+					std::string currLoc = this->currentLocation.getLocation_match();
+					std::string absPath = buildPath(currLoc);
+					std::cout << absPath<< std::endl;
+					if ((dir = opendir(absPath.c_str())) != NULL) {
+						/* print all the files and directories within directory */
+						while ((ent = readdir(dir)) != NULL) {
+							printf ("%s\n", ent->d_name);
+							std::string autoindexPageInnerPart = "<a href='"+std::string(ent->d_name)+"'>"+std::string(ent->d_name)+"</a><br>";
+							ws::fileHandler::write(tmpPath,autoindexPageInnerPart);
+						}
+						closedir(dir);
+					} else {
+						/* could not open directory */
+						throw "Could not open directory";
+					}
+					//////////
+					ws::fileHandler::write(tmpPath,autoindexPageSecondPart);
+					/////////////
 					this->statusCode = "200";
-					this->bodyPath = "/Users/laafilal/Desktop/webserv1/autoindex.html";
-					throw "autoindex delever";
+					this->bodyPath = tmpPath;
+					this->response_is_tmp = true;
+					throw "autoindex";
 				}
 				else
 				{
