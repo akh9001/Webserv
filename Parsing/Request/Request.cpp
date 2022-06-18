@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Request.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
+/*   Updated: 2022/06/18 14:33:11 by mokhames         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Request.hpp"
 // #include "fileHandler.hpp"
 #include "../../Includes/networking.hpp"
@@ -324,7 +336,7 @@ void Request::parseUri()
         location = b;
         // location.~Location();
         save = "";
-        filePath = "";
+        
         parsed = false;
         method = "";
         hostIp = "127.0.0.1";
@@ -333,6 +345,8 @@ void Request::parseUri()
         version = "";
         fchuncked = 0;
         change = 0;
+        ws::fileHandler::removeFile(filePath);
+        filePath = "";
     }
 
 
