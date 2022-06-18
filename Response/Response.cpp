@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/17 12:38:59 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/18 11:13:00 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,29 +98,39 @@ namespace ws {
 				{
 					// std::cout << errorPath << " exist"<< std::endl;
 					// check permission valid
-					if(isPermission(errorPath, "r"))
+					// if(isPermission(errorPath, "r"))
+					// {
+					if(isFile(errorPath))// else if file
 					{
-						if(isFile(errorPath))// else if file
+						if(isPermission(errorPath, "r"))
+						{
+							error_pages = false;
+							this->statusCode = "403";
+							// throw "";set  message
+							// return ;
+						}
+						else
 						{
 							error_pages = true;
 							this->bodyPath = errorPath;
 							throw "error page delevered seccussfuly";
 							return ;
 						}
-						else
-						{
-							//directories not implimented
-							error_pages = false;
-							this->statusCode = "501";
-							// throw ""; set  message
-						}
 					}
 					else
 					{
+						//directories not implimented
 						error_pages = false;
-						this->statusCode = "403";
-						// throw "";set  message
+						this->statusCode = "501";
+						// throw ""; set  message
 					}
+					// }
+					// else
+					// {
+					// 	error_pages = false;
+					// 	this->statusCode = "403";
+					// 	// throw "";set  message
+					// }
 				}
 				else
 				{
@@ -188,7 +198,7 @@ namespace ws {
 		char tmp[2048];
 		getcwd(tmp, 2048);
 
-		if(resourcePath.at(0) != '/')
+		if(!resourcePath.empty() && resourcePath.at(0) != '/')
 			slash = "/";
 		root = this->currentLocation.getRoot();
 		root  = ltrim(root);
@@ -243,12 +253,31 @@ namespace ws {
 		//check methode allowed
 		if(isMethodeAllowed(request))
 		{
+			//TODO cleaning root checking function
 			// std::cout << "red "<< this->currentLocation.getLocation_match() << " " << isRedirection()<< std::endl;
 			if(this->currentLocation.getRoot().empty())
 			{
 				this->statusCode = "404";
 				buildResponse();
 				throw "There is no root";
+			}
+			else
+			{
+				std::string keepRoot = "";
+				std::string root = buildPath(keepRoot);
+				if(!ws::fileHandler::checkIfExist(root))
+				{
+					//TODO check if root path exist with permissions
+					this->statusCode = "404";
+					buildResponse();
+					throw "root doesnt exist";
+				}
+				if(!isPermission(root, "x"))
+				{
+					this->statusCode = "403";
+					buildResponse();
+					throw "root path doesnt have permissions";
+				}
 			}
 		}
 		else
@@ -268,13 +297,12 @@ namespace ws {
 		}
 		else if(getMethod(request) == "POST")
 		{
-			//TODO
-			// std::cout <<"POST crafting "<< std::endl;
-			// craftPostRequests(request);
+			//TODO post
+
 		}
 		else if(getMethod(request) == "DELETE")
 		{
-			//TODO
+			//TODO delete
 		}
 	}
 	void Response::isResourceEndSlash(Request &request)
@@ -299,20 +327,22 @@ namespace ws {
 			std::string indexPath = buildPath(indexList[i]);
 			if(ws::fileHandler::checkIfExist(indexPath))
 			{
-				if(isPermission(indexPath, "r"))
+				
+				if(isDir(indexPath))
 				{
-					if(isDir(indexPath))
+					this->statusCode = "501";
+					buildResponse();
+					// isIndex = true;
+					throw "dir as index not supported";
+				}
+				else if(isFile(indexPath))
+				{
+					// std::cout << "index is file" << getMethod(request)<< std::endl;
+					if(isPermission(indexPath, "r"))
 					{
-						this->statusCode = "501";
-						buildResponse();
-						// isIndex = true;
-						throw "dir as index not supported";
-					}
-					else if(isFile(indexPath))
-					{
-						// std::cout << "index is file" << getMethod(request)<< std::endl;
 						if(isCgi())
 						{
+							//TODO if path cgi exist
 							//call cgi handler
 							throw "calling cgi";
 						}
@@ -322,6 +352,7 @@ namespace ws {
 						throw "index delevered success 1";
 					}
 				}
+			
 			}
 		}
 		if(isAutoIndexOn())
@@ -344,7 +375,7 @@ namespace ws {
 			struct dirent *ent;
 			std::string currLoc = this->currentLocation.getLocation_match();
 			std::string absPath = buildPath(currLoc);
-			std::cout << absPath<< std::endl;
+			//TODO check on path 
 			if ((dir = opendir(absPath.c_str())) != NULL) {
 				/* print all the files and directories within directory */
 				while ((ent = readdir(dir)) != NULL) {
@@ -379,7 +410,7 @@ namespace ws {
 						
 		if(ws::fileHandler::checkIfExist(defaultIndexPath))
 		{
-			//TODO
+			//TODO default index
 
 			//check permission
 			// else
@@ -399,7 +430,6 @@ namespace ws {
 		//build absolute path
 		std::string absoluteResourcePath = buildAbsolutePath(request);
 		// std::cout << "GET "<< absoluteResourcePath <<" exist "<< ws::fileHandler::checkIfExist(absoluteResourcePath) << std::endl;
-
 		//check resource if exist
 		//if errorPath source exist in root
 		try
@@ -412,6 +442,13 @@ namespace ws {
 		}
 		if(isDir(absoluteResourcePath))
 		{
+			// check permission valid
+			if(!isPermission(absoluteResourcePath, "x"))
+			{
+				this->statusCode = "403";
+				buildResponse();
+				throw "Have no permissions";
+			}
 			//check the end slash
 			isResourceEndSlash(request);
 			searchForLocation(request);
@@ -436,44 +473,7 @@ namespace ws {
 				std::cout << absoluteResourcePath << std::endl;
 				if(isAutoIndexOn())
 				{
-					//TODO more structuring 
-					std::string tmpDirectory = ("response_tmp_files");
-					std::string tmpDirectoryPath = buildPath(tmpDirectory);
-					std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
-					//////////////
-					std::string autoindexPageFirstPart = 	"<html><head>"
-															"<title>Index of "+ this->currentLocation.getLocation_match()+"</title></head>"
-															"<body>"
-															"<h1>Index of "+ this->currentLocation.getLocation_match()+"</h1>"
-															"<hr><pre>";
-					std::string autoindexPageSecondPart	=	"</pre><hr></body></html>";				
-					
-					ws::fileHandler::write(tmpPath,autoindexPageFirstPart);
-					////////////
-					DIR *dir;
-					struct dirent *ent;
-					std::string currLoc = this->currentLocation.getLocation_match();
-					std::string absPath = buildPath(currLoc);
-					std::cout << absPath<< std::endl;
-					if ((dir = opendir(absPath.c_str())) != NULL) {
-						/* print all the files and directories within directory */
-						while ((ent = readdir(dir)) != NULL) {
-							printf ("%s\n", ent->d_name);
-							std::string autoindexPageInnerPart = "<a href='"+std::string(ent->d_name)+"'>"+std::string(ent->d_name)+"</a><br>";
-							ws::fileHandler::write(tmpPath,autoindexPageInnerPart);
-						}
-						closedir(dir);
-					} else {
-						/* could not open directory */
-						throw "Could not open directory";
-					}
-					//////////
-					ws::fileHandler::write(tmpPath,autoindexPageSecondPart);
-					/////////////
-					this->statusCode = "200";
-					this->bodyPath = tmpPath;
-					this->response_is_tmp = true;
-					throw "autoindex";
+					autoIndexHandler();
 				}
 				else
 				{
@@ -486,8 +486,15 @@ namespace ws {
 		}
 		else if(isFile(absoluteResourcePath))// else if file
 		{
+			if(!isPermission(absoluteResourcePath, "r"))
+			{
+				this->statusCode = "403";
+				buildResponse();
+				throw "Have no permissions";
+			}
 			if(isCgi())
 			{
+				//TODO if path cgi exist
 				//call cgi handler
 				throw "calling cgi";
 			}
@@ -497,7 +504,87 @@ namespace ws {
 		}
 	}
 
+	void Response::autoIndexHandler()
+	{
 
+		std::multimap<std::string, std::pair<std::string, long long> > dirList;
+
+		unsigned int t = 222332;
+		std::string file= "fie1";
+		std::string date= "12/05/23";
+		// dirList.insert(std::make_pair(file,std::make_pair(date,t)));
+		// dirList.insert(std::make_pair(file,std::make_pair(date,t)));
+		// dirList.insert(std::make_pair(file,std::make_pair(date,t)));
+		// std::string path = "/Users/laafilal/Desktop/webserv1/response_tmp_files/test";
+		// autoIndexTemplate(dirList,path);
+		//TODO more structuring 
+		// std::string tmpDirectory = ("response_tmp_files");
+		// std::string tmpDirectoryPath = buildPath(tmpDirectory);
+		// std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
+		//////////////
+		// std::string autoindexPageFirstPart = 	"<html><head>"
+		// 										"<title>Index of "+ this->currentLocation.getLocation_match()+"</title></head>"
+		// 										"<body>"
+		// 										"<h1>Index of "+ this->currentLocation.getLocation_match()+"</h1>"
+		// 										"<hr><pre>";
+		// std::string autoindexPageSecondPart	=	"</pre><hr></body></html>";				
+		
+		// ws::fileHandler::write(tmpPath,autoindexPageFirstPart);
+		////////////
+		DIR *dir;
+		struct dirent *ent;
+		std::string currLoc = this->currentLocation.getLocation_match();
+		std::string absPath = buildPath(currLoc);
+		//check on read and on w
+		
+		if ((dir = opendir(absPath.c_str())) != NULL) 
+		{
+			/* print all the files and directories within directory */
+			while ((ent = readdir(dir)) != NULL) {
+				printf ("%s\n", ent->d_name);
+				// std::string autoindexPageInnerPart = "<a href='"+std::string(ent->d_name)+"'>"+std::string(ent->d_name)+"</a><br>";
+				std::string filePath = absPath+"/"+std::string(ent->d_name);
+				
+				dirList.insert(std::make_pair(std::string(ent->d_name),std::make_pair(date,getFileSize(filePath))));
+				// ws::fileHandler::write(tmpPath,autoindexPageInnerPart);
+			}
+			closedir(dir);
+		} else {
+			/* could not open directory */
+			throw "Could not open directory";
+		}
+		//////////
+		// ws::fileHandler::write(tmpPath,autoindexPageSecondPart);
+		/////////////
+		std::string tmpDirectory = ("response_tmp_files");
+		std::string tmpDirectoryPath = buildPath(tmpDirectory);
+		std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
+		autoIndexTemplate(dirList,tmpPath);
+		this->statusCode = "200";
+		this->bodyPath = tmpPath;
+		this->response_is_tmp = true;
+		throw "autoindex";
+	}
+
+	void	Response::autoIndexTemplate(std::multimap<std::string, std::pair<std::string, long long> > &dirList, std::string filePath)
+	{
+		std::string autoindexPageFirstPart = 	"<html><head>"
+												"<title>Index of "+ this->currentLocation.getLocation_match()+"</title></head>"
+												"<body>"
+												"<h1>Index of "+ this->currentLocation.getLocation_match()+"</h1>"
+												"<hr><pre>";
+		std::multimap<std::string, std::pair<std::string, long long> >::iterator git;
+		for (git = dirList.begin(); git != dirList.end(); ++git)
+		{
+			std::cout << git->first << " " << git->second.first << " " << git->second.second << std::endl;
+			//todo format the output
+			autoindexPageFirstPart = autoindexPageFirstPart +"<a href='"+git->first+"'>"+git->first+"</a>                          "+git->second.first+"     "+std::to_string(git->second.second)+"<br>";										
+		}
+		
+		autoindexPageFirstPart	= autoindexPageFirstPart +	"</pre><hr></body></html>";
+		ws::fileHandler::write(filePath,autoindexPageFirstPart);
+
+	}
 	// void	Response::craftPostRequests(Request &request)
 	// {
 	// 	// if(hasUpload(request))
@@ -690,7 +777,7 @@ namespace ws {
 		date << days[tm->tm_wday].c_str() <<", " << std::setw(2) << std::setfill('0') << tm->tm_mday ;
 		date << " " << months[tm->tm_mon].c_str() << " " << tm->tm_year+1900 <<" " ;
 		date << std::setw(2) << std::setfill('0') <<(tm->tm_hour+0)%24 <<":"<< std::setw(2) << std::setfill('0') <<tm->tm_min <<":"<< std::setw(2) << std::setfill('0') << tm->tm_sec << " GMT";
-		this->headers_list.insert(std::pair<std::string, std::string>("Date", date.str()));
+		this->headers_list.insert(std::make_pair("Date", date.str()));
 	}
 
 	std::pair<std::string, bool> Response::getbody()
@@ -837,17 +924,7 @@ namespace ws {
 	void Response::isResourceValid(std::string &resourcePath)
 	{
 		//check if exist
-		if(ws::fileHandler::checkIfExist(resourcePath))
-		{
-			// check permission valid
-			if(!isPermission(resourcePath, "r"))
-			{
-				this->statusCode = "403";
-				buildResponse();
-				throw "Have no permissions";
-			}
-		}
-		else
+		if(!ws::fileHandler::checkIfExist(resourcePath))
 		{
 			this->statusCode = "404";
 			buildResponse();
@@ -920,3 +997,13 @@ namespace ws {
 		return rtrim(ltrim(s));
 	}
 }
+
+
+
+//	x-------------------------------------------------------------------------------------------x
+//	|	Permission	|        Files    			|   	Directories							 	|
+//	|-------------------------------------------------------------------------------------------|
+//	| 		r		|	can read the file		|		can ls the directory					|
+//	| 		w		|	can write the file		|		can modify the directory's contents		|
+//	| 		x		|	can execute the file	|		can cd to the directory					|
+//	x-------------------------------------------------------------------------------------------x
