@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/20 01:42:53 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/20 02:02:57 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ namespace ws {
 
 	std::string Response::getHeaders(Request &request,Location &location, std::string &statusCode)
 	{
-		//set current location and statuscode
 		this->currentLocation = location;
 		this->statusCode = statusCode;
 		int status;
@@ -84,30 +83,23 @@ namespace ws {
 	{
 		bool error_pages = false;
 		std::string originErrorPath = std::string();
+		std::string msg;
 		
-		// check if errorpage exist
-		//search for error page path
 		if(isErrorPage())
 		{
 			originErrorPath = getErrorPage();
 			if(originErrorPath.at(0) == '/')
 			{
 				std::string errorPath = buildPath(originErrorPath);
-				//if errorPath source exist in root
 				if(ws::fileHandler::checkIfExist(errorPath))
 				{
-					// std::cout << errorPath << " exist"<< std::endl;
-					// check permission valid
-					// if(isPermission(errorPath, "r"))
-					// {
-					if(isFile(errorPath))// else if file
+					if(isFile(errorPath))
 					{
 						if(isPermission(errorPath, "r"))
 						{
 							error_pages = false;
 							this->statusCode = "403";
-							// throw "";set  message
-							// return ;
+							msg = "No permissions error page";
 						}
 						else
 						{
@@ -119,26 +111,16 @@ namespace ws {
 					}
 					else
 					{
-						//directories not implimented
 						error_pages = false;
 						this->statusCode = "501";
-						// throw ""; set  message
+						msg = "Not implimented error page";
 					}
-					// }
-					// else
-					// {
-					// 	error_pages = false;
-					// 	this->statusCode = "403";
-					// 	// throw "";set  message
-					// }
 				}
 				else
 				{
-					// std::cout << errorPath << " not exist"<< std::endl;
-					// std::cout << "404" << std::endl;
 					error_pages = false;
 					this->statusCode = "404";
-					// throw ""; set  message
+					msg = "not found error page";
 				}
 			}
 			else
@@ -153,7 +135,6 @@ namespace ws {
 
 		if(!error_pages)
 		{
-			// call template
 			std::string responsePath;
 			try
 			{
@@ -166,7 +147,7 @@ namespace ws {
 			bodyDefaultTemplate(responsePath);
 			this->bodyPath = responsePath;
 			this->response_is_tmp = true;
-			// throw ""; get message
+			throw msg;
 		}
 
 	}
@@ -217,7 +198,7 @@ namespace ws {
 
 	void Response::checkResourceLocation(Request &request)
 	{
-		if(request.getRightLocation() == 0)//location doesnt exist
+		if(request.getRightLocation() == 0)
 			searchForLocation(request);
 	}
 
@@ -225,7 +206,6 @@ namespace ws {
 	{
 		if(isRedirection())
 		{
-			// std::cout << "redirection test " << getRedirection().first << " " << getRedirection().second;
 			std::string redirectionPath = getRedirection().second;
 			int status = getRedirection().first;
 			this->statusCode = std::to_string(status);
@@ -250,7 +230,6 @@ namespace ws {
 	
 	void Response::checkAllowedMethods(Request &request)
 	{
-		//check methode allowed
 		if(isMethodeAllowed(request))
 		{
 			checkRoot();
@@ -295,7 +274,6 @@ namespace ws {
 
 	void Response::checkIndexes()
 	{
-		// bool isIndex = false;
 		std::vector<std::string> indexList = getIndexes();
 		for (size_t i = 0; i < indexList.size(); i++)
 		{
@@ -307,12 +285,10 @@ namespace ws {
 				{
 					this->statusCode = "501";
 					buildResponse();
-					// isIndex = true;
 					throw "dir as index not supported";
 				}
 				else if(isFile(indexPath))
 				{
-					// std::cout << "index is file" << getMethod(request)<< std::endl;
 					if(isPermission(indexPath, "r"))
 					{
 						if(isCgi())
@@ -323,7 +299,6 @@ namespace ws {
 						}
 						this->statusCode = "200";
 						this->bodyPath = indexPath;
-						// isIndex = true;
 						throw "index delevered success 1";
 					}
 				}
@@ -363,11 +338,7 @@ namespace ws {
 
 	void	Response::craftGetRequests(Request &request)
 	{
-		//build absolute path
 		std::string absoluteResourcePath = buildAbsolutePath(request);
-		// std::cout << "GET "<< absoluteResourcePath <<" exist "<< ws::fileHandler::checkIfExist(absoluteResourcePath) << std::endl;
-		//check resource if exist
-		//if errorPath source exist in root
 		try
 		{
 			isResourceValid(absoluteResourcePath);
@@ -378,18 +349,14 @@ namespace ws {
 		}
 		if(isDir(absoluteResourcePath))
 		{
-			// check permission valid
 			if(!isPermission(absoluteResourcePath, "x"))
 			{
 				this->statusCode = "403";
 				buildResponse();
 				throw "Have no permissions";
 			}
-			//check the end slash
 			isResourceEndSlash(request);
 			searchForLocation(request);
-			//check for indexes
-
 			if(isIndexes()) 
 			{
 				try
@@ -400,8 +367,6 @@ namespace ws {
 				{
 					throw msg;
 				}
-				
-				
 			}
 			else 
 			{
@@ -413,7 +378,6 @@ namespace ws {
 				}
 				else
 				{
-					// std::cout << "index is 403 1" << std::endl;
 					this->statusCode = "403";
 					buildResponse();
 					throw "index issue";
@@ -510,24 +474,13 @@ namespace ws {
 		std::stringstream index;
 
 		index << 	"<html><head>"
-												"<title>Index of "+ this->currentLocation.getLocation_match()+"</title></head>"
-												"<body>"
-												"<h1>Index of "+ this->currentLocation.getLocation_match()+"</h1>"
-												"<hr><pre>";
+					"<title>Index of "+ this->currentLocation.getLocation_match()+"</title></head>"
+					"<body>"
+					"<h1>Index of "+ this->currentLocation.getLocation_match()+"</h1>"
+					"<hr><pre>";
 		
 		for (git = dirList.begin(); git != dirList.end(); ++git)
 		{
-			// struct stat st = git->second.first;
-			// struct tm * tm;
-			// std::string months [] = {"Jan", "Feb", "MAar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Ded"};
-			// std::cout << st.st_mtime << std::endl;
-			// tm = gmtime(&st.st_mtime);
-			// std::stringstream date;
-			// date << std::setw(2) << std::setfill('0') << tm->tm_mday ;
-			// date << "-" << months[tm->tm_mon].c_str();
-			// date << "-" <<tm->tm_year+1900 <<" " ;
-			// date << std::setw(2) << std::setfill('0') <<(tm->tm_hour+1)%24 <<":"<< std::setw(2) << std::setfill('0') <<tm->tm_min;
-			
 			index << "<a href='"+git->first+"'>"+git->first+"</a>";
 			index <<  std::setw(40 - git->first.length())  << formatMtime(git->second.first);
 			index <<  std::setw(20) << std::to_string(git->second.second)<< std::endl;
@@ -535,7 +488,6 @@ namespace ws {
 		index <<	"</pre><hr></body></html>";
 		
 		ws::fileHandler::write(filePath,index.str());
-
 	}
 
 	std::string	Response::formatMtime(struct stat stat)
@@ -891,7 +843,6 @@ namespace ws {
 
 	void Response::isResourceValid(std::string &resourcePath)
 	{
-		//check if exist
 		if(!ws::fileHandler::checkIfExist(resourcePath))
 		{
 			this->statusCode = "404";
