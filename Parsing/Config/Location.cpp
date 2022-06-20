@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:25 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/18 14:33:26 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/20 10:10:02 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
              this->redirect_uri = c.getRedirectUri();
              this->errorPages = c.getErrorPages();
              this->cgiPath = c.getCgiPath();
-                this->uploadPath = c.getUploadPath();
+            this->uploadPath = c.getUploadPath();
 
 
         }
@@ -41,6 +41,7 @@ Location &Location::operator=(Location const& c) {
              this->redirect_uri = c.redirect_uri;
              this->errorPages = c.errorPages;
              this->cgiPath = c.cgiPath;
+             this->uploadPath = c.uploadPath;
             return *this; 
             }
 
