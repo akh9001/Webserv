@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/18 11:19:35 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/20 01:37:54 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ namespace ws {
 			std::string 				headerBuilder();
 			void						buildResponse();
 			void						bodyDefaultTemplate(std::string &responsePath);
-			void						autoIndexTemplate(std::multimap<std::string, std::pair<std::string, long long> > &dirList, std::string filePath);
+			void						autoIndexTemplate(std::multimap<std::string, std::pair<struct stat , long long> > &dirList, std::string filePath);
 			void						craftGetRequests(Request &request);
 			void						craftPostRequests(Request &request);
 			void 						checkIndexes();
@@ -56,11 +56,13 @@ namespace ws {
 			void 						checkRedirection();
 			void 						checkAllowedMethods(Request &request);
 			void 						defineMethode(Request &request);
+			void						checkRoot();
 
 			//helpers
 			std::string 				buildPath(std::string &resourcePath);
 			std::string 				buildAbsolutePath(Request &request);
 			void						searchForLocation(Request &request);
+			std::string					formatMtime(struct stat);
 
 			//setters
 			void 						setDateHeader();

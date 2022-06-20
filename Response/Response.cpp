@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/18 11:13:00 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/20 01:42:53 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -253,32 +253,7 @@ namespace ws {
 		//check methode allowed
 		if(isMethodeAllowed(request))
 		{
-			//TODO cleaning root checking function
-			// std::cout << "red "<< this->currentLocation.getLocation_match() << " " << isRedirection()<< std::endl;
-			if(this->currentLocation.getRoot().empty())
-			{
-				this->statusCode = "404";
-				buildResponse();
-				throw "There is no root";
-			}
-			else
-			{
-				std::string keepRoot = "";
-				std::string root = buildPath(keepRoot);
-				if(!ws::fileHandler::checkIfExist(root))
-				{
-					//TODO check if root path exist with permissions
-					this->statusCode = "404";
-					buildResponse();
-					throw "root doesnt exist";
-				}
-				if(!isPermission(root, "x"))
-				{
-					this->statusCode = "403";
-					buildResponse();
-					throw "root path doesnt have permissions";
-				}
-			}
+			checkRoot();
 		}
 		else
 		{
@@ -357,44 +332,7 @@ namespace ws {
 		}
 		if(isAutoIndexOn())
 		{
-			//TODO more structuring 
-			std::string tmpDirectory = ("response_tmp_files");
-			std::string tmpDirectoryPath = buildPath(tmpDirectory);
-			std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
-			//////////////
-			std::string autoindexPageFirstPart = 	"<html><head>"
-													"<title>Index of "+ this->currentLocation.getLocation_match()+"</title></head>"
-													"<body>"
-													"<h1>Index of "+ this->currentLocation.getLocation_match()+"</h1>"
-													"<hr><pre>";
-			std::string autoindexPageSecondPart	=	"</pre><hr></body></html>";				
-			
-			ws::fileHandler::write(tmpPath,autoindexPageFirstPart);
-			////////////
-			DIR *dir;
-			struct dirent *ent;
-			std::string currLoc = this->currentLocation.getLocation_match();
-			std::string absPath = buildPath(currLoc);
-			//TODO check on path 
-			if ((dir = opendir(absPath.c_str())) != NULL) {
-				/* print all the files and directories within directory */
-				while ((ent = readdir(dir)) != NULL) {
-					printf ("%s\n", ent->d_name);
-					std::string autoindexPageInnerPart = "<a href='"+std::string(ent->d_name)+"'>"+std::string(ent->d_name)+"</a><br>";
-					ws::fileHandler::write(tmpPath,autoindexPageInnerPart);
-				}
-				closedir(dir);
-			} else {
-				/* could not open directory */
-				throw "Could not open directory";
-			}
-			//////////
-			ws::fileHandler::write(tmpPath,autoindexPageSecondPart);
-			/////////////
-			this->statusCode = "200";
-			this->bodyPath = tmpPath;
-			this->response_is_tmp = true;
-			throw "autoindex";
+			autoIndexHandler();
 		}
 		else
 		{
@@ -409,20 +347,18 @@ namespace ws {
 		std::string defaultIndexPath = absoluteResourcePath+"index.html";
 						
 		if(ws::fileHandler::checkIfExist(defaultIndexPath))
-		{
-			//TODO default index
+		{	
+			if(!isPermission(defaultIndexPath,"r"))
+			{
+				this->statusCode = "403";
+				buildResponse();
+				throw "default index.html have no permission";
+			}
 
-			//check permission
-			// else
-			// this->statusCode = "403";
-			// buildResponse();
-
-			// std::cout << "index is index.html " << defaultIndexPath<< std::endl;
 			this->statusCode = "200";
 			this->bodyPath = defaultIndexPath;
-			throw "default index succesfuly delevered 0";
+			throw "default index succesfuly delevered ";
  		}
-
 	}
 
 	void	Response::craftGetRequests(Request &request)
@@ -484,7 +420,7 @@ namespace ws {
 				}
 			}
 		}
-		else if(isFile(absoluteResourcePath))// else if file
+		else if(isFile(absoluteResourcePath))
 		{
 			if(!isPermission(absoluteResourcePath, "r"))
 			{
@@ -504,61 +440,63 @@ namespace ws {
 		}
 	}
 
+	void Response::checkRoot()
+	{
+		if(this->currentLocation.getRoot().empty())
+		{
+			this->statusCode = "404";
+			buildResponse();
+			throw "There is no root";
+		}
+		else
+		{
+			std::string keepRoot = "";
+			std::string root = buildPath(keepRoot);
+			if(!ws::fileHandler::checkIfExist(root))
+			{
+				this->statusCode = "404";
+				buildResponse();
+				throw "root doesnt exist";
+			}
+			if(!isPermission(root, "x"))
+			{
+				this->statusCode = "403";
+				buildResponse();
+				throw "root path doesnt have permissions";
+			}
+		}
+	}
+
 	void Response::autoIndexHandler()
 	{
+		std::string tmpDirectory;
+		std::string tmpDirectoryPath;
+		std::string tmpPath;
+		std::multimap<std::string, std::pair<struct stat , long long> > dirList;
 
-		std::multimap<std::string, std::pair<std::string, long long> > dirList;
 
-		unsigned int t = 222332;
-		std::string file= "fie1";
-		std::string date= "12/05/23";
-		// dirList.insert(std::make_pair(file,std::make_pair(date,t)));
-		// dirList.insert(std::make_pair(file,std::make_pair(date,t)));
-		// dirList.insert(std::make_pair(file,std::make_pair(date,t)));
-		// std::string path = "/Users/laafilal/Desktop/webserv1/response_tmp_files/test";
-		// autoIndexTemplate(dirList,path);
-		//TODO more structuring 
-		// std::string tmpDirectory = ("response_tmp_files");
-		// std::string tmpDirectoryPath = buildPath(tmpDirectory);
-		// std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
-		//////////////
-		// std::string autoindexPageFirstPart = 	"<html><head>"
-		// 										"<title>Index of "+ this->currentLocation.getLocation_match()+"</title></head>"
-		// 										"<body>"
-		// 										"<h1>Index of "+ this->currentLocation.getLocation_match()+"</h1>"
-		// 										"<hr><pre>";
-		// std::string autoindexPageSecondPart	=	"</pre><hr></body></html>";				
-		
-		// ws::fileHandler::write(tmpPath,autoindexPageFirstPart);
-		////////////
 		DIR *dir;
 		struct dirent *ent;
 		std::string currLoc = this->currentLocation.getLocation_match();
 		std::string absPath = buildPath(currLoc);
-		//check on read and on w
-		
+
 		if ((dir = opendir(absPath.c_str())) != NULL) 
 		{
-			/* print all the files and directories within directory */
 			while ((ent = readdir(dir)) != NULL) {
-				printf ("%s\n", ent->d_name);
-				// std::string autoindexPageInnerPart = "<a href='"+std::string(ent->d_name)+"'>"+std::string(ent->d_name)+"</a><br>";
 				std::string filePath = absPath+"/"+std::string(ent->d_name);
-				
-				dirList.insert(std::make_pair(std::string(ent->d_name),std::make_pair(date,getFileSize(filePath))));
-				// ws::fileHandler::write(tmpPath,autoindexPageInnerPart);
+				struct stat st;
+				stat(filePath.c_str(), &st);
+				dirList.insert(std::make_pair(std::string(ent->d_name),std::make_pair(st,getFileSize(filePath))));
 			}
 			closedir(dir);
 		} else {
-			/* could not open directory */
 			throw "Could not open directory";
 		}
-		//////////
-		// ws::fileHandler::write(tmpPath,autoindexPageSecondPart);
-		/////////////
-		std::string tmpDirectory = ("response_tmp_files");
-		std::string tmpDirectoryPath = buildPath(tmpDirectory);
-		std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
+		
+		tmpDirectory = "response_tmp_files";
+		tmpDirectoryPath = buildPath(tmpDirectory);
+		tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
+		
 		autoIndexTemplate(dirList,tmpPath);
 		this->statusCode = "200";
 		this->bodyPath = tmpPath;
@@ -566,25 +504,55 @@ namespace ws {
 		throw "autoindex";
 	}
 
-	void	Response::autoIndexTemplate(std::multimap<std::string, std::pair<std::string, long long> > &dirList, std::string filePath)
+	void	Response::autoIndexTemplate(std::multimap<std::string, std::pair<struct stat , long long> > &dirList, std::string filePath)
 	{
-		std::string autoindexPageFirstPart = 	"<html><head>"
+		std::multimap<std::string, std::pair<struct stat , long long> >::iterator git;
+		std::stringstream index;
+
+		index << 	"<html><head>"
 												"<title>Index of "+ this->currentLocation.getLocation_match()+"</title></head>"
 												"<body>"
 												"<h1>Index of "+ this->currentLocation.getLocation_match()+"</h1>"
 												"<hr><pre>";
-		std::multimap<std::string, std::pair<std::string, long long> >::iterator git;
+		
 		for (git = dirList.begin(); git != dirList.end(); ++git)
 		{
-			std::cout << git->first << " " << git->second.first << " " << git->second.second << std::endl;
-			//todo format the output
-			autoindexPageFirstPart = autoindexPageFirstPart +"<a href='"+git->first+"'>"+git->first+"</a>                          "+git->second.first+"     "+std::to_string(git->second.second)+"<br>";										
+			// struct stat st = git->second.first;
+			// struct tm * tm;
+			// std::string months [] = {"Jan", "Feb", "MAar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Ded"};
+			// std::cout << st.st_mtime << std::endl;
+			// tm = gmtime(&st.st_mtime);
+			// std::stringstream date;
+			// date << std::setw(2) << std::setfill('0') << tm->tm_mday ;
+			// date << "-" << months[tm->tm_mon].c_str();
+			// date << "-" <<tm->tm_year+1900 <<" " ;
+			// date << std::setw(2) << std::setfill('0') <<(tm->tm_hour+1)%24 <<":"<< std::setw(2) << std::setfill('0') <<tm->tm_min;
+			
+			index << "<a href='"+git->first+"'>"+git->first+"</a>";
+			index <<  std::setw(40 - git->first.length())  << formatMtime(git->second.first);
+			index <<  std::setw(20) << std::to_string(git->second.second)<< std::endl;
 		}
+		index <<	"</pre><hr></body></html>";
 		
-		autoindexPageFirstPart	= autoindexPageFirstPart +	"</pre><hr></body></html>";
-		ws::fileHandler::write(filePath,autoindexPageFirstPart);
+		ws::fileHandler::write(filePath,index.str());
 
 	}
+
+	std::string	Response::formatMtime(struct stat stat)
+	{
+		std::string months [] = {"Jan", "Feb", "MAar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Ded"};
+		std::stringstream date;
+		struct stat st = stat;
+		struct tm * tm;
+
+		tm = gmtime(&st.st_mtime);
+		date << std::setw(2) << std::setfill('0') << tm->tm_mday ;
+		date << "-" << months[tm->tm_mon].c_str();
+		date << "-" <<tm->tm_year+1900 <<" " ;
+		date << std::setw(2) << std::setfill('0') <<(tm->tm_hour+1)%24 <<":"<< std::setw(2) << std::setfill('0') <<tm->tm_min;
+		return date.str();
+	}
+	
 	// void	Response::craftPostRequests(Request &request)
 	// {
 	// 	// if(hasUpload(request))
@@ -776,7 +744,7 @@ namespace ws {
 		std::stringstream date;
 		date << days[tm->tm_wday].c_str() <<", " << std::setw(2) << std::setfill('0') << tm->tm_mday ;
 		date << " " << months[tm->tm_mon].c_str() << " " << tm->tm_year+1900 <<" " ;
-		date << std::setw(2) << std::setfill('0') <<(tm->tm_hour+0)%24 <<":"<< std::setw(2) << std::setfill('0') <<tm->tm_min <<":"<< std::setw(2) << std::setfill('0') << tm->tm_sec << " GMT";
+		date << std::setw(2) << std::setfill('0') <<(tm->tm_hour+1)%24 <<":"<< std::setw(2) << std::setfill('0') <<tm->tm_min <<":"<< std::setw(2) << std::setfill('0') << tm->tm_sec << " GMT+1";
 		this->headers_list.insert(std::make_pair("Date", date.str()));
 	}
 
