@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fileHandler.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 02:20:13 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/05 22:42:34 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/22 00:38:03 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ namespace ws {
 			static bool checkIfExist(std::string filePath);
 			static void write(std::string filePath, std::string buffer);
 			static void moveFile(std::string fileOldPath, std::string newPath);//maybe return value bool if removed moved
-			static void removeFile(std::string filePath);//maybe return value bool to check if removed
+			static int removeFile(std::string filePath);//maybe return value bool to check if removed
 			static std::string readFile(std::ifstream& ifile);//getnextline
 			// bool checkIfFile(); //TODO if needed
 			// bool checkIPermissions(); //TODO if needed
