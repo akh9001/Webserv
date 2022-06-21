@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Request.hpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/18 14:33:38 by mokhames          #+#    #+#             */
+/*   Updated: 2022/06/18 14:33:39 by mokhames         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 #include "../webServer.hpp"
@@ -21,16 +33,18 @@ class Request
         std::vector<std::string> bodyPart;
 
         std::string method;
-        std::string uri;
+        std::string uri;      // uri = path + query_string
         std::string version;
+        std::string query;
         std::string hostIp;
         int hostPort;
-        std::string connection;
-        std::string user_agent;
-        std::string accept;
-        std::string accept_encoding;
-        std::string accept_language;
-        std::string accept_charset;
+       // std::string query;
+        // std::string connection;
+        // std::string user_agent;
+        // std::string accept;
+        // std::string accept_encoding;
+        // std::string accept_language;
+        // std::string accept_charset;
         std::string content_type;
         Server server;
         Location location;
@@ -78,7 +92,14 @@ class Request
 
       // ! /////////////////////// Getters & Setters //////////////////////
      std::map<std::string, std::string> getHeaderMap() const { return headerMap; }
-     int getContentLenth() const { return contentLength; }
+     long long getContentLenth() const { return contentLength; }
+        std::string getMethod() const { return method; }
+        std::string getUri() const { return uri; }
+        std::string getVersion() const { return version; }
+        std::string getHostIp() const { return hostIp; }
+        int getHostPort() const { return hostPort; }
+        std::string getQuery() const { return query; }
+
     Server getServer() const { return server; }
     Location getLocation() const { return location; }
     std::string getFilePath() const { return filePath; }
@@ -95,11 +116,12 @@ class Request
    void  print_header();
    void parsefline(std::string &);
    void parseHeaderLines(Config config);
+   void parseUri();
     // ! ////////////////////// fetch server or location //////////////////////
     void fetchContentLength();
     void fetchHost();
     void getRightServer(Config config);
-    void getRightLocation();
+    int getRightLocation();
     
 
 
@@ -109,6 +131,7 @@ class Request
     int checkURI();
     int checkVersion();
     void checkContentLength(int a);
+    void checkTransferEncoding();
 // ! ////////////////////// clear //////////////////
     void clear();
 };

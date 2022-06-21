@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/13 11:32:28 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/21 14:18:48 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,11 @@
 #include "../Includes/socket.hpp"
 #include "../Parsing/Config/Config.hpp"
 #include "../Response/Response.hpp"
-#include <exception>
-#include <string>
-#include <strings.h>
-#include <unistd.h>
-#include <signal.h>
+// #include <exception>
+// #include <string>
+// #include <strings.h>
+// #include <unistd.h>
+// #include <signal.h>
 
 #define	TIME_OUT_CLIENT	50
 #define SIZE_BUFFER		1024
@@ -178,7 +178,7 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 	}
 	//read[bytes_received] = '\0';
 	//! I should remove the following line it afterwards.
-//	std::cout << "read " << read << std::endl;
+	// std::cout << "read " << read << std::endl;
 	try
 	{
 		check = clients[i].request.parseChunks(std::string(read, bytes_received), config); // added the config
@@ -198,12 +198,14 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 		// clients[i].close_cnx = true;
 		//2- response = get_response()
 		ws::Response response;
-		std::cout << status << std::endl;
-		// std::string getHeaders(ws::Req req , string statusCode)
-		// client_map[i].buffer = getHeaders(clients[i].request, status);
-		// client_map[i].body_inf = getbody();
-		clients[i].buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 54\r\nConnection: close\r\n\r\n";
-		clients[i].body_inf = std::make_pair(std::string("hello_world.html"), false);
+		
+		Location location = clients[i].request.getLocation();
+		
+		clients[i].buffer = response.getHeaders(clients[i].request, location ,status);
+		clients[i].body_inf = response.getbody();
+		
+		// clients[i].buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 54\r\nConnection: close\r\n\r\n";
+		// clients[i].body_inf = std::make_pair(std::string("hello_world.html"), false);
 		if (clients[i].body_inf.first.size() > 0)
 			clients[i].file.open(clients[i].body_inf.first);
 	}

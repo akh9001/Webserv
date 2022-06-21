@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/13 10:20:02 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/21 07:26:46 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 # include "../Parsing/Config/Config.hpp"
 # include "../Parsing/Config/Server.hpp"
 # include "../Parsing/Config/Location.hpp"
-# include "../utility/utility.hpp"
 # include <map>
 # include <iomanip> // only for linux
 
@@ -31,27 +30,76 @@ namespace ws {
 		public:
 			Response();
 			~Response();
-			std::string getHeaders(Request &request, Config &config, std::string statusCode);
-			std::pair<std::string, bool> getbody();
+			std::string 					getHeaders(Request &request,Location &location, std::string &statusCode);
+			std::pair<std::string, bool> 	getbody();
 			
 		private:
-			int buildResponseTry;
-			std::string bodyPath;
-			std::string statusCode;
-			std::map<std::string, std::string> headers_list;
+			int 								buildResponseTry;
+			std::string 						bodyPath;
+			std::string 						statusCode;
+			Location 							currentLocation;
+			std::map<std::string, std::string>	headers_list;
 
 		private:
-			std::string headerBuilder();
+			//response builders
+			std::string 				headerBuilder();
+			void						buildResponse();
+			void						bodyDefaultTemplate(std::string &responsePath);
+			void						autoIndexTemplate(std::multimap<std::string, std::pair<struct stat , long long> > &dirList, std::string filePath);
+			void						craftGetRequests(Request &request);
+			void						craftPostRequests(Request &request);
+			void 						checkIndexes();
+			void						autoIndexHandler();
+			void						checkDefaultIndex(std::string &absoluteResourcePath);
+			void 						checkResourceLocation(Request &request);
+			void 						checkResource(Request &request);
+			void 						checkRedirection();
+			void 						checkAllowedMethods(Request &request);
+			void 						defineMethode(Request &request);
+			void						checkRoot();
 
-			void setDateHeader();
-			void setContentLength(std::string filePath);
-			void setHeader(std::string key, std::string value);
+			//helpers
+			std::string 				buildPath(std::string &resourcePath);
+			std::string 				buildAbsolutePath(Request &request);
+			void						searchForLocation(Request &request);
+			std::vector<std::string>	pathSpliter(std::string &filePath);
+			int							directoriesHandler(std::string filename, std::vector<std::string> dirList, int i, std::string originPath);
+			std::string					formatMtime(struct stat);
 
-			long long getFileSize(std::string filePath);
-			std::string getMessage(std::string statusCode);
-		
+			//setters
+			void 						setDateHeader();
+			void 						setContentLength(std::string filePath);
+			void 						setHeader(std::string key, std::string value);
+
+			//getters
+			long long 					getFileSize(std::string &filePath);
+			std::string 				getMessage();
+			std::string 				getErrorPage();
+			std::string 				getMethod(Request &request);
+			std::vector<std::string> 	getIndexes();
+			std::pair<int,std::string>	getRedirection();
+
+			//checkers
+			bool 						isMethodeAllowed(Request &request);
+			bool 						isErrorPage();
+			bool 						isPermission(std::string &path, std::string permission);
+			bool 						isDir(std::string &resourcePath);
+			bool 						isFile(std::string &resourcePath);
+			bool 						isRedirection();
+			bool 						isIndexes();
+			bool 						isAutoIndexOn();
+			bool 						hasUpload();
+			void 						isResourceValid(std::string &resourcePath);
+			void 						isResourceEndSlash(Request &request);
+			bool 						isCgi();
+			bool						isUpload();
+
 	};
-
+	
+	static std::map<std::string,std::string>	statusCodeMessages;
+	void 										init_statusCodeMessages();
+	std::string 								ltrim(const std::string &s);
+	std::string 								rtrim(const std::string &s);
+	std::string 								trim(const std::string &s);
 }
-
 #endif

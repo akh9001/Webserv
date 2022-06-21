@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/18 14:33:33 by mokhames          #+#    #+#             */
+/*   Updated: 2022/06/18 14:33:34 by mokhames         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
@@ -46,7 +58,7 @@ class Server
         std::string root;
         std::vector<std::string>                _allowed_methods;
         std::vector<std::string>                 _index;
-        std::string                redirect_uri;
+        std::map<int , std::string>              redirect_uri;
         std::map<int , std::string> errorPages;
         std::string cgiPath;
         std::string uploadPath;
@@ -89,8 +101,8 @@ class Server
         void setPort(int port) { _listen.setPort(port);}
         std::string getIp() const { return _listen.getIp();}
         void setIp(std::string ip) { _listen.setIp(ip);}
-        std::string getRedirectUri() const { return redirect_uri;}
-        void setredirectUri(std::string uri) { redirect_uri = uri;}
+        std::map<int , std::string> getRedirectUri() const { return redirect_uri;}
+        //void setredirectUri(std::string uri) { redirect_uri = uri;}
         std::string getCgiPath() const { return cgiPath;}
         void setCgiPath(std::string cgiPath) { this->cgiPath = cgiPath;}
         std::vector<Location> getLocation() const { return _locations;}
@@ -103,11 +115,11 @@ class Server
         void setClientMaxBodySize(unsigned long c) { _clinet_max_body_size = c;}
         bool getAutoIndex() const { return _autoindex;}
         void setAutoIndex(bool f) { _autoindex = f;}
-        std::map<int, std::string> getErrorPages() const { return errorPages;}
+        std::map<int, std::string> &getErrorPages()  { return errorPages;}
         void setErrorPages(std::map<int, std::string> &c) { errorPages = c;}
         std::string getUploadPath() const { return uploadPath;}
         void setUploadPath(const std::string &uploadPath) { this->uploadPath = uploadPath;}
-
+        
 
         
 
@@ -129,6 +141,7 @@ class Server
         void fetch_cgi(std::string& c);
         void fetchErrorPage(std::string& c);
         void fetch_upload(std::string& c);
+        int spaceCount(std::string &c, int a) const;
 
         // ! ///////////////////////////// Error  ///////////////////
         // ! ///////////////////////////// checkers  /////////////////////

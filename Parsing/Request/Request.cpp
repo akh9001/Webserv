@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Request.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
+/*   Updated: 2022/06/18 14:33:11 by mokhames         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Request.hpp"
 // #include "fileHandler.hpp"
 #include "../../Includes/networking.hpp"
@@ -20,18 +32,19 @@ Request::Request()
     this->version = "HTTP/1.1";
     hostIp = "127.0.0.1";
     hostPort = 8080;
-    this->connection = "";
-    this->user_agent = "";
-    this->accept = "";
-    this->accept_encoding = "";
-    this->accept_language = "";
-    this->accept_charset = "";
+    // this->connection = "";
+    // this->user_agent = "";
+    // this->accept = "";
+    // this->accept_encoding = "";
+    // this->accept_language = "";
+    // this->accept_charset = "";
     this->content_type = "";
     this->contentLength = 0;
     this->read = 0;
     this->parsed = false;
     fchuncked = 0;
     save = "";
+    query = "";
     change = 0;
     full = 0;
 }
@@ -63,12 +76,13 @@ Request &Request::operator=(Request const& c)
         version = c.version;
         hostIp = c.hostIp;
         hostPort = c.hostPort;
-        connection = c.connection;
-        user_agent = c.user_agent;
-        accept = c.accept;
-        accept_encoding = c.accept_encoding;
-        accept_language = c.accept_language;
-        accept_charset = c.accept_charset;
+        query = c.query;
+        // connection = c.connection;
+        // user_agent = c.user_agent;
+        // accept = c.accept;
+        // accept_encoding = c.accept_encoding;
+        // accept_language = c.accept_language;
+        // accept_charset = c.accept_charset;
         content_type = c.content_type;
         contentLength = c.contentLength;
         parsed = c.parsed;
@@ -164,7 +178,7 @@ int Request::parse_header(std::string c)
                     line.erase(0, pos + 2);
                     save = line;
                     change = 1;
-                    filePath = ws::fileHandler::createTmp("request_tmp_files/");
+                    // filePath = ws::fileHandler::createTmp("request_tmp_files/");
                     break;
                 }
                 save += line;
@@ -183,15 +197,15 @@ void Request::parseHeaderLines(Config config)
 
     size_t pos = 0;
     // std::cout << "i am here" << std::endl;
-    for (int i = 1; i < headerPart.size(); i++)
+    for (size_t i = 1; i < headerPart.size(); i++)
     {
         if ((pos = headerPart[i].find(":")) != std::string::npos)
             headerMap[headerPart[i].substr(0, pos)] = headerPart[i].substr(pos + 2, headerPart[i].find("\r\n") - pos - 2);   
     }
-    fetchContentLength();
-
     getRightServer(config);
+    fetchContentLength();
     getRightLocation();
+    checkTransferEncoding();
     checkContentLength(0);
     parsed = true;
 }
@@ -213,7 +227,7 @@ int Request::parse_body(std::string c)
 
  void Request::print_header()
  {
-     for (int i = 0; i < headerPart.size(); i++)
+     for (size_t i = 0; i < headerPart.size(); i++)
         std::cout <<  "|" << headerPart[i] <<  "|" << std::endl;
     std::cout << save << std::endl;
  }
@@ -234,8 +248,19 @@ int Request::parse_body(std::string c)
         version = line.substr(0, pos);
         line.erase(0, pos + 1);
         main_error_check();
+        parseUri();
         tmpUri = uri;
 
+}
+
+void Request::parseUri()
+{
+    if (size_t pos = uri.find("?") != std::string::npos)
+    {
+        
+        query = uri.substr(uri.find("?"), uri.size() - pos);
+        uri.erase(uri.find("?"), uri.size());
+    }
 }
 
 // ! /////////////////////// erros check //////////////////
@@ -260,7 +285,7 @@ int Request::parse_body(std::string c)
     int Request::checkURI()
     {
         std::string allowedchars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
-        for (int i = 0; i < uri.size(); i++)
+        for (size_t i = 0; i < uri.size(); i++)
         {
             if (allowedchars.find(uri[i]) == std::string::npos)
                 throw "409";
@@ -282,14 +307,24 @@ int Request::parse_body(std::string c)
 
     void Request::checkContentLength(int a)
     {
-        if (contentLength > location.getClientMaxBodySize()
+        if (contentLength > (long long)location.getClientMaxBodySize()
             || contentLength < 0)
         {
             throw "413";
         }
         read -= a;
     }
-
+    void Request::checkTransferEncoding()
+    {
+        if (headerMap.find("Transfer-Encoding") != headerMap.end() && headerMap["Transfer-Encoding"] != "chunked")
+            throw "501";
+        if ((headerMap.find("Transfer-Encoding") == headerMap.end()) && (headerMap.find("Content-Length") == headerMap.end()) && method == "POST")
+            throw "411";
+        if (headerMap.find("Content-Length") != headerMap.end() && headerMap["Content-Length"] != "0")
+            filePath = ws::fileHandler::createTmp("request_tmp_files/");
+        
+    }
+    // ! ///////////////////////clear  //////////////////
     void Request::clear()
     {
         Server a;
@@ -301,7 +336,7 @@ int Request::parse_body(std::string c)
         location = b;
         // location.~Location();
         save = "";
-        filePath = "";
+        
         parsed = false;
         method = "";
         hostIp = "127.0.0.1";
@@ -310,6 +345,8 @@ int Request::parse_body(std::string c)
         version = "";
         fchuncked = 0;
         change = 0;
+        ws::fileHandler::removeFile(filePath);
+        filePath = "";
     }
 
 
@@ -318,6 +355,7 @@ int Request::parse_body(std::string c)
     void Request::fetchContentLength()
     {
         long long i = 0;
+        
         std::istringstream(headerMap["Content-Length"]) >> i;
         sscanf(headerMap["Content-Length"].c_str(), "%lld", &i);
         contentLength = i;
@@ -339,7 +377,7 @@ int Request::parse_body(std::string c)
         }
     }
 
-    void  Request::getRightLocation()
+    int  Request::getRightLocation()
     {
         size_t pos = 0;
         std::string clone(tmpUri);
@@ -347,7 +385,7 @@ int Request::parse_body(std::string c)
         for (int i = 0; i < n; i++) {
             if (server.getLocation()[i].getLocation_match() == tmpUri) {
                 location = server.getLocation()[i];
-                return ;
+                return 1;
             }
         }
         while (clone.size() > 0 && (pos = clone.find("/")) != std::string::npos && pos != 0)
@@ -355,7 +393,6 @@ int Request::parse_body(std::string c)
         tmpUri.erase(0, pos);
         if (pos != 0)
             getRightLocation();
-        else
-            throw "404";
+        return 0;
     }
 

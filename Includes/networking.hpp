@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:48:05 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/13 15:18:18 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/21 12:22:17 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <algorithm>
+#include <exception>
 //* c headers
 #include <cstring>
 #include <sys/socket.h>
@@ -27,6 +29,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <cstdio>
 
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"      /* Black */

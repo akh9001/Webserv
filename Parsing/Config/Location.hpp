@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Location.hpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/18 14:33:28 by mokhames          #+#    #+#             */
+/*   Updated: 2022/06/18 14:33:29 by mokhames         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
@@ -21,7 +33,7 @@ class Location : public Server
         ~Location();
         Location(Location const& c);
         Location &operator=(Location const& c);
-        Location(Server const& c);
+        Location(Server & c);
         // ! /////////////////////// Getters & Setters //////////////////////
         std::string getLocation_match() const;
         void setLocation_match(std::string c);
