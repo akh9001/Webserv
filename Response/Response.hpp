@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/20 01:37:54 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/21 07:26:46 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,8 @@ namespace ws {
 			std::string 				buildPath(std::string &resourcePath);
 			std::string 				buildAbsolutePath(Request &request);
 			void						searchForLocation(Request &request);
+			std::vector<std::string>	pathSpliter(std::string &filePath);
+			int							directoriesHandler(std::string filename, std::vector<std::string> dirList, int i, std::string originPath);
 			std::string					formatMtime(struct stat);
 
 			//setters
@@ -90,6 +92,7 @@ namespace ws {
 			void 						isResourceValid(std::string &resourcePath);
 			void 						isResourceEndSlash(Request &request);
 			bool 						isCgi();
+			bool						isUpload();
 
 	};
 	
