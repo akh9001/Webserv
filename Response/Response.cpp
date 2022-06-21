@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/21 10:42:32 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/21 11:14:21 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -555,8 +555,8 @@ namespace ws {
 					{	
 						this->statusCode = "500";
 						buildResponse();
-						throw "Internal error";
 						this->response_is_tmp = true;
+						throw "Internal error";
 					}
 					else
 					{
@@ -571,8 +571,8 @@ namespace ws {
 				{
 					this->statusCode = "500";
 					buildResponse();
-					throw "Internal error";
 					this->response_is_tmp = true;
+					throw "Internal error";
 				}
 
 			}
@@ -641,9 +641,7 @@ namespace ws {
 		if(ret != 0)
 			return ret;
 		struct stat info;
-		path = buildPath(path);
 		int pathStat = stat( path.c_str(), &info );
-		// std::cout << "path stat "<< pathStat << std::endl;
 			
 		if( pathStat != 0 && (info.st_mode & S_IWUSR))
 		{	
@@ -682,6 +680,9 @@ namespace ws {
 				return 409;
 			}
 		}
+		// std::cout << std::string(strerror(errno)) << std::endl;
+		// std::cout << "path  "<< path << std::endl;
+		// std::cout << "oups " << ret << std::endl;
 		return ret;
 	}
 
