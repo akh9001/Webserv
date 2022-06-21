@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   networking.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:48:05 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/11 06:15:47 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/20 19:50:59 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,3 +32,7 @@
 #define RED     "\033[31m"      /* Red */
 #define GREEN   "\033[32m"      /* Green */
 #define YELLOW  "\033[33m"      /* Yellow */
+
+class Request;
+extern char **environ;
+int	cgi(const Request &request, const char *script_path);
