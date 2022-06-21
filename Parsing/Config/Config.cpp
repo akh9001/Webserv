@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Config.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/18 14:33:17 by mokhames          #+#    #+#             */
+/*   Updated: 2022/06/18 14:33:18 by mokhames         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Config.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
@@ -49,7 +61,7 @@ Server Config::getServer(int port, std::string &c) const
     std::vector<Server> a;
     int save = 0;
     int j = 0;
-    for (int i = 0; i < servers.size(); i++)
+    for (size_t i = 0; i < servers.size(); i++)
     {
         if (servers[i].getPort() == port)
             a.push_back(servers[i]);
@@ -59,7 +71,7 @@ Server Config::getServer(int port, std::string &c) const
         return a[0];
     else if (!c.size())
             throw NoServerFoundException();
-    for (int i = 0; i < a.size(); i++)
+    for (size_t i = 0; i < a.size(); i++)
     {
         if (a[i].checkServerName(c))
         {
@@ -151,12 +163,12 @@ void Config::split_servers()
 
 void Config::parse_server()
 {
-    for (int i = 0; i < servers.size(); i++)
+    for (size_t i = 0; i < servers.size(); i++)
         servers[i].parseLines();
-    //  for (int i = 0; i < servers.size(); i++)
+    //  for (size_t i = 0; i < servers.size(); i++)
     // {
     //     //std::cout << "dadad" << std::endl;
-    //     for (std::map<int, std::string>::iterator it = servers[i].getErrorPages().begin(); it != servers[i].getErrorPages().end(); it++)
+    //     for (std::map<size_t, std::string>::iterator it = servers[i].getErrorPages().begin(); it != servers[i].getErrorPages().end(); it++)
     //     {
     //        std::cout << it->first << " " << it->second << std::endl;
     //     }
@@ -165,7 +177,7 @@ void Config::parse_server()
 
 void Config::parse_bind_map()
 {
-    for (int i = 0; i < servers.size(); i++)
+    for (size_t i = 0; i < servers.size(); i++)
         _binders.insert(std::pair<int, std::string>(servers[i].getPort(),servers[i].getIp()));
 	// std::map<int, const char*>::iterator it = _binders.begin();
 	// std::map<int, const char*>::iterator end = _binders.end();

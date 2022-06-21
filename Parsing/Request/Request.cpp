@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Request.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
+/*   Updated: 2022/06/18 14:33:11 by mokhames         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Request.hpp"
 // #include "fileHandler.hpp"
 #include "../../Includes/networking.hpp"
@@ -185,7 +197,7 @@ void Request::parseHeaderLines(Config config)
 
     size_t pos = 0;
     // std::cout << "i am here" << std::endl;
-    for (int i = 1; i < headerPart.size(); i++)
+    for (size_t i = 1; i < headerPart.size(); i++)
     {
         if ((pos = headerPart[i].find(":")) != std::string::npos)
             headerMap[headerPart[i].substr(0, pos)] = headerPart[i].substr(pos + 2, headerPart[i].find("\r\n") - pos - 2);   
@@ -215,7 +227,7 @@ int Request::parse_body(std::string c)
 
  void Request::print_header()
  {
-     for (int i = 0; i < headerPart.size(); i++)
+     for (size_t i = 0; i < headerPart.size(); i++)
         std::cout <<  "|" << headerPart[i] <<  "|" << std::endl;
     std::cout << save << std::endl;
  }
@@ -273,7 +285,7 @@ void Request::parseUri()
     int Request::checkURI()
     {
         std::string allowedchars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
-        for (int i = 0; i < uri.size(); i++)
+        for (size_t i = 0; i < uri.size(); i++)
         {
             if (allowedchars.find(uri[i]) == std::string::npos)
                 throw "409";
@@ -295,7 +307,7 @@ void Request::parseUri()
 
     void Request::checkContentLength(int a)
     {
-        if (contentLength > location.getClientMaxBodySize()
+        if (contentLength > (long long)location.getClientMaxBodySize()
             || contentLength < 0)
         {
             throw "413";
@@ -324,7 +336,7 @@ void Request::parseUri()
         location = b;
         // location.~Location();
         save = "";
-        filePath = "";
+        
         parsed = false;
         method = "";
         hostIp = "127.0.0.1";
@@ -333,6 +345,8 @@ void Request::parseUri()
         version = "";
         fchuncked = 0;
         change = 0;
+        ws::fileHandler::removeFile(filePath);
+        filePath = "";
     }
 
 

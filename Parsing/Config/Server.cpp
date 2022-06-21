@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/18 14:33:30 by mokhames          #+#    #+#             */
+/*   Updated: 2022/06/18 14:33:31 by mokhames         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Server.hpp"
 #include "Location.hpp"
 
@@ -216,7 +228,6 @@ void Server::fetch_index(std::string& c)
      int i = spaceCount(c, 6);
     std::string tmp = c.substr(i, c.size() - i);
     size_t pos = 0;
-    int flag = 0;
     while ((pos = tmp.find(" ")) != std::string::npos || (pos = tmp.find("\t")) != std::string::npos)
     {
         std::string str = tmp.substr(0,pos);
@@ -311,7 +322,7 @@ int Server::spaceCount(std::string &c, int a) const {
   // ! ///////////////////////////// checkers  /////////////////////
     bool Server::checkServerName(std::string& c)
     {
-        for (int i = 0; i < serverName.size(); i++)
+        for (size_t i = 0; i < serverName.size(); i++)
         {
             if (serverName[i] == c)
                 return true;
