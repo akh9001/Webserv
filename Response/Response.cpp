@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/21 11:14:21 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/21 14:19:19 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -272,15 +272,14 @@ namespace ws {
 		}
 	}
 
-	void Response::checkIndexes()
+	void Response::checkIndexes(Request &request)
 	{
 		std::vector<std::string> indexList = getIndexes();
 		for (size_t i = 0; i < indexList.size(); i++)
 		{
-			std::string indexPath = buildPath(indexList[i]);
+			std::string indexPath = buildAbsolutePath(request)+indexList[i];
 			if(ws::fileHandler::checkIfExist(indexPath))
 			{
-				
 				if(isDir(indexPath))
 				{
 					this->statusCode = "501";
@@ -293,8 +292,13 @@ namespace ws {
 					{
 						if(isCgi())
 						{
-							//TODO if path cgi exist
-							//call cgi handler
+							//TODO cgi
+							//////////////////
+							// request <=== request object
+							// indexPath <=== absolute file path
+							// getCgiPath() <=== cgi path from config
+							///////////////////////
+
 							throw "calling cgi";
 						}
 						this->statusCode = "200";
@@ -362,7 +366,7 @@ namespace ws {
 			{
 				try
 				{
-					checkIndexes();
+					checkIndexes(request);
 				}
 				catch(const char* msg)
 				{
@@ -395,8 +399,12 @@ namespace ws {
 			}
 			if(isCgi())
 			{
-				//TODO if path cgi exist
-				//call cgi handler
+				//TODO cgi
+				//////////////////
+				// request <=== request object
+				// absoluteResourcePath <=== file path
+				// getCgiPath() <=== cgi path from config
+				///////////////////////
 				throw "calling cgi";
 			}
 			this->statusCode = "200";
@@ -510,14 +518,11 @@ namespace ws {
 	{
 		//TODO post
 		std::string absoluteResourcePath = buildAbsolutePath(request);
-	
-		//  /up
-		//  /up/		X
-		//  /up/file
-		//  /up/file/	X
+
 		if(isCgi())
 		{
-			//cgi 
+			//TODO cgi // not working until khames fixes the issue
+			throw "Post cgi not working yet";
 		}
 		else if(isUpload())
 		{
@@ -545,7 +550,7 @@ namespace ws {
 				std::string tmpFilePath = buildPath(tmpFile);
 				std::vector<std::string> dirList = pathSpliter(uploadPath);
 				int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
-				// std::cout << "el result " << ret << std::endl;
+				std::cout << "el result " << ret << std::endl;
 				// std::cout << std::string(strerror(errno)) << std::endl;
 				if(ret == 1)//directories path exist with no file
 				{
@@ -553,6 +558,7 @@ namespace ws {
 					int err = system(cmd.c_str());//working
 					if(err)
 					{	
+						std::cout << "hhhhhhh " << ret << std::endl;
 						this->statusCode = "500";
 						buildResponse();
 						this->response_is_tmp = true;
@@ -584,12 +590,6 @@ namespace ws {
 			buildResponse();
 			throw "coudldnt process the upload";
 		}
-
-
-		// std::cout <<  absoluteResourcePath << std::endl;
-		// std::cout << "location :" <<  this->currentLocation.getLocation_match() << std::endl;
-		// std::cout << "upload :" <<  this->currentLocation.getUploadPath() << std::endl;
-		// std::cout << "cgi :" <<  this->currentLocation.getCgiPath() << std::endl;
 
 	}
 	
@@ -641,7 +641,9 @@ namespace ws {
 		if(ret != 0)
 			return ret;
 		struct stat info;
+		path = buildPath(path);
 		int pathStat = stat( path.c_str(), &info );
+		// std::cout << "path stat "<< pathStat << std::endl;
 			
 		if( pathStat != 0 && (info.st_mode & S_IWUSR))
 		{	
@@ -680,9 +682,7 @@ namespace ws {
 				return 409;
 			}
 		}
-		// std::cout << std::string(strerror(errno)) << std::endl;
-		// std::cout << "path  "<< path << std::endl;
-		// std::cout << "oups " << ret << std::endl;
+		std::cout << "el result " << ret << std::endl;
 		return ret;
 	}
 
@@ -748,6 +748,11 @@ namespace ws {
 	std::pair<int,std::string>	Response::getRedirection()
 	{
 		return std::make_pair<int , std::string>(this->currentLocation.getRedirectUri().begin()->first,this->currentLocation.getRedirectUri().begin()->second);
+	}
+
+	std::string	Response::getCgiPath()
+	{
+		return (this->currentLocation.getCgiPath());
 	}
 
 	void Response::setContentLength(std::string filePath)
