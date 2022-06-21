@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/20 02:02:57 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/21 10:42:32 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,8 @@ namespace ws {
 			bodyDefaultTemplate(responsePath);
 			this->bodyPath = responsePath;
 			this->response_is_tmp = true;
-			throw msg;
+			// if()
+			// throw msg;
 		}
 
 	}
@@ -251,8 +252,7 @@ namespace ws {
 		}
 		else if(getMethod(request) == "POST")
 		{
-			//TODO post
-
+			craftPostRequests(request);
 		}
 		else if(getMethod(request) == "DELETE")
 		{
@@ -338,6 +338,7 @@ namespace ws {
 
 	void	Response::craftGetRequests(Request &request)
 	{
+		//TODO GET
 		std::string absoluteResourcePath = buildAbsolutePath(request);
 		try
 		{
@@ -371,7 +372,7 @@ namespace ws {
 			else 
 			{
 				checkDefaultIndex(absoluteResourcePath);
-				std::cout << absoluteResourcePath << std::endl;
+				// std::cout << absoluteResourcePath << std::endl;
 				if(isAutoIndexOn())
 				{
 					autoIndexHandler();
@@ -505,167 +506,93 @@ namespace ws {
 		return date.str();
 	}
 	
-	// void	Response::craftPostRequests(Request &request)
-	// {
-	// 	// if(hasUpload(request))
-	// 	//check resource if exist
-	// 	std::string requestResource = request.getUri();
-	// 	std::string absoluteResourcePath = buildPath(requestResource);
-	// 	//if errorPath source exist in root
-	// 	if(ws::fileHandler::checkIfExist(absoluteResourcePath))
-	// 	{
-	// 		// std::cout << "GET "<< absoluteResourcePath <<" exist "<< ws::fileHandler::checkIfExist(absoluteResourcePath) << std::endl;
-	// 		// check permission valid
-	// 		if(isPermission(absoluteResourcePath, "r"))
-	// 		{
-	// 			if(isDir(absoluteResourcePath))
-	// 			{
-					
-	// 				// std::cout << "test dir" << std::endl;
-	// 				int endPos = requestResource.length();
-	// 				--endPos;
-	// 				if(requestResource.at(endPos) != '/')
-	// 				{
-	// 					// std::cout << "redirect" << std::endl;
-	// 					this->statusCode = "301";
-	// 					setHeader("Location",requestResource+"/");
-	// 					buildResponse();
-	// 				}
-	// 				else
-	// 				{
-	// 					///search in locations
-	// 					searchForLocation(request);
-	// 					// if(it == locs.end()) //no location
-	// 					// {
-	// 					// 	this->statusCode = "403";
-	// 					// 	buildResponse();
-	// 					// }
-	// 					// else
-	// 					// {
-	// 						if(isIndexes()) 
-	// 						{
-	// 							bool isIndex = false;
-	// 							std::vector<std::string> indexList = getIndexes();
-	// 							for (size_t i = 0; i < indexList.size(); i++)
-	// 							{
-	// 								//check if indexList[i] starts with /
-	// 								std::string indexPath = absoluteResourcePath+indexList[i];
-	// 								// std::cout << "index is " << indexPath << std::endl;
-	// 								if(ws::fileHandler::checkIfExist(indexPath))
-	// 								{
-	// 									if(isPermission(indexPath, "r"))
-	// 									{
-	// 										if(isDir(indexPath))
-	// 										{
-	// 											// std::cout << "index is dir" << std::endl;
-	// 											this->statusCode = "501";
-	// 											buildResponse();
-	// 											isIndex = true;
-	// 											break;
-	// 										}
-	// 										else if(isFile(indexPath))
-	// 										{
-	// 											// std::cout << "index is file" << getMethod(request)<< std::endl;
-	// 											//TODO
-	// 											// check if cgi
-	// 											// else
-	// 												this->statusCode = "200";
-	// 												this->bodyPath = indexPath;
-	// 											isIndex = true;
-	// 											break;
-	// 										}
-	// 									}
-	// 								}
-	// 							}
-	// 							if(!isIndex)
-	// 							{
-	// 								if(isAutoIndexOn())
-	// 								{
-	// 									//TODO
-	// 									// std::cout << "index is autoindex" << std::endl;
-	// 									this->statusCode = "200";
-	// 									//build autoindex and push it to bodypath and tmp true
-	// 									this->bodyPath = "/Users/laafilal/Desktop/webserv1/autoindex.html";
-	// 								}
-	// 								else
-	// 								{
-	// 									// std::cout << "index is 403 0" << std::endl;
-	// 									this->statusCode = "403";
-	// 									buildResponse();
-	// 								}
-	// 							}
-	// 						}
-	// 						else
-	// 						{
-	// 							//if absoluteResourcePath dosnet end with /
-	// 							std::string defaultIndexPath = absoluteResourcePath+"index.html";
-								
-	// 							// std::cout << "index is exist " << ws::fileHandler::checkIfExist(defaultIndexPath)<< std::endl;
-	// 							if(ws::fileHandler::checkIfExist(defaultIndexPath))
-	// 							{
-	// 								//TODO
+	void	Response::craftPostRequests(Request &request)
+	{
+		//TODO post
+		std::string absoluteResourcePath = buildAbsolutePath(request);
+	
+		//  /up
+		//  /up/		X
+		//  /up/file
+		//  /up/file/	X
+		if(isCgi())
+		{
+			//cgi 
+		}
+		else if(isUpload())
+		{
+			int endPos = request.getUri().length();
+			--endPos;
+			if((request.getUri().at(endPos) == '/') || (ws::fileHandler::checkIfExist(absoluteResourcePath) && isDir(absoluteResourcePath)))// || if exist and dir
+			{
+				this->statusCode = "500";
+				buildResponse();
+				throw "Internal server error";
+			}
+			//building upload path
+			std::string uploadPath = this->currentLocation.getUploadPath() + request.getUri();
+			absoluteResourcePath = buildPath(uploadPath);
+			if(ws::fileHandler::checkIfExist(absoluteResourcePath))
+			{
+				this->statusCode = "409";
+				buildResponse();
+				throw "cant upload this resource already exist";
+			}
+			else
+			{
+				//upload
+				std::string tmpFile = request.getFilePath();//TODO i need it from khames
+				std::string tmpFilePath = buildPath(tmpFile);
+				std::vector<std::string> dirList = pathSpliter(uploadPath);
+				int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
+				// std::cout << "el result " << ret << std::endl;
+				// std::cout << std::string(strerror(errno)) << std::endl;
+				if(ret == 1)//directories path exist with no file
+				{
+					std::string cmd = "mv "+ tmpFilePath +" " + absoluteResourcePath;
+					int err = system(cmd.c_str());//working
+					if(err)
+					{	
+						this->statusCode = "500";
+						buildResponse();
+						throw "Internal error";
+						this->response_is_tmp = true;
+					}
+					else
+					{
+						setHeader("Location",uploadPath);
+						this->statusCode = "201";
+						this->bodyPath.clear();
+						setHeader("Content-Length","0");
+						this->response_is_tmp = false;
+					}
+				}
+				else 
+				{
+					this->statusCode = "500";
+					buildResponse();
+					throw "Internal error";
+					this->response_is_tmp = true;
+				}
 
-	// 								//check permission
-	// 								// else
-	// 								// this->statusCode = "403";
-	// 								// buildResponse();
-	// 								// std::cout << "index is index.html " << defaultIndexPath<< std::endl;
-	// 								this->statusCode = "200";
-	// 								this->bodyPath = defaultIndexPath;
-	// 							}
-	// 							else
-	// 							{
-	// 								if(isAutoIndexOn())
-	// 								{
-	// 									//TODO
-	// 									//build autoindex and push it to bodypath and tmp true
-	// 									// std::cout << "index is autoindex" << std::endl;
-	// 									this->statusCode = "200";
-	// 									this->bodyPath = "/Users/laafilal/Desktop/webserv1/autoindex.html";
-	// 								}
-	// 								else
-	// 								{
-	// 									// std::cout << "index is 403 1" << std::endl;
-	// 									this->statusCode = "403";
-	// 									buildResponse();
-	// 								}
-	// 							}
-	// 						}
-	// 					// }
-	// 				}
-	// 			}
-	// 			else if(isFile(absoluteResourcePath))// else if file
-	// 			{
-	// 				//TODO
-	// 				//check cgi
-	// 				// ...
-	// 				//else
-	// 				// std::cout << "test file" <<  getMethod(request)<< std::endl;
-	// 				this->statusCode = "200";
-	// 				this->bodyPath = absoluteResourcePath;
-	// 			}
-	// 		}
-	// 		else
-	// 		{
-	// 			this->statusCode = "403";
-	// 			buildResponse();
-	// 		}
-	// 	}
-	// 	else
-	// 	{
-	// 		if(getMethod(request) == "POST")
-	// 		{
-	// 			// std::cout << "test POST with file " << this->currentLocation.getLocation_match() << std::endl;
-	// 			// std::cout << "test POST with file " << request.getUri() << std::endl;
-	// 			searchForLocation(request);
-	// 		}
-	// 		else
-	// 		{
-	// 			this->statusCode = "404";
-	// 			buildResponse();
-	// 		}
-	// 	}
-	// }
+			}
+			
+		}
+		else
+		{
+			this->statusCode = "403";
+			buildResponse();
+			throw "coudldnt process the upload";
+		}
+
+
+		// std::cout <<  absoluteResourcePath << std::endl;
+		// std::cout << "location :" <<  this->currentLocation.getLocation_match() << std::endl;
+		// std::cout << "upload :" <<  this->currentLocation.getUploadPath() << std::endl;
+		// std::cout << "cgi :" <<  this->currentLocation.getCgiPath() << std::endl;
+
+	}
+	
 
 	void	Response::searchForLocation(Request &request)
 	{
@@ -682,6 +609,80 @@ namespace ws {
 				this->currentLocation = *it;
 			}
 		}
+	}
+
+	std::vector<std::string> Response::pathSpliter(std::string &filePath)
+	{
+		std::vector<std::string> dirList;
+		std::string path = filePath;
+		char* token = strtok(const_cast<char*>(path.c_str()),"/");
+		
+		while (token != NULL)
+		{	
+			dirList.push_back(std::string(token));
+			token = strtok (NULL, "/");			
+		}
+		return dirList;
+	}
+
+	int Response::directoriesHandler(std::string filename, std::vector<std::string> dirList, int i, std::string originPath)
+	{
+		int ret = 0;
+		std::string path = buildPath(filename);
+		// std::cout << " pathbuild " << filename << std::endl;
+		if(i < (int)dirList.size() - 2)
+		{	
+			i++;
+			std::string newf = filename+"/"+dirList[i];
+			ret = directoriesHandler(newf,dirList,i,originPath);
+		}
+		///TODO 0
+		// std::cout << path << std::endl;//DEBUG
+		if(ret != 0)
+			return ret;
+		struct stat info;
+		path = buildPath(path);
+		int pathStat = stat( path.c_str(), &info );
+		// std::cout << "path stat "<< pathStat << std::endl;
+			
+		if( pathStat != 0 && (info.st_mode & S_IWUSR))
+		{	
+			// std::cout << "doesnt exist "<< std::endl;
+			size_t pos = originPath.find_last_of('/');
+			std::string pathBuild = "mkdir -p "+ originPath.substr(0,pos);
+			int err = system(pathBuild.c_str());
+			if(err)
+			{	
+				// std::cout << "have no w 000000"<< std::endl;
+				return 403;
+			}
+			return 1;
+		}
+		if(pathStat == 0) //if(stat( path.c_str(), &info )==0)// if exist
+		{
+			// std::cout << " exist "<< std::endl;
+			if( info.st_mode & S_IFDIR )
+			{	
+				// std::cout << "is a directory"<< std::endl;
+				if(info.st_mode & S_IWUSR)
+				{	
+					// std::cout << "have w "<< std::endl;
+					return 1; // exist
+				}
+				else if (!(info.st_mode & S_IWUSR))
+				{	
+					// std::cout << "have no right "<< std::endl;
+					return 403;
+				}
+			}
+			else
+			{	
+				// std::cout << "is no directory"<< std::endl;
+				// buildResponse("409", req , loc);// conflict	
+				return 409;
+			}
+		}
+		return ret;
 	}
 
 	void Response::setDateHeader()
@@ -783,18 +784,6 @@ namespace ws {
 		if(stat(path.c_str(),&fileStat) < 0)    
 			return false;
 
-		// printf("File Permissions: \n");
-		// printf( (S_ISDIR(fileStat.st_mode)) ? "d" : "-");
-		// printf( (fileStat.st_mode & S_IRUSR) ? "r" : "-");
-		// printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
-		// printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
-		// printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
-		// printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
-		// printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
-		// printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
-		// printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
-		// printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
-		// printf("\n");
 		if(permission == "r")
 			return (fileStat.st_mode & S_IRUSR);
 		if(permission == "w")
@@ -854,6 +843,11 @@ namespace ws {
 	bool Response::isCgi()
 	{
 		return (!this->currentLocation.getCgiPath().empty());
+	}
+
+	bool Response::isUpload()
+	{
+		return (!this->currentLocation.getUploadPath().empty());
 	}
 
 	void init_statusCodeMessages()
