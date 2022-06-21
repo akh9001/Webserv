@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/21 07:26:46 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/21 14:05:06 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ namespace ws {
 			void						autoIndexTemplate(std::multimap<std::string, std::pair<struct stat , long long> > &dirList, std::string filePath);
 			void						craftGetRequests(Request &request);
 			void						craftPostRequests(Request &request);
-			void 						checkIndexes();
+			void 						checkIndexes(Request &request);
 			void						autoIndexHandler();
 			void						checkDefaultIndex(std::string &absoluteResourcePath);
 			void 						checkResourceLocation(Request &request);
@@ -78,6 +78,7 @@ namespace ws {
 			std::string 				getMethod(Request &request);
 			std::vector<std::string> 	getIndexes();
 			std::pair<int,std::string>	getRedirection();
+			std::string					getCgiPath();
 
 			//checkers
 			bool 						isMethodeAllowed(Request &request);
