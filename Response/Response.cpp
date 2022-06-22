@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/21 14:19:19 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/22 09:32:25 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -537,6 +537,7 @@ namespace ws {
 			//building upload path
 			std::string uploadPath = this->currentLocation.getUploadPath() + request.getUri();
 			absoluteResourcePath = buildPath(uploadPath);
+			
 			if(ws::fileHandler::checkIfExist(absoluteResourcePath))
 			{
 				this->statusCode = "409";
@@ -550,7 +551,7 @@ namespace ws {
 				std::string tmpFilePath = buildPath(tmpFile);
 				std::vector<std::string> dirList = pathSpliter(uploadPath);
 				int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
-				std::cout << "el result " << ret << std::endl;
+				// std::cout << "el result " << ret << std::endl;
 				// std::cout << std::string(strerror(errno)) << std::endl;
 				if(ret == 1)//directories path exist with no file
 				{
@@ -558,7 +559,7 @@ namespace ws {
 					int err = system(cmd.c_str());//working
 					if(err)
 					{	
-						std::cout << "hhhhhhh " << ret << std::endl;
+						// std::cout << "hhhhhhh " << ret << std::endl;
 						this->statusCode = "500";
 						buildResponse();
 						this->response_is_tmp = true;
@@ -590,6 +591,9 @@ namespace ws {
 			buildResponse();
 			throw "coudldnt process the upload";
 		}
+
+
+	
 
 	}
 	
@@ -629,7 +633,9 @@ namespace ws {
 	{
 		int ret = 0;
 		std::string path = buildPath(filename);
-		// std::cout << " pathbuild " << filename << std::endl;
+	
+
+		
 		if(i < (int)dirList.size() - 2)
 		{	
 			i++;
@@ -641,16 +647,18 @@ namespace ws {
 		if(ret != 0)
 			return ret;
 		struct stat info;
-		path = buildPath(path);
+
 		int pathStat = stat( path.c_str(), &info );
 		// std::cout << "path stat "<< pathStat << std::endl;
-			
-		if( pathStat != 0 && (info.st_mode & S_IWUSR))
+		std::string pathCmd ;	
+		if( pathStat != 0)// && (info.st_mode & S_IWUSR))
 		{	
+			//TODO check permissions
 			// std::cout << "doesnt exist "<< std::endl;
 			size_t pos = originPath.find_last_of('/');
-			std::string pathBuild = "mkdir -p "+ originPath.substr(0,pos);
-			int err = system(pathBuild.c_str());
+			pathCmd = "mkdir -p "+ originPath.substr(0,pos);
+			// std::cout << pathCmd << std::endl;
+			int err = system(pathCmd.c_str());
 			if(err)
 			{	
 				// std::cout << "have no w 000000"<< std::endl;
@@ -682,7 +690,7 @@ namespace ws {
 				return 409;
 			}
 		}
-		std::cout << "el result " << ret << std::endl;
+
 		return ret;
 	}
 
