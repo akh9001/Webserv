@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/18 14:33:11 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/21 21:27:37 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,15 +134,13 @@ void    Request::split_parts()
 
 bool Request::parseChunks(std::string c, Config config)
 {
-    
     if (change == 0)
         parse_header(c);
     if (change == 1 && parsed == false)
         parseHeaderLines(config);
-    else if (change == 1)
+    if (change == 1)
         parse_body(c);
     checkContentLength(c.size());
-    //std::cout << "read : " << read << std::endl;
     if (read <= 0 && change == 1)
         return true;
     return false;
@@ -214,7 +212,6 @@ int Request::parse_body(std::string c)
 {
     if (save.size() > 0)
     {
-        save += c;
         ws::fileHandler::write(filePath, save);
     }
     else
