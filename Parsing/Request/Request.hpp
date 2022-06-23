@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:38 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/20 16:24:29 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/23 19:43:29 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ class Request
         
                 Server getServer() const { return server; }
                 Location getLocation() const { return location; }
-                std::string getFilePath() const { return filePath; }
+                std::string const &getFilePath() const { return filePath; }
                  // ! /////////////////////// file_Readers //////////////////////
             
                 void main_read();
