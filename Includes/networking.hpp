@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:48:05 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/21 12:22:17 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/23 15:19:28 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <string>
 #include <algorithm>
 #include <exception>
+#include <ostream>
 //* c headers
 #include <cstring>
 #include <sys/socket.h>
