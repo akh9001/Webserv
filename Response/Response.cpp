@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/22 09:32:25 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/23 14:27:28 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,8 +147,6 @@ namespace ws {
 			bodyDefaultTemplate(responsePath);
 			this->bodyPath = responsePath;
 			this->response_is_tmp = true;
-			// if()
-			// throw msg;
 		}
 
 	}
@@ -217,7 +215,6 @@ namespace ws {
 			}
 			else
 			{
-				
 				std::string tmpDirectory = ("response_tmp_files");
 				std::string tmpDirectoryPath = buildPath(tmpDirectory);
 				std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
@@ -295,9 +292,16 @@ namespace ws {
 							//TODO cgi
 							//////////////////
 							// request <=== request object
-							// indexPath <=== absolute file path
+							// filePath <=== absolute file path
 							// getCgiPath() <=== cgi path from config
 							///////////////////////
+
+							// calling cgi
+							// std::string tmpfile = cgi(request,indexPath.c_str()) ;
+							
+							//vvv this is not the final return need to work on it
+							// this->statusCode = "200";
+							// this->bodyPath = tmpfile;
 
 							throw "calling cgi";
 						}
@@ -306,7 +310,6 @@ namespace ws {
 						throw "index delevered success 1";
 					}
 				}
-			
 			}
 		}
 		if(isAutoIndexOn())
@@ -342,7 +345,6 @@ namespace ws {
 
 	void	Response::craftGetRequests(Request &request)
 	{
-		//TODO GET
 		std::string absoluteResourcePath = buildAbsolutePath(request);
 		try
 		{
@@ -376,7 +378,6 @@ namespace ws {
 			else 
 			{
 				checkDefaultIndex(absoluteResourcePath);
-				// std::cout << absoluteResourcePath << std::endl;
 				if(isAutoIndexOn())
 				{
 					autoIndexHandler();
@@ -402,9 +403,16 @@ namespace ws {
 				//TODO cgi
 				//////////////////
 				// request <=== request object
-				// absoluteResourcePath <=== file path
+				// filePath <=== absolute file path
 				// getCgiPath() <=== cgi path from config
 				///////////////////////
+
+				// calling cgi
+				// std::string tmpfile = cgi(request,absoluteResourcePath.c_str()) ;
+				
+				//vvv this is not the final return need to work on it
+				// this->statusCode = "200";
+				// this->bodyPath = tmpfile;
 				throw "calling cgi";
 			}
 			this->statusCode = "200";
@@ -516,13 +524,11 @@ namespace ws {
 	
 	void	Response::craftPostRequests(Request &request)
 	{
-		//TODO post
 		std::string absoluteResourcePath = buildAbsolutePath(request);
 
 		if(isCgi())
 		{
-			//TODO cgi // not working until khames fixes the issue
-			throw "Post cgi not working yet";
+			checkCgi(absoluteResourcePath,request);
 		}
 		else if(isUpload())
 		{
@@ -547,19 +553,17 @@ namespace ws {
 			else
 			{
 				//upload
-				std::string tmpFile = request.getFilePath();//TODO i need it from khames
+				std::string tmpFile = request.getFilePath();
 				std::string tmpFilePath = buildPath(tmpFile);
 				std::vector<std::string> dirList = pathSpliter(uploadPath);
 				int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
-				// std::cout << "el result " << ret << std::endl;
-				// std::cout << std::string(strerror(errno)) << std::endl;
+	
 				if(ret == 1)//directories path exist with no file
 				{
 					std::string cmd = "mv "+ tmpFilePath +" " + absoluteResourcePath;
-					int err = system(cmd.c_str());//working
+					int err = system(cmd.c_str());
 					if(err)
 					{	
-						// std::cout << "hhhhhhh " << ret << std::endl;
 						this->statusCode = "500";
 						buildResponse();
 						this->response_is_tmp = true;
@@ -581,9 +585,7 @@ namespace ws {
 					this->response_is_tmp = true;
 					throw "Internal error";
 				}
-
 			}
-			
 		}
 		else
 		{
@@ -591,10 +593,6 @@ namespace ws {
 			buildResponse();
 			throw "coudldnt process the upload";
 		}
-
-
-	
-
 	}
 	
 
@@ -633,65 +631,94 @@ namespace ws {
 	{
 		int ret = 0;
 		std::string path = buildPath(filename);
-	
 
-		
 		if(i < (int)dirList.size() - 2)
 		{	
 			i++;
 			std::string newf = filename+"/"+dirList[i];
 			ret = directoriesHandler(newf,dirList,i,originPath);
 		}
-		///TODO 0
-		// std::cout << path << std::endl;//DEBUG
 		if(ret != 0)
 			return ret;
 		struct stat info;
 
 		int pathStat = stat( path.c_str(), &info );
-		// std::cout << "path stat "<< pathStat << std::endl;
 		std::string pathCmd ;	
-		if( pathStat != 0)// && (info.st_mode & S_IWUSR))
+		if( pathStat != 0)
 		{	
 			//TODO check permissions
-			// std::cout << "doesnt exist "<< std::endl;
 			size_t pos = originPath.find_last_of('/');
 			pathCmd = "mkdir -p "+ originPath.substr(0,pos);
-			// std::cout << pathCmd << std::endl;
 			int err = system(pathCmd.c_str());
 			if(err)
 			{	
-				// std::cout << "have no w 000000"<< std::endl;
 				return 403;
 			}
 			return 1;
 		}
-		if(pathStat == 0) //if(stat( path.c_str(), &info )==0)// if exist
+		if(pathStat == 0)
 		{
-			// std::cout << " exist "<< std::endl;
 			if( info.st_mode & S_IFDIR )
 			{	
-				// std::cout << "is a directory"<< std::endl;
 				if(info.st_mode & S_IWUSR)
 				{	
-					// std::cout << "have w "<< std::endl;
 					return 1; // exist
 				}
 				else if (!(info.st_mode & S_IWUSR))
 				{	
-					// std::cout << "have no right "<< std::endl;
 					return 403;
 				}
 			}
 			else
 			{	
-				// std::cout << "is no directory"<< std::endl;
-				// buildResponse("409", req , loc);// conflict	
 				return 409;
 			}
 		}
 
 		return ret;
+	}
+
+	void Response::checkCgi(std::string &resourcePath, Request &request)
+	{
+		std::string filePath = resourcePath;
+		if(ws::fileHandler::checkIfExist(resourcePath))
+		{
+			if(isDir(resourcePath))
+			{
+				if(isIndexes())
+				{
+					std::vector<std::string> indexList = getIndexes();
+					for (size_t i = 0; i < indexList.size(); i++)
+					{
+						std::string indexPath = buildAbsolutePath(request)+indexList[i];
+						if(ws::fileHandler::checkIfExist(indexPath))
+							if(isFile(indexPath))
+								if(isCgi())
+									filePath = indexPath;
+					}
+				}
+				else
+				{
+					std::string defaultIndexPath = buildAbsolutePath(request)+"index.html";
+					if(ws::fileHandler::checkIfExist(defaultIndexPath))
+						filePath = defaultIndexPath;
+				}
+			}
+		}
+		//TODO cgi
+		//////////////////
+		// request <=== request object
+		// filePath <=== absolute file path
+		// getCgiPath() <=== cgi path from config
+		///////////////////////
+
+		// calling cgi
+		// std::string tmpfile = cgi(request,filePath.c_str()) ;
+
+		//vvv this is not the final return
+		// this->statusCode = "200";
+		// this->bodyPath = tmpfile;
+		throw "calling cgi";
 	}
 
 	void Response::setDateHeader()

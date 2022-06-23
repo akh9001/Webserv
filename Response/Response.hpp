@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/21 14:05:06 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/23 10:37:35 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "../Parsing/Config/Config.hpp"
 # include "../Parsing/Config/Server.hpp"
 # include "../Parsing/Config/Location.hpp"
+#include "../Includes/cgi.hpp"
 # include <map>
 # include <iomanip> // only for linux
 
@@ -49,6 +50,7 @@ namespace ws {
 			void						craftGetRequests(Request &request);
 			void						craftPostRequests(Request &request);
 			void 						checkIndexes(Request &request);
+			void						checkCgi(std::string &filepath, Request &request);
 			void						autoIndexHandler();
 			void						checkDefaultIndex(std::string &absoluteResourcePath);
 			void 						checkResourceLocation(Request &request);
