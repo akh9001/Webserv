@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/21 21:27:37 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/23 12:42:17 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,7 +255,7 @@ void Request::parseUri()
     if (size_t pos = uri.find("?") != std::string::npos)
     {
         
-        query = uri.substr(uri.find("?"), uri.size() - pos);
+        query = uri.substr(uri.find("?") + 1, uri.size() - pos);
         uri.erase(uri.find("?"), uri.size());
     }
 }
