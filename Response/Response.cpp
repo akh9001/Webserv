@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/22 00:39:40 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/23 08:50:30 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -299,8 +299,11 @@ namespace ws {
 							// indexPath <=== absolute file path
 							// getCgiPath() <=== cgi path from config
 							///////////////////////
-
-							throw "calling cgi";
+							cgi(request, indexPath.c_str());
+							//this->statusCode = 200;
+							buildResponse();
+							//exit(0);
+							//throw "calling cgi";
 						}
 						this->statusCode = "200";
 						this->bodyPath = indexPath;

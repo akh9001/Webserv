@@ -3,17 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/20 19:21:54 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/23 08:28:49 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Includes/cgi.hpp"
+// #include "../Includes/cgi.hpp"
+#include "../Includes/networking.hpp"
 #include <algorithm>
 #include <cstdio>
 #include <string>
+#include "../Parsing/Request/Request.hpp"
 
 void	execute(const char *cmd, char **args, const char *post_body)
 {
