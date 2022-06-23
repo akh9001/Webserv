@@ -6,18 +6,21 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/21 13:00:43 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/23 11:38:40 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/cgi.hpp"
+#include <algorithm>
+#include <string>
 
-void	execute(const char *cmd, char **args, const char *post_body)
+bool	execute(const char *cmd, char **args, const char *post_body)
 {
 	int		pid;
 	int		out;
 	int		in = 0;
 	int		fd[2];
+	int		status;
 
 	out = open("/tmp/file", O_CREAT | O_TRUNC | O_WRONLY, 0644);
 	if (post_body && *post_body)
@@ -38,16 +41,19 @@ void	execute(const char *cmd, char **args, const char *post_body)
 		if (execvp(cmd, args) == -1)
 		{
 			std::cerr << "execvp failed !" << std::endl;
-			perror("execve failllllll !!!!");
-			exit(1);
+			exit(111);
 		}
 	}
-	wait(NULL);
+	wait(&status);
 	if (in)
 		close(in);
 	close(out);
 	close(fd[0]);
 	close(fd[1]);
+	if (WIFEXITED(status))
+		if (WEXITSTATUS(status) == 111)
+			return(false);
+	return true;
 }
 
 char	**envp(std::map<std::string, std::string> env)
@@ -100,14 +106,57 @@ void	set_envp(Request request, const char *script_path)
 	setenv("REDIRECT_STATUS", "true", 1);
 }
 
-int	cgi(const Request &request, const char *script_path)
+size_t	count_occurence(const std::string &str)
+{
+	size_t	found = 0;
+	size_t	i = 0;
+
+	while ((found = str.find("&", found)) != std::string::npos)
+	{
+		i++;
+		found++;
+	}
+	return i;
+}
+
+int	cgi(const Request &request, const char *cgi_path, const char *script_path)
 {
 	char			**args_;
-	std::string		cgi_path;
+	int				i = 0;
+	std::size_t		found = 0;
+	std::size_t		len;
+	std::string		query_string;
+	std::string		arg;
+	// std::string		cgi_path;
 	
-	cgi_path = std::string(getcwd(NULL, 0))+ "/cgi-bin/php-cgi";
-	args_ = args(cgi_path.c_str(), script_path);
+	// cgi_path = std::string(getcwd(NULL, 0))+ "/cgi-bin/php-cgi";
+	// args_ = args(cgi_path, script_path);
 	set_envp(request, script_path);
+	if (!query_string.empty())
+	{
+		const char *args[count_occurence(query_string) + 4];
+		args[0] = cgi_path;
+		args[1] = script_path;
+		while ((len = query_string.find("&", found)) != std::string::npos)
+		{
+			args[i++] = query_string.substr(found, len).c_str();
+			found = ++len;
+		}
+		args[i++] = query_string.substr(found).c_str();
+		args[i] = NULL;
+		// for(int j = 0; j < i; j++)
+		// 	std::cout << args[j] << std::endl;
+	}
+	else
+	{
+		const char *args[3];
+
+		args[0] = cgi_path;
+		args[1] = script_path;
+	}
 	execute(args_[0], args_, request.getFilePath().c_str());
 	return 0;
 }
+//TODO 
+//* When execve failed I should return a specific status.
+//* I should separate the query args
