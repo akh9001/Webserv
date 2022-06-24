@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 18:34:35 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/24 18:41:57 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ namespace ws {
 		this->statusCode = statusCode;
 		int status;
 		std::istringstream(statusCode) >> status;
-
+		std::cerr << "__>" <<statusCode<<std::endl;		
 		if(statusCode != "-1" && status >= 400)
 		{	
 			buildResponse();
@@ -307,7 +307,9 @@ namespace ws {
 							//vvv this is not the final return need to work on it
 							// this->statusCode = "200";
 							// this->bodyPath = tmpfile;
+							request.cgi_ptr = new CGI();
 
+							request.cgi_ptr->cgi(request, getCgiPath().c_str(), indexPath.c_str());
 							throw "calling cgi";
 						}
 						this->statusCode = "200";
@@ -421,6 +423,9 @@ namespace ws {
 				//vvv this is not the final return need to work on it
 				// this->statusCode = "200";
 				// this->bodyPath = tmpfile;
+				request.cgi_ptr = new CGI();
+
+				request.cgi_ptr->cgi(request, getCgiPath().c_str(), absoluteResourcePath.c_str());
 				throw "calling cgi";
 			}
 			this->statusCode = "200";
@@ -734,6 +739,8 @@ namespace ws {
 		//vvv this is not the final return
 		// this->statusCode = "200";
 		// this->bodyPath = tmpfile;
+		request.cgi_ptr = new CGI();
+		request.cgi_ptr->cgi(request, getCgiPath().c_str(), filePath.c_str());
 		throw "calling cgi";
 	}
 

@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:38 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/23 19:43:29 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/24 17:22:09 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "../Config/Server.hpp"  
 #include "../Config/Location.hpp"
 
+class CGI;
 class Config;
 // class Server;
 // class Location;
@@ -56,7 +57,8 @@ class Request
                 std::fstream file;
                 std::string filePath;
                 int change;
-
+	public:
+				CGI		*cgi_ptr;
         
          public :
 
@@ -127,4 +129,7 @@ class Request
                  // ! ////////////////////// clear //////////////////
                   void clear();
 };
+
+
+#include "../../Includes/cgi.hpp"
 #endif

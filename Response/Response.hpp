@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 18:33:17 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/24 18:42:05 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@
 # include <map>
 
 # include <iomanip> // only for linux
-
+class CGI;
+class Request;
 namespace ws {
 	
 	class Response
@@ -35,6 +36,8 @@ namespace ws {
 			~Response();
 			std::string 					getHeaders(Request &request,Location &location, std::string &statusCode);
 			std::pair<std::string, bool> 	getbody();
+			static std::string 			getMessage(std::string &statusCode);
+
 			
 		private:
 			struct stat 						fileStat;
@@ -79,7 +82,6 @@ namespace ws {
 
 			//getters
 			long long 					getFileSize(std::string &filePath);
-			static std::string 			getMessage(std::string &statusCode);
 			std::string 				getErrorPage();
 			std::string 				getMethod(Request &request);
 			std::vector<std::string> 	getIndexes();
