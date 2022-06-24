@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 17:17:02 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/24 18:42:05 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include "../Parsing/Config/Location.hpp"
 #include "../Includes/cgi.hpp"
 # include <map>
+
 # include <iomanip> // only for linux
 class CGI;
 class Request;
@@ -28,6 +29,7 @@ namespace ws {
 	{
 		public:
 			bool response_is_tmp;
+			
 			
 		public:
 			Response();
@@ -76,6 +78,7 @@ namespace ws {
 			void 						setDateHeader();
 			void 						setContentLength(std::string filePath);
 			void 						setHeader(std::string key, std::string value);
+			void						setContentType(std::string &filePath);
 
 			//getters
 			long long 					getFileSize(std::string &filePath);
@@ -103,7 +106,10 @@ namespace ws {
 	};
 	
 	static std::map<std::string,std::string>	statusCodeMessages;
+	static std::map<std::string, std::string> 	mimetypeMap;
 	void 										init_statusCodeMessages();
+	void										init_mimetype();
+	
 	std::string 								ltrim(const std::string &s);
 	std::string 								rtrim(const std::string &s);
 	std::string 								trim(const std::string &s);
