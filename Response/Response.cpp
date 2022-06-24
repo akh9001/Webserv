@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/23 08:50:30 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/24 22:48:08 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -932,57 +932,6 @@ namespace ws {
 		}
 	}
 	
-
-
-	// void Response::checkIndexes(Request &request)
-	// {
-	// 	std::vector<std::string> indexList = getIndexes();
-	// 	for (size_t i = 0; i < indexList.size(); i++)
-	// 	{
-	// 		std::string indexPath = buildAbsolutePath(request)+indexList[i];
-	// 		if(ws::fileHandler::checkIfExist(indexPath))
-	// 		{
-	// 			if(isDir(indexPath))
-	// 			{
-	// 				this->statusCode = "501";
-	// 				buildResponse();
-	// 				throw "dir as index not supported";
-	// 			}
-	// 			else if(isFile(indexPath))
-	// 			{
-	// 				if(isPermission(indexPath, "r"))
-	// 				{
-	// 					if(isCgi())
-	// 					{
-	// 						//////////////////
-	// 						// request <=== request object
-	// 						// indexPath <=== absolute file path
-	// 						// getCgiPath() <=== cgi path from config
-	// 						///////////////////////
-
-	// 						throw "calling cgi";
-	// 					}
-	// 					this->statusCode = "200";
-	// 					this->bodyPath = indexPath;
-	// 					throw "index delevered success 1";
-	// 				}
-	// 			}
-			
-	// 		}
-	// 	}
-	// 	if(isAutoIndexOn())
-	// 	{
-	// 		autoIndexHandler();
-	// 	}
-	// 	else
-	// 	{
-	// 		this->statusCode = "403";
-	// 		buildResponse();
-	// 		throw "index have an issue";
-	// 	}
-	// }
-
-
 	
 	void Response::craftDeleteRequest(Request &request) 
 	{
