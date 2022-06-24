@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/23 12:42:17 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/24 15:23:49 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ Request::Request()
     query = "";
     change = 0;
     full = 0;
+	cgi_ptr = NULL;
 }
 
 Request::Request(std::string file)
@@ -55,6 +56,11 @@ Request::Request(std::string file)
 }
 Request::~Request()
 {
+	if (cgi_ptr)
+	{
+		delete cgi_ptr;
+		cgi_ptr = NULL;
+	}
 }
 
 Request::Request(Request const& c)
@@ -344,6 +350,11 @@ void Request::parseUri()
         change = 0;
         ws::fileHandler::removeFile(filePath);
         filePath = "";
+		if (cgi_ptr)
+		{
+			delete cgi_ptr;
+			cgi_ptr = NULL;
+		}
     }
 
 
@@ -393,3 +404,5 @@ void Request::parseUri()
         return 0;
     }
 
+
+		
