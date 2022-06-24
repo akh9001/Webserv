@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 16:36:35 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/24 18:34:35 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,9 @@ namespace ws {
 	Response::Response():response_is_tmp(false),buildResponseTry(0)
 	{
 		init_statusCodeMessages();
+		init_mimetype();
 		setHeader("Server","WebServ/1.0");
-		setHeader("Content-Type","text/html");
-		// setHeader("Content-Type","image/png");
+		setHeader("Content-Type","text/html");	//TODO make it octet/stream
 	}
 
 	Response::~Response(){};
@@ -219,6 +219,7 @@ namespace ws {
 			}
 			else
 			{
+				//TODO to be tested at school
 				std::string tmpDirectory = ("./response_tmp_files");
 				// std::string tmpDirectoryPath = buildPath(tmpDirectory);
 				std::string tmpPath = ws::fileHandler::createTmp(tmpDirectory);
@@ -311,6 +312,7 @@ namespace ws {
 						}
 						this->statusCode = "200";
 						//TODO content type
+						setContentType(indexPath);
 						this->bodyPath = indexPath;
 						throw "index delevered success 1";
 					}
@@ -422,7 +424,7 @@ namespace ws {
 				throw "calling cgi";
 			}
 			this->statusCode = "200";
-			//TODO content type
+			setContentType(absoluteResourcePath);
 			this->bodyPath = absoluteResourcePath;
 			throw "File response with success";
 		}
@@ -572,10 +574,10 @@ namespace ws {
 				if(ret == 1)//directories path exist with no file
 				{
 					// rename(tmpFile.c_str(),absoluteResourcePath.c_str());
-					std::string cmd = "mv "+ tmpFile +" " + absoluteResourcePath;
-					std::cout<< cmd << std::endl;
-					int err = system(cmd.c_str());//TODO
-					// int err = rename(tmpFile.c_str(),absoluteResourcePath.c_str());
+					// std::string cmd = "mv "+ tmpFile +" " + absoluteResourcePath;
+					// std::cout<< cmd << std::endl;
+					// int err = system(cmd.c_str());//TODO
+					int err = rename(tmpFile.c_str(),absoluteResourcePath.c_str());
 					if(err)
 					{	
 						this->statusCode = "500";
@@ -816,6 +818,15 @@ namespace ws {
 		this->headers_list[key] = value;
 	}
 
+	void Response::setContentType(std::string &filePath)
+	{
+		int pos = filePath.find_last_of('.');
+		pos++;
+		std::string extention = filePath.substr(pos,filePath.size()-pos);
+		if(mimetypeMap.find(extention) != mimetypeMap.end())
+			setHeader("Content-Type",mimetypeMap[extention]);
+	}
+
 	bool Response::isMethodeAllowed(Request &request)
 	{
 
@@ -947,11 +958,33 @@ namespace ws {
 		statusCodeMessages["504"] = "Gateway Time-out";
 		statusCodeMessages["505"] = "HTTP Version not supported";
 	}
-
+	void init_mimetype()
+	{
+		mimetypeMap["txt"]= "text/plain";
+        mimetypeMap["pdf"]= "application/pdf";
+        mimetypeMap["html"]= "text/html";
+        mimetypeMap["htm"]= "text/html";
+        mimetypeMap["xml"]= "text/xml";
+        mimetypeMap["js"]= "application/x-javascript";
+        mimetypeMap["xhtml"]= "application/xhtml+xml";
+        mimetypeMap["svg"]= "image/svg+xml";
+        mimetypeMap["svgz"]= "image/svg+xml";
+        mimetypeMap["jpg"]= "image/jpeg";
+        mimetypeMap["jpeg"]= "image/jpeg";
+        mimetypeMap["png"]= "image/png";
+        mimetypeMap["tif"]= "image/tiff";
+        mimetypeMap["tiff"]= "image/tiff";
+        mimetypeMap["ico"]= "image/ico";
+        mimetypeMap["cur"]= "image/ico";
+        mimetypeMap["bmp"]= "image/bmp";
+        mimetypeMap["wml"]= "text/vnd.wap.wml";
+        mimetypeMap["wmlc"]= "application/vnd.wap.wmlc";
+	}
 
 //TODO MIME TYPES for content type
 //TODO paths as subject
 //TODO response_tmp_files and response 
+//
 	const std::string WHITESPACE = " \n\r\t\f\v./";
  
 	std::string ltrim(const std::string &s)
