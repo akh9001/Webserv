@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 06:59:36 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/24 12:27:37 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,11 +91,12 @@ namespace ws {
 			if(originErrorPath.at(0) == '/')
 			{
 				std::string errorPath = buildPath(originErrorPath);
+
 				if(ws::fileHandler::checkIfExist(errorPath))
 				{
 					if(isFile(errorPath))
 					{
-						if(isPermission(errorPath, "r"))
+						if(!isPermission(errorPath, "r"))
 						{
 							error_pages = false;
 							this->statusCode = "403";
@@ -104,7 +105,7 @@ namespace ws {
 						else
 						{
 							error_pages = true;
-							this->bodyPath = errorPath;
+							this->bodyPath = errorPath; 
 							throw "error page delevered seccussfuly";
 							return ;
 						}
@@ -131,7 +132,7 @@ namespace ws {
 			}
 		}
 
-		this->buildResponseTry = 0;
+		// this->buildResponseTry = 0;
 
 		if(!error_pages)
 		{
@@ -181,10 +182,11 @@ namespace ws {
 		if(!resourcePath.empty() && resourcePath.at(0) != '/')
 			slash = "/";
 		root = this->currentLocation.getRoot();
-		root  = ltrim(root);
-		if(!root.empty())
-			s = "/";
-		std::string path =   std::string(tmp) +s+ root + slash + resourcePath;
+		// root  = ltrim(root);
+		// if(!root.empty())
+		// 	s = ".";
+		std::string path =    root + slash + resourcePath;
+		std::cout << path << std::endl;
 		return path;
 	}
 
@@ -215,9 +217,9 @@ namespace ws {
 			}
 			else
 			{
-				std::string tmpDirectory = ("response_tmp_files");
-				std::string tmpDirectoryPath = buildPath(tmpDirectory);
-				std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
+				std::string tmpDirectory = ("./response_tmp_files");
+				// std::string tmpDirectoryPath = buildPath(tmpDirectory);
+				std::string tmpPath = ws::fileHandler::createTmp(tmpDirectory);
 				ws::fileHandler::write(tmpPath,redirectionPath);
 				this->bodyPath = tmpPath;
 				this->response_is_tmp = true;
@@ -466,18 +468,19 @@ namespace ws {
 		{
 			while ((ent = readdir(dir)) != NULL) {
 				std::string filePath = absPath+"/"+std::string(ent->d_name);
-				struct stat st;
-				stat(filePath.c_str(), &st);
-				dirList.insert(std::make_pair(std::string(ent->d_name),std::make_pair(st,getFileSize(filePath))));
+				// struct stat st;
+				// stat(filePath.c_str(), &st);
+				stat(filePath.c_str(), &this->fileStat);
+				dirList.insert(std::make_pair(std::string(ent->d_name),std::make_pair(this->fileStat,getFileSize(filePath))));
 			}
 			closedir(dir);
 		} else {
 			throw "Could not open directory";
 		}
 		
-		tmpDirectory = "response_tmp_files";
-		tmpDirectoryPath = buildPath(tmpDirectory);
-		tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
+		tmpDirectory = "./response_tmp_files";
+		// tmpDirectoryPath = buildPath(tmpDirectory);
+		tmpPath = ws::fileHandler::createTmp(tmpDirectory);
 		
 		autoIndexTemplate(dirList,tmpPath);
 		this->statusCode = "200";
@@ -508,14 +511,15 @@ namespace ws {
 		ws::fileHandler::write(filePath,index.str());
 	}
 
-	std::string	Response::formatMtime(struct stat stat)
+	std::string	Response::formatMtime(struct stat sta)
 	{
 		std::string months [] = {"Jan", "Feb", "MAar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Ded"};
 		std::stringstream date;
-		struct stat st = stat;
+		// struct stat st = stat;
+		this->fileStat = sta;
 		struct tm * tm;
 
-		tm = gmtime(&st.st_mtime);
+		tm = gmtime(&this->fileStat.st_mtime);
 		date << std::setw(2) << std::setfill('0') << tm->tm_mday ;
 		date << "-" << months[tm->tm_mon].c_str();
 		date << "-" <<tm->tm_year+1900 <<" " ;
@@ -555,14 +559,15 @@ namespace ws {
 			{
 				//upload
 				std::string tmpFile = request.getFilePath();
-				std::string tmpFilePath = buildPath(tmpFile);
+				// std::string tmpFilePath = buildPath(tmpFile);
+				// std::cout << "tmp " << tmpFile << std::endl;
 				std::vector<std::string> dirList = pathSpliter(uploadPath);
 				int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
 	
 				if(ret == 1)//directories path exist with no file
 				{
-					std::string cmd = "mv "+ tmpFilePath +" " + absoluteResourcePath;
-					int err = system(cmd.c_str());
+					std::string cmd = "mv "+ tmpFile +" " + absoluteResourcePath;
+					int err = system(cmd.c_str());//TODO
 					if(err)
 					{	
 						this->statusCode = "500";
@@ -641,16 +646,16 @@ namespace ws {
 		}
 		if(ret != 0)
 			return ret;
-		struct stat info;
+		// struct stat info;
 
-		int pathStat = stat( path.c_str(), &info );
+		int pathStat = stat(path.c_str(), &this->fileStat);
 		std::string pathCmd ;	
 		if( pathStat != 0)
 		{	
 			//TODO check permissions
 			size_t pos = originPath.find_last_of('/');
 			pathCmd = "mkdir -p "+ originPath.substr(0,pos);
-			int err = system(pathCmd.c_str());
+			int err = system(pathCmd.c_str());//TODO
 			if(err)
 			{	
 				return 403;
@@ -659,13 +664,13 @@ namespace ws {
 		}
 		if(pathStat == 0)
 		{
-			if( info.st_mode & S_IFDIR )
+			if( this->fileStat.st_mode & S_IFDIR )
 			{	
-				if(info.st_mode & S_IWUSR)
+				if(this->fileStat.st_mode & S_IWUSR)
 				{	
 					return 1; // exist
 				}
-				else if (!(info.st_mode & S_IWUSR))
+				else if (!(this->fileStat.st_mode & S_IWUSR))
 				{	
 					return 403;
 				}
@@ -745,12 +750,12 @@ namespace ws {
 
 	long long Response::getFileSize(std::string &filePath)
 	{
-		struct stat st;
+		// struct stat st;
 
 		if(!filePath.empty() && filePath.length() > 0)
 		{
-			stat(filePath.c_str(), &st);
-			return st.st_size;
+			stat(filePath.c_str(), &this->fileStat);
+			return this->fileStat.st_size;
 		}
 		return 0;
 	}
@@ -820,36 +825,35 @@ namespace ws {
 
 	bool Response::isPermission(std::string &path, std::string permission)
 	{
-		(void)permission;
-		struct stat fileStat;
+		// struct stat fileStat;
 
-		if(stat(path.c_str(),&fileStat) < 0)    
+		if(stat(path.c_str(),&this->fileStat) < 0)    
 			return false;
 
 		if(permission == "r")
-			return (fileStat.st_mode & S_IRUSR);
+			return (this->fileStat.st_mode & S_IRUSR);
 		if(permission == "w")
-			return (fileStat.st_mode & S_IWUSR);
+			return (this->fileStat.st_mode & S_IWUSR);
 		if(permission == "x")
-			return (fileStat.st_mode & S_IXUSR);
+			return (this->fileStat.st_mode & S_IXUSR);
 		
 		return false;
 	}
 
 	bool Response::isDir(std::string &resourcePath)
 	{
-		struct stat info;
+		// struct stat info;
 
-		stat( resourcePath.c_str(), &info );
-		return (info.st_mode & S_IFDIR);
+		stat( resourcePath.c_str(), &this->fileStat );
+		return (this->fileStat.st_mode & S_IFDIR);
 	}
 	
 	bool Response::isFile(std::string &resourcePath)
 	{
-		struct stat info;
+		// struct stat info;
 
-		stat( resourcePath.c_str(), &info );
-		return (info.st_mode & S_IFREG);
+		stat( resourcePath.c_str(), &this->fileStat );
+		return (this->fileStat.st_mode & S_IFREG);
 	}
 
 	bool Response::isRedirection()
@@ -864,6 +868,7 @@ namespace ws {
 
 	bool Response::isAutoIndexOn()
 	{
+		// std::cout << this->currentLocation.getAutoIndex() << std::endl;
 		return (this->currentLocation.getAutoIndex() == true);
 	}
 

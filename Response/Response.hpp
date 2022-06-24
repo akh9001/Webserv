@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 06:57:21 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/24 12:20:13 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ namespace ws {
 			std::pair<std::string, bool> 	getbody();
 			
 		private:
+			struct stat 						fileStat;
 			int 								buildResponseTry;
 			std::string 						bodyPath;
 			std::string 						statusCode;
