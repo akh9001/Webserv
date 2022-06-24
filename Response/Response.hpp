@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/23 10:37:35 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/24 06:57:21 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ namespace ws {
 			void						craftPostRequests(Request &request);
 			void 						checkIndexes(Request &request);
 			void						checkCgi(std::string &filepath, Request &request);
-			void						autoIndexHandler();
+			void						autoIndexHandler(Request &request);
 			void						checkDefaultIndex(std::string &absoluteResourcePath);
 			void 						checkResourceLocation(Request &request);
 			void 						checkResource(Request &request);

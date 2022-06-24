@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/23 14:27:28 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/24 06:59:36 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -314,7 +314,7 @@ namespace ws {
 		}
 		if(isAutoIndexOn())
 		{
-			autoIndexHandler();
+			autoIndexHandler(request);
 		}
 		else
 		{
@@ -380,7 +380,7 @@ namespace ws {
 				checkDefaultIndex(absoluteResourcePath);
 				if(isAutoIndexOn())
 				{
-					autoIndexHandler();
+					autoIndexHandler(request);
 				}
 				else
 				{
@@ -448,18 +448,19 @@ namespace ws {
 		}
 	}
 
-	void Response::autoIndexHandler()
+	void Response::autoIndexHandler(Request &request)
 	{
 		std::string tmpDirectory;
 		std::string tmpDirectoryPath;
 		std::string tmpPath;
 		std::multimap<std::string, std::pair<struct stat , long long> > dirList;
 
-
 		DIR *dir;
 		struct dirent *ent;
-		std::string currLoc = this->currentLocation.getLocation_match();
+		// std::string currLoc = this->currentLocation.getLocation_match();
+		std::string currLoc = request.getUri();
 		std::string absPath = buildPath(currLoc);
+		// std::cout << "=========================== " <<  << std::endl;
 
 		if ((dir = opendir(absPath.c_str())) != NULL) 
 		{
