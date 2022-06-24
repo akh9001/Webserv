@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/24 13:17:40 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/24 16:11:38 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,9 @@
 // _env["DOCUMENT_URI"] = script_path;
 // _env["REMOTE_PORT"] = "8001";//std::to_string(request.getHostPort());
 // _env["PATH"] = std::string(std::getenv("PATH"));
+	// _env["SCRIPT_NAME"] = "/Users/akhalidy/Desktop/akh/cgi-bin/php-cgi";
 
-CGI::CGI(void)
+CGI::CGI(void) : finished(false)
 {
 	char	filename[] = "/tmp/tmp_cgi_XXXXXX";
 	file = mktemp(filename);
@@ -46,7 +47,6 @@ void	CGI::set_env_map(const Request &request, const char *script_path)
 	_env["QUERY_STRING"] = request.getQuery();
 	_env["REQUEST_METHOD"] = request.getMethod();
 	_env["SCRIPT_FILENAME"] = script_path; //* script_path is the path of the file to be executed.
-	_env["SCRIPT_NAME"] = "/Users/akhalidy/Desktop/akh/cgi-bin/php-cgi";
 	_env["SERVER_SOFTWARE"] = "WEBSERV";
 	_env["SERVER_PROTOCOL"] = request.getVersion();
 	_env["REDIRECT_STATUS"] =  "true";
@@ -80,9 +80,6 @@ bool	CGI::execute(char **args, const Request &request)
 	int			ret;
 	const char	*post_body = request.getFilePath().c_str();
 	std::cout << "Fuuuuuuuu !" << file << std::endl;
-	out = open(file.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0644);
-	if (post_body && *post_body)
-		in = open(post_body, O_RDONLY);
 	_pid = fork();
 	if (_pid == -1)
 	{
@@ -91,6 +88,9 @@ bool	CGI::execute(char **args, const Request &request)
 	}
 	if (_pid == 0)
 	{
+		if (post_body && *post_body)
+			in = open(post_body, O_RDONLY);
+		out = open(file.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0644);
 		if (in)
 		{
 			dup2(in, 0);
@@ -104,19 +104,6 @@ bool	CGI::execute(char **args, const Request &request)
 			exit(111);
 		}
 	}
-	ret = waitpid(_pid, &status, WNOHANG);
-	if (ret == -1)
-	{
-		std::cerr << "CGI::waitpid failed." << std::endl;
-		_status = "500";
-	}
-	if (in)
-		close(in);
-	if (out != 1)
-		close(out);
-	if (WIFEXITED(status))
-		if (WEXITSTATUS(status) == 111)
-			return(false);
 	return true;
 }
 
