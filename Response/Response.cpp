@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 12:27:37 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/24 16:36:35 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ namespace ws {
 		init_statusCodeMessages();
 		setHeader("Server","WebServ/1.0");
 		setHeader("Content-Type","text/html");
+		// setHeader("Content-Type","image/png");
 	}
 
 	Response::~Response(){};
@@ -69,7 +70,7 @@ namespace ws {
 		std::stringstream headers;
 
 		//build status line
-		headers << "HTTP/1.1 "+ this->statusCode +" "+getMessage()+"\r\n";
+		headers << "HTTP/1.1 "+ this->statusCode +" "+getMessage(this->statusCode)+"\r\n";
 		//build headers
 		std::map<std::string,std::string>::iterator it;
 		for (it = this->headers_list.begin(); it != this->headers_list.end(); ++it)
@@ -154,7 +155,7 @@ namespace ws {
 
 	void Response::bodyDefaultTemplate(std::string &responsePath)
 	{
-		std::string message = getMessage();
+		std::string message = getMessage(this->statusCode);
 		std::string response(
 				"<html>"
 					"<head>"
@@ -185,8 +186,9 @@ namespace ws {
 		// root  = ltrim(root);
 		// if(!root.empty())
 		// 	s = ".";
-		std::string path =    root + slash + resourcePath;
-		std::cout << path << std::endl;
+		
+		std::string path =    root + slash + resourcePath;//  /
+		// std::cout << path << std::endl;
 		return path;
 	}
 
@@ -308,6 +310,7 @@ namespace ws {
 							throw "calling cgi";
 						}
 						this->statusCode = "200";
+						//TODO content type
 						this->bodyPath = indexPath;
 						throw "index delevered success 1";
 					}
@@ -348,6 +351,7 @@ namespace ws {
 	void	Response::craftGetRequests(Request &request)
 	{
 		std::string absoluteResourcePath = buildAbsolutePath(request);
+		std::cout << absoluteResourcePath << std::endl;
 		try
 		{
 			isResourceValid(absoluteResourcePath);
@@ -418,6 +422,7 @@ namespace ws {
 				throw "calling cgi";
 			}
 			this->statusCode = "200";
+			//TODO content type
 			this->bodyPath = absoluteResourcePath;
 			throw "File response with success";
 		}
@@ -566,14 +571,17 @@ namespace ws {
 	
 				if(ret == 1)//directories path exist with no file
 				{
+					// rename(tmpFile.c_str(),absoluteResourcePath.c_str());
 					std::string cmd = "mv "+ tmpFile +" " + absoluteResourcePath;
+					std::cout<< cmd << std::endl;
 					int err = system(cmd.c_str());//TODO
+					// int err = rename(tmpFile.c_str(),absoluteResourcePath.c_str());
 					if(err)
 					{	
 						this->statusCode = "500";
 						buildResponse();
 						this->response_is_tmp = true;
-						throw "Internal error";
+						throw "Internal error 1";
 					}
 					else
 					{
@@ -589,7 +597,7 @@ namespace ws {
 					this->statusCode = "500";
 					buildResponse();
 					this->response_is_tmp = true;
-					throw "Internal error";
+					throw "Internal error 2";
 				}
 			}
 		}
@@ -637,7 +645,7 @@ namespace ws {
 	{
 		int ret = 0;
 		std::string path = buildPath(filename);
-
+		std::cout << path << std::endl;
 		if(i < (int)dirList.size() - 2)
 		{	
 			i++;
@@ -760,10 +768,10 @@ namespace ws {
 		return 0;
 	}
 
-	std::string Response::getMessage()
+	std::string Response::getMessage(std::string &statusCode)
 	{
-		if(statusCodeMessages.find(this->statusCode) != statusCodeMessages.end())
-			return statusCodeMessages.find(this->statusCode)->second;
+		if(statusCodeMessages.find(statusCode) != statusCodeMessages.end())
+			return statusCodeMessages.find(statusCode)->second;
 		//else throw error
 		return "";
 	}
@@ -804,7 +812,8 @@ namespace ws {
 
 	void Response::setHeader(std::string key, std::string value)
 	{
-		this->headers_list.insert(std::make_pair(key, value));
+		// this->headers_list.insert(std::make_pair(key, value));
+		this->headers_list[key] = value;
 	}
 
 	bool Response::isMethodeAllowed(Request &request)
@@ -897,7 +906,7 @@ namespace ws {
 		return (!this->currentLocation.getUploadPath().empty());
 	}
 
-	void init_statusCodeMessages()
+	void init_statusCodeMessages()//TODO put it in a better place
 	{
 		statusCodeMessages["100"] = "Continue";
 		statusCodeMessages["200"] = "OK";
@@ -939,6 +948,10 @@ namespace ws {
 		statusCodeMessages["505"] = "HTTP Version not supported";
 	}
 
+
+//TODO MIME TYPES for content type
+//TODO paths as subject
+//TODO response_tmp_files and response 
 	const std::string WHITESPACE = " \n\r\t\f\v./";
  
 	std::string ltrim(const std::string &s)
