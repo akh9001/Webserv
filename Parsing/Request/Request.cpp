@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/24 22:47:30 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/24 22:57:35 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ Request::Request()
     query = "";
     change = 0;
     full = 0;
+	cgi_ptr = NULL;
 }
 
 Request::Request(std::string file)
@@ -55,6 +56,11 @@ Request::Request(std::string file)
 }
 Request::~Request()
 {
+	if (cgi_ptr)
+	{
+		delete cgi_ptr;
+		cgi_ptr = NULL;
+	}
 }
 
 Request::Request(Request const& c)
@@ -259,7 +265,7 @@ void Request::parseUri()
     if (size_t pos = uri.find("?") != std::string::npos)
     {
         
-        query = uri.substr(uri.find("?"), uri.size() - pos);
+        query = uri.substr(uri.find("?") + 1, uri.size() - pos);
         uri.erase(uri.find("?"), uri.size());
     }
 }
@@ -348,6 +354,11 @@ void Request::parseUri()
         change = 0;
         ws::fileHandler::removeFile(filePath);
         filePath = "";
+		if (cgi_ptr)
+		{
+			delete cgi_ptr;
+			cgi_ptr = NULL;
+		}
     }
 
 
@@ -397,3 +408,5 @@ void Request::parseUri()
         return 0;
     }
 
+
+		

@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/22 00:37:21 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/24 22:58:15 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,12 @@
 # include "../Parsing/Config/Config.hpp"
 # include "../Parsing/Config/Server.hpp"
 # include "../Parsing/Config/Location.hpp"
+#include "../Includes/cgi.hpp"
 # include <map>
-# include <iomanip> // only for linux
 
+# include <iomanip> // only for linux
+class CGI;
+class Request;
 namespace ws {
 	
 	class Response
@@ -27,13 +30,17 @@ namespace ws {
 		public:
 			bool response_is_tmp;
 			
+			
 		public:
 			Response();
 			~Response();
 			std::string 					getHeaders(Request &request,Location &location, std::string &statusCode);
 			std::pair<std::string, bool> 	getbody();
+			static std::string 			getMessage(std::string &statusCode);
+
 			
 		private:
+			struct stat 						fileStat;
 			int 								buildResponseTry;
 			std::string 						bodyPath;
 			std::string 						statusCode;
@@ -50,7 +57,8 @@ namespace ws {
 			void						craftPostRequests(Request &request);
 			void 						craftDeleteRequest(Request &request);
 			void 						checkIndexes(Request &request);
-			void						autoIndexHandler();
+			void						checkCgi(std::string &filepath, Request &request);
+			void						autoIndexHandler(Request &request);
 			void						checkDefaultIndex(std::string &absoluteResourcePath);
 			void 						checkResourceLocation(Request &request);
 			void 						checkResource(Request &request);
@@ -71,10 +79,10 @@ namespace ws {
 			void 						setDateHeader();
 			void 						setContentLength(std::string filePath);
 			void 						setHeader(std::string key, std::string value);
+			void						setContentType(std::string &filePath);
 
 			//getters
 			long long 					getFileSize(std::string &filePath);
-			std::string 				getMessage();
 			std::string 				getErrorPage();
 			std::string 				getMethod(Request &request);
 			std::vector<std::string> 	getIndexes();
@@ -100,7 +108,10 @@ namespace ws {
 	};
 	
 	static std::map<std::string,std::string>	statusCodeMessages;
+	static std::map<std::string, std::string> 	mimetypeMap;
 	void 										init_statusCodeMessages();
+	void										init_mimetype();
+	
 	std::string 								ltrim(const std::string &s);
 	std::string 								rtrim(const std::string &s);
 	std::string 								trim(const std::string &s);

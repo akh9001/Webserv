@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 22:48:08 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/24 22:58:02 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,9 @@ namespace ws {
 	Response::Response():response_is_tmp(false),buildResponseTry(0)
 	{
 		init_statusCodeMessages();
+		init_mimetype();
 		setHeader("Server","WebServ/1.0");
-		setHeader("Content-Type","text/html");
+		setHeader("Content-Type","text/html");	//TODO make it octet/stream
 	}
 
 	Response::~Response(){};
@@ -38,7 +39,7 @@ namespace ws {
 		this->statusCode = statusCode;
 		int status;
 		std::istringstream(statusCode) >> status;
-
+		std::cerr << "__>" <<statusCode<<std::endl;		
 		if(statusCode != "-1" && status >= 400)
 		{	
 			buildResponse();
@@ -69,7 +70,7 @@ namespace ws {
 		std::stringstream headers;
 
 		//build status line
-		headers << "HTTP/1.1 "+ this->statusCode +" "+getMessage()+"\r\n";
+		headers << "HTTP/1.1 "+ this->statusCode +" "+getMessage(this->statusCode)+"\r\n";
 		//build headers
 		std::map<std::string,std::string>::iterator it;
 		for (it = this->headers_list.begin(); it != this->headers_list.end(); ++it)
@@ -91,11 +92,12 @@ namespace ws {
 			if(originErrorPath.at(0) == '/')
 			{
 				std::string errorPath = buildPath(originErrorPath);
+
 				if(ws::fileHandler::checkIfExist(errorPath))
 				{
 					if(isFile(errorPath))
 					{
-						if(isPermission(errorPath, "r"))
+						if(!isPermission(errorPath, "r"))
 						{
 							error_pages = false;
 							this->statusCode = "403";
@@ -104,7 +106,7 @@ namespace ws {
 						else
 						{
 							error_pages = true;
-							this->bodyPath = errorPath;
+							this->bodyPath = errorPath; 
 							throw "error page delevered seccussfuly";
 							return ;
 						}
@@ -131,7 +133,7 @@ namespace ws {
 			}
 		}
 
-		this->buildResponseTry = 0;
+		// this->buildResponseTry = 0;
 
 		if(!error_pages)
 		{
@@ -147,15 +149,13 @@ namespace ws {
 			bodyDefaultTemplate(responsePath);
 			this->bodyPath = responsePath;
 			this->response_is_tmp = true;
-			// if()
-			// throw msg;
 		}
 
 	}
 
 	void Response::bodyDefaultTemplate(std::string &responsePath)
 	{
-		std::string message = getMessage();
+		std::string message = getMessage(this->statusCode);
 		std::string response(
 				"<html>"
 					"<head>"
@@ -183,10 +183,12 @@ namespace ws {
 		if(!resourcePath.empty() && resourcePath.at(0) != '/')
 			slash = "/";
 		root = this->currentLocation.getRoot();
-		root  = ltrim(root);
-		if(!root.empty())
-			s = "/";
-		std::string path =   std::string(tmp) +s+ root + slash + resourcePath;
+		// root  = ltrim(root);
+		// if(!root.empty())
+		// 	s = ".";
+		
+		std::string path =    root + slash + resourcePath;//  /
+		// std::cout << path << std::endl;
 		return path;
 	}
 
@@ -217,10 +219,10 @@ namespace ws {
 			}
 			else
 			{
-				
-				std::string tmpDirectory = ("response_tmp_files");
-				std::string tmpDirectoryPath = buildPath(tmpDirectory);
-				std::string tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
+				//TODO to be tested at school
+				std::string tmpDirectory = ("./response_tmp_files");
+				// std::string tmpDirectoryPath = buildPath(tmpDirectory);
+				std::string tmpPath = ws::fileHandler::createTmp(tmpDirectory);
 				ws::fileHandler::write(tmpPath,redirectionPath);
 				this->bodyPath = tmpPath;
 				this->response_is_tmp = true;
@@ -296,26 +298,33 @@ namespace ws {
 							//TODO cgi
 							//////////////////
 							// request <=== request object
-							// indexPath <=== absolute file path
+							// filePath <=== absolute file path
 							// getCgiPath() <=== cgi path from config
 							///////////////////////
-							cgi(request, indexPath.c_str());
-							//this->statusCode = 200;
-							buildResponse();
-							//exit(0);
-							//throw "calling cgi";
+
+							// calling cgi
+							// std::string tmpfile = cgi(request,indexPath.c_str()) ;
+							
+							//vvv this is not the final return need to work on it
+							// this->statusCode = "200";
+							// this->bodyPath = tmpfile;
+							request.cgi_ptr = new CGI();
+
+							request.cgi_ptr->cgi(request, getCgiPath().c_str(), indexPath.c_str());
+							throw "calling cgi";
 						}
 						this->statusCode = "200";
+						//TODO content type
+						setContentType(indexPath);
 						this->bodyPath = indexPath;
 						throw "index delevered success 1";
 					}
 				}
-			
 			}
 		}
 		if(isAutoIndexOn())
 		{
-			autoIndexHandler();
+			autoIndexHandler(request);
 		}
 		else
 		{
@@ -346,8 +355,8 @@ namespace ws {
 
 	void	Response::craftGetRequests(Request &request)
 	{
-		//TODO GET
 		std::string absoluteResourcePath = buildAbsolutePath(request);
+		std::cout << absoluteResourcePath << std::endl;
 		try
 		{
 			isResourceValid(absoluteResourcePath);
@@ -380,10 +389,9 @@ namespace ws {
 			else 
 			{
 				checkDefaultIndex(absoluteResourcePath);
-				// std::cout << absoluteResourcePath << std::endl;
 				if(isAutoIndexOn())
 				{
-					autoIndexHandler();
+					autoIndexHandler(request);
 				}
 				else
 				{
@@ -406,12 +414,23 @@ namespace ws {
 				//TODO cgi
 				//////////////////
 				// request <=== request object
-				// absoluteResourcePath <=== file path
+				// filePath <=== absolute file path
 				// getCgiPath() <=== cgi path from config
 				///////////////////////
+
+				// calling cgi
+				// std::string tmpfile = cgi(request,absoluteResourcePath.c_str()) ;
+				
+				//vvv this is not the final return need to work on it
+				// this->statusCode = "200";
+				// this->bodyPath = tmpfile;
+				request.cgi_ptr = new CGI();
+
+				request.cgi_ptr->cgi(request, getCgiPath().c_str(), absoluteResourcePath.c_str());
 				throw "calling cgi";
 			}
 			this->statusCode = "200";
+			setContentType(absoluteResourcePath);
 			this->bodyPath = absoluteResourcePath;
 			throw "File response with success";
 		}
@@ -444,35 +463,37 @@ namespace ws {
 		}
 	}
 
-	void Response::autoIndexHandler()
+	void Response::autoIndexHandler(Request &request)
 	{
 		std::string tmpDirectory;
 		std::string tmpDirectoryPath;
 		std::string tmpPath;
 		std::multimap<std::string, std::pair<struct stat , long long> > dirList;
 
-
 		DIR *dir;
 		struct dirent *ent;
-		std::string currLoc = this->currentLocation.getLocation_match();
+		// std::string currLoc = this->currentLocation.getLocation_match();
+		std::string currLoc = request.getUri();
 		std::string absPath = buildPath(currLoc);
+		// std::cout << "=========================== " <<  << std::endl;
 
 		if ((dir = opendir(absPath.c_str())) != NULL) 
 		{
 			while ((ent = readdir(dir)) != NULL) {
 				std::string filePath = absPath+"/"+std::string(ent->d_name);
-				struct stat st;
-				stat(filePath.c_str(), &st);
-				dirList.insert(std::make_pair(std::string(ent->d_name),std::make_pair(st,getFileSize(filePath))));
+				// struct stat st;
+				// stat(filePath.c_str(), &st);
+				stat(filePath.c_str(), &this->fileStat);
+				dirList.insert(std::make_pair(std::string(ent->d_name),std::make_pair(this->fileStat,getFileSize(filePath))));
 			}
 			closedir(dir);
 		} else {
 			throw "Could not open directory";
 		}
 		
-		tmpDirectory = "response_tmp_files";
-		tmpDirectoryPath = buildPath(tmpDirectory);
-		tmpPath = ws::fileHandler::createTmp(tmpDirectoryPath);
+		tmpDirectory = "./response_tmp_files";
+		// tmpDirectoryPath = buildPath(tmpDirectory);
+		tmpPath = ws::fileHandler::createTmp(tmpDirectory);
 		
 		autoIndexTemplate(dirList,tmpPath);
 		this->statusCode = "200";
@@ -503,14 +524,15 @@ namespace ws {
 		ws::fileHandler::write(filePath,index.str());
 	}
 
-	std::string	Response::formatMtime(struct stat stat)
+	std::string	Response::formatMtime(struct stat sta)
 	{
 		std::string months [] = {"Jan", "Feb", "MAar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Ded"};
 		std::stringstream date;
-		struct stat st = stat;
+		// struct stat st = stat;
+		this->fileStat = sta;
 		struct tm * tm;
 
-		tm = gmtime(&st.st_mtime);
+		tm = gmtime(&this->fileStat.st_mtime);
 		date << std::setw(2) << std::setfill('0') << tm->tm_mday ;
 		date << "-" << months[tm->tm_mon].c_str();
 		date << "-" <<tm->tm_year+1900 <<" " ;
@@ -520,13 +542,11 @@ namespace ws {
 	
 	void	Response::craftPostRequests(Request &request)
 	{
-		//TODO post
 		std::string absoluteResourcePath = buildAbsolutePath(request);
 
 		if(isCgi())
 		{
-			//TODO cgi // not working until khames fixes the issue
-			throw "Post cgi not working yet";
+			checkCgi(absoluteResourcePath,request);
 		}
 		else if(isUpload())
 		{
@@ -541,6 +561,7 @@ namespace ws {
 			//building upload path
 			std::string uploadPath = this->currentLocation.getUploadPath() + request.getUri();
 			absoluteResourcePath = buildPath(uploadPath);
+			
 			if(ws::fileHandler::checkIfExist(absoluteResourcePath))
 			{
 				this->statusCode = "409";
@@ -550,23 +571,25 @@ namespace ws {
 			else
 			{
 				//upload
-				std::string tmpFile = request.getFilePath();//TODO i need it from khames
-				std::string tmpFilePath = buildPath(tmpFile);
+				std::string tmpFile = request.getFilePath();
+				// std::string tmpFilePath = buildPath(tmpFile);
+				// std::cout << "tmp " << tmpFile << std::endl;
 				std::vector<std::string> dirList = pathSpliter(uploadPath);
 				int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
-				std::cout << "el result " << ret << std::endl;
-				// std::cout << std::string(strerror(errno)) << std::endl;
+	
 				if(ret == 1)//directories path exist with no file
 				{
-					std::string cmd = "mv "+ tmpFilePath +" " + absoluteResourcePath;
-					int err = system(cmd.c_str());//working
+					// rename(tmpFile.c_str(),absoluteResourcePath.c_str());
+					// std::string cmd = "mv "+ tmpFile +" " + absoluteResourcePath;
+					// std::cout<< cmd << std::endl;
+					// int err = system(cmd.c_str());//TODO
+					int err = rename(tmpFile.c_str(),absoluteResourcePath.c_str());
 					if(err)
 					{	
-						std::cout << "hhhhhhh " << ret << std::endl;
 						this->statusCode = "500";
 						buildResponse();
 						this->response_is_tmp = true;
-						throw "Internal error";
+						throw "Internal error 1";
 					}
 					else
 					{
@@ -582,11 +605,9 @@ namespace ws {
 					this->statusCode = "500";
 					buildResponse();
 					this->response_is_tmp = true;
-					throw "Internal error";
+					throw "Internal error 2";
 				}
-
 			}
-			
 		}
 		else
 		{
@@ -594,7 +615,6 @@ namespace ws {
 			buildResponse();
 			throw "coudldnt process the upload";
 		}
-
 	}
 	
 
@@ -633,61 +653,96 @@ namespace ws {
 	{
 		int ret = 0;
 		std::string path = buildPath(filename);
-		// std::cout << " pathbuild " << filename << std::endl;
+		std::cout << path << std::endl;
 		if(i < (int)dirList.size() - 2)
 		{	
 			i++;
 			std::string newf = filename+"/"+dirList[i];
 			ret = directoriesHandler(newf,dirList,i,originPath);
 		}
-		///TODO 0
-		// std::cout << path << std::endl;//DEBUG
 		if(ret != 0)
 			return ret;
-		struct stat info;
-		path = buildPath(path);
-		int pathStat = stat( path.c_str(), &info );
-		// std::cout << "path stat "<< pathStat << std::endl;
-			
-		if( pathStat != 0 && (info.st_mode & S_IWUSR))
+		// struct stat info;
+
+		int pathStat = stat(path.c_str(), &this->fileStat);
+		std::string pathCmd ;	
+		if( pathStat != 0)
 		{	
-			// std::cout << "doesnt exist "<< std::endl;
+			//TODO check permissions
 			size_t pos = originPath.find_last_of('/');
-			std::string pathBuild = "mkdir -p "+ originPath.substr(0,pos);
-			int err = system(pathBuild.c_str());
+			pathCmd = "mkdir -p "+ originPath.substr(0,pos);
+			int err = system(pathCmd.c_str());//TODO
 			if(err)
 			{	
-				// std::cout << "have no w 000000"<< std::endl;
 				return 403;
 			}
 			return 1;
 		}
-		if(pathStat == 0) //if(stat( path.c_str(), &info )==0)// if exist
+		if(pathStat == 0)
 		{
-			// std::cout << " exist "<< std::endl;
-			if( info.st_mode & S_IFDIR )
+			if( this->fileStat.st_mode & S_IFDIR )
 			{	
-				// std::cout << "is a directory"<< std::endl;
-				if(info.st_mode & S_IWUSR)
+				if(this->fileStat.st_mode & S_IWUSR)
 				{	
-					// std::cout << "have w "<< std::endl;
 					return 1; // exist
 				}
-				else if (!(info.st_mode & S_IWUSR))
+				else if (!(this->fileStat.st_mode & S_IWUSR))
 				{	
-					// std::cout << "have no right "<< std::endl;
 					return 403;
 				}
 			}
 			else
 			{	
-				// std::cout << "is no directory"<< std::endl;
-				// buildResponse("409", req , loc);// conflict	
 				return 409;
 			}
 		}
-		std::cout << "el result " << ret << std::endl;
+
 		return ret;
+	}
+
+	void Response::checkCgi(std::string &resourcePath, Request &request)
+	{
+		std::string filePath = resourcePath;
+		if(ws::fileHandler::checkIfExist(resourcePath))
+		{
+			if(isDir(resourcePath))
+			{
+				if(isIndexes())
+				{
+					std::vector<std::string> indexList = getIndexes();
+					for (size_t i = 0; i < indexList.size(); i++)
+					{
+						std::string indexPath = buildAbsolutePath(request)+indexList[i];
+						if(ws::fileHandler::checkIfExist(indexPath))
+							if(isFile(indexPath))
+								if(isCgi())
+									filePath = indexPath;
+					}
+				}
+				else
+				{
+					std::string defaultIndexPath = buildAbsolutePath(request)+"index.html";
+					if(ws::fileHandler::checkIfExist(defaultIndexPath))
+						filePath = defaultIndexPath;
+				}
+			}
+		}
+		//TODO cgi
+		//////////////////
+		// request <=== request object
+		// filePath <=== absolute file path
+		// getCgiPath() <=== cgi path from config
+		///////////////////////
+
+		// calling cgi
+		// std::string tmpfile = cgi(request,filePath.c_str()) ;
+
+		//vvv this is not the final return
+		// this->statusCode = "200";
+		// this->bodyPath = tmpfile;
+		request.cgi_ptr = new CGI();
+		request.cgi_ptr->cgi(request, getCgiPath().c_str(), filePath.c_str());
+		throw "calling cgi";
 	}
 
 	void Response::setDateHeader()
@@ -713,20 +768,20 @@ namespace ws {
 
 	long long Response::getFileSize(std::string &filePath)
 	{
-		struct stat st;
+		// struct stat st;
 
 		if(!filePath.empty() && filePath.length() > 0)
 		{
-			stat(filePath.c_str(), &st);
-			return st.st_size;
+			stat(filePath.c_str(), &this->fileStat);
+			return this->fileStat.st_size;
 		}
 		return 0;
 	}
 
-	std::string Response::getMessage()
+	std::string Response::getMessage(std::string &statusCode)
 	{
-		if(statusCodeMessages.find(this->statusCode) != statusCodeMessages.end())
-			return statusCodeMessages.find(this->statusCode)->second;
+		if(statusCodeMessages.find(statusCode) != statusCodeMessages.end())
+			return statusCodeMessages.find(statusCode)->second;
 		//else throw error
 		return "";
 	}
@@ -767,7 +822,17 @@ namespace ws {
 
 	void Response::setHeader(std::string key, std::string value)
 	{
-		this->headers_list.insert(std::make_pair(key, value));
+		// this->headers_list.insert(std::make_pair(key, value));
+		this->headers_list[key] = value;
+	}
+
+	void Response::setContentType(std::string &filePath)
+	{
+		int pos = filePath.find_last_of('.');
+		pos++;
+		std::string extention = filePath.substr(pos,filePath.size()-pos);
+		if(mimetypeMap.find(extention) != mimetypeMap.end())
+			setHeader("Content-Type",mimetypeMap[extention]);
 	}
 
 	bool Response::isMethodeAllowed(Request &request)
@@ -788,36 +853,35 @@ namespace ws {
 
 	bool Response::isPermission(std::string &path, std::string permission)
 	{
-		(void)permission;
-		struct stat fileStat;
+		// struct stat fileStat;
 
-		if(stat(path.c_str(),&fileStat) < 0)    
+		if(stat(path.c_str(),&this->fileStat) < 0)    
 			return false;
 
 		if(permission == "r")
-			return (fileStat.st_mode & S_IRUSR);
+			return (this->fileStat.st_mode & S_IRUSR);
 		if(permission == "w")
-			return (fileStat.st_mode & S_IWUSR);
+			return (this->fileStat.st_mode & S_IWUSR);
 		if(permission == "x")
-			return (fileStat.st_mode & S_IXUSR);
+			return (this->fileStat.st_mode & S_IXUSR);
 		
 		return false;
 	}
 
 	bool Response::isDir(std::string &resourcePath)
 	{
-		struct stat info;
+		// struct stat info;
 
-		stat( resourcePath.c_str(), &info );
-		return (info.st_mode & S_IFDIR);
+		stat( resourcePath.c_str(), &this->fileStat );
+		return (this->fileStat.st_mode & S_IFDIR);
 	}
 	
 	bool Response::isFile(std::string &resourcePath)
 	{
-		struct stat info;
+		// struct stat info;
 
-		stat( resourcePath.c_str(), &info );
-		return (info.st_mode & S_IFREG);
+		stat( resourcePath.c_str(), &this->fileStat );
+		return (this->fileStat.st_mode & S_IFREG);
 	}
 
 	bool Response::isRedirection()
@@ -832,6 +896,7 @@ namespace ws {
 
 	bool Response::isAutoIndexOn()
 	{
+		// std::cout << this->currentLocation.getAutoIndex() << std::endl;
 		return (this->currentLocation.getAutoIndex() == true);
 	}
 
@@ -860,7 +925,7 @@ namespace ws {
 		return (!this->currentLocation.getUploadPath().empty());
 	}
 
-	void init_statusCodeMessages()
+	void init_statusCodeMessages()//TODO put it in a better place
 	{
 		statusCodeMessages["100"] = "Continue";
 		statusCodeMessages["200"] = "OK";
@@ -901,7 +966,33 @@ namespace ws {
 		statusCodeMessages["504"] = "Gateway Time-out";
 		statusCodeMessages["505"] = "HTTP Version not supported";
 	}
+	void init_mimetype()
+	{
+		mimetypeMap["txt"]= "text/plain";
+        mimetypeMap["pdf"]= "application/pdf";
+        mimetypeMap["html"]= "text/html";
+        mimetypeMap["htm"]= "text/html";
+        mimetypeMap["xml"]= "text/xml";
+        mimetypeMap["js"]= "application/x-javascript";
+        mimetypeMap["xhtml"]= "application/xhtml+xml";
+        mimetypeMap["svg"]= "image/svg+xml";
+        mimetypeMap["svgz"]= "image/svg+xml";
+        mimetypeMap["jpg"]= "image/jpeg";
+        mimetypeMap["jpeg"]= "image/jpeg";
+        mimetypeMap["png"]= "image/png";
+        mimetypeMap["tif"]= "image/tiff";
+        mimetypeMap["tiff"]= "image/tiff";
+        mimetypeMap["ico"]= "image/ico";
+        mimetypeMap["cur"]= "image/ico";
+        mimetypeMap["bmp"]= "image/bmp";
+        mimetypeMap["wml"]= "text/vnd.wap.wml";
+        mimetypeMap["wmlc"]= "application/vnd.wap.wmlc";
+	}
 
+//TODO MIME TYPES for content type
+//TODO paths as subject
+//TODO response_tmp_files and response 
+//
 	const std::string WHITESPACE = " \n\r\t\f\v./";
  
 	std::string ltrim(const std::string &s)
