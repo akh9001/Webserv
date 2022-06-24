@@ -3,20 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: trevor <trevor@student.42.fr>              +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 19:46:37 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/12 22:10:25 by trevor           ###   ########.fr       */
+/*   Updated: 2022/06/24 17:20:01 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
-#pragma once
+#ifndef CLIENT_HPP
+#define CLIENT_HPP
 #include "../Parsing/Request/Request.hpp"
-#include "networking.hpp"
+// #include "networking.hpp"
 #include <string>
 // #include <sys/_types/_socklen_t.h>
-
+class Request;
 /*
 	wait a maximum of 1.5 seconds
 	struct timeval timeout;
@@ -47,3 +48,4 @@ struct Client
 	// void	drop_client();
 	~Client();
 };
+#endif
