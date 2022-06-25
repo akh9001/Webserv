@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/24 20:00:21 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 15:06:48 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,11 @@ bool Request::parseChunks(std::string c, Config config)
     if (change == 0)
         parse_header(c);
     if (change == 1 && parsed == false)
+    {
         parseHeaderLines(config);
+        if (method == "GET")
+            return true;
+    }
     if (change == 1)
         parse_body(c);
     checkContentLength(0);
@@ -198,9 +202,7 @@ int Request::parse_header(std::string c)
 
 void Request::parseHeaderLines(Config config)
 {
-
     size_t pos = 0;
-    // std::cout << "i am here" << std::endl;
     for (size_t i = 1; i < headerPart.size(); i++)
     {
         if ((pos = headerPart[i].find(":")) != std::string::npos)
@@ -218,10 +220,16 @@ int Request::parse_body(std::string c)
 {
     if (save.size() > 0)
     {
+
+        // std::cout << save << std::endl;
         ws::fileHandler::write(filePath, save);
+        read -= save.size();
     }
     else
+    {
         ws::fileHandler::write(filePath, c);
+        read -= c.size();
+    }
     save = "";
     return 0;
 }
@@ -265,7 +273,25 @@ void Request::parseUri()
         uri.erase(uri.find("?"), uri.size());
     }
 }
-
+void Request::parseCookies()
+{
+    if (headerMap.find("Cookie")  != headerMap.end())
+    {
+        std::string cookie = headerMap["Cookie"];
+        size_t pos = 0;
+        while ((pos = cookie.find(";")) != std::string::npos)
+        {
+            std::string tmp = cookie.substr(0, pos);
+            if (size_t pos1 = tmp.find("=") != std::string::npos)
+            {
+                std::string key = tmp.substr(0, pos1);
+                std::string value = tmp.substr(pos1 + 1, tmp.size());
+                CoockieMap[key] = value;
+            }
+            cookie.erase(0, pos + 1);
+        }
+    }
+}
 // ! /////////////////////// erros check //////////////////
     
     void Request::main_error_check()
@@ -323,23 +349,21 @@ void Request::parseUri()
             throw "501";
         if ((headerMap.find("Transfer-Encoding") == headerMap.end()) && (headerMap.find("Content-Length") == headerMap.end()) && method == "POST")
             throw "411";
-        if (headerMap.find("Content-Length") != headerMap.end() && headerMap["Content-Length"] != "0")
+        if (headerMap.find("Content-Length") != headerMap.end() && headerMap["Content-Length"] != "0" && method != "GET")
             filePath = ws::fileHandler::createTmp("request_tmp_files/");
         
     }
     // ! ///////////////////////clear  //////////////////
     void Request::clear()
     {
+        std::cout << "clear" << std::endl;
         Server a;
         Location b;
         headerPart.clear();
         headerMap.clear();
-        // server.~Server();
         server = a;
         location = b;
-        // location.~Location();
         save = "";
-        
         parsed = false;
         method = "";
         hostIp = "127.0.0.1";
@@ -348,7 +372,8 @@ void Request::parseUri()
         version = "";
         fchuncked = 0;
         change = 0;
-        ws::fileHandler::removeFile(filePath);
+       // if (!filePath.empty())
+            ws::fileHandler::removeFile(filePath);
         filePath = "";
 		if (cgi_ptr)
 		{

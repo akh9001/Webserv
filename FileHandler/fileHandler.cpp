@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 02:22:26 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/05 22:48:17 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/22 00:37:50 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,13 +69,13 @@ std::string ws::fileHandler::createTmp(std::string path)
 		throw FileExist();
 }
 
-void ws::fileHandler::removeFile(std::string filePath)
+int ws::fileHandler::removeFile(std::string filePath)
 {
 	//TODO
 	//check permission
 	//check if exist
 	//throw error
-	remove(filePath.c_str());
+	return remove(filePath.c_str());
 }
 
 std::string ws::fileHandler::generateTmpName()

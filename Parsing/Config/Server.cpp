@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:30 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/24 11:59:49 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 12:42:04 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,8 @@ void Server::fetch_upload(std::string& c)
      //std::cout << "root insde fetch " <<  c << std::endl;
     int i = spaceCount(c, 7);
     this->setUploadPath(c.substr(i, c.size() - i));
-
+    if (!parsePath(this->uploadPath))
+        std::cout << "fuck u" << std::endl;
  }
 
  void Server::fetch_cgi(std::string& c)
@@ -319,6 +320,27 @@ int Server::spaceCount(std::string &c, int a) const {
 // {
     
 // }
+
+    int Server::parsePath(std::string& c)
+    {
+        std::stack<std::string> a;
+        std::string tmp = c;
+        std::string sub;
+        size_t pos = 0;
+        while ((pos = tmp.find("/")) != std::string::npos)
+        {
+             sub = tmp.substr(0, pos);
+             if (sub == ".." && !a.empty())
+                 a.pop();
+             else if (sub == ".");
+             else
+                 a.push(tmp.substr(0, pos));
+             if (a.empty())
+                 return 0;
+             tmp.erase(0, pos + 1);
+        }
+        return 1;
+    }
 
   // ! ///////////////////////////// checkers  /////////////////////
     bool Server::checkServerName(std::string& c)
