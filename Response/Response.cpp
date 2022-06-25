@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/25 07:10:50 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/25 07:24:06 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -993,6 +993,7 @@ namespace ws {
 //TODO paths as subject
 //TODO response_tmp_files and response 
 //TODO /dir/../../test
+
 	const std::string WHITESPACE = " \n\r\t\f\v./";
  
 	std::string ltrim(const std::string &s)
@@ -1010,6 +1011,7 @@ namespace ws {
 	std::string trim(const std::string &s) {
 		return rtrim(ltrim(s));
 	}
+
 	void Response::isResourceEndSlash1(Request &request)
 	{
 		int endPos = request.getUri().length();
@@ -1017,12 +1019,10 @@ namespace ws {
 		if(request.getUri().at(endPos) != '/')
 		{
 			this->statusCode = "409";
-			//setHeader("Location",request.getUri());
 			buildResponse();
-			//throw "Redirect";
+			throw "Conflict";
 		}
 	}
-	
 	
 	void Response::craftDeleteRequest(Request &request) 
 	{
@@ -1047,52 +1047,31 @@ namespace ws {
 			searchForLocation(request);
 			if(isCgi())
 			{
-				if(isIndexes()) 
-				{
-					try
-					{
-						checkIndexes(request);
-					}
-					catch(const char* msg)
-					{
-						throw msg;
-					}
-				}
-				else 
-				{
-					checkDefaultIndex(absoluteResourcePath);
-					// std::cout << absoluteResourcePath << std::endl;
-					if(isAutoIndexOn())
-					{
-						autoIndexHandler();
-					}
-					else
-					{
-						this->statusCode = "403";
-						buildResponse();
-						throw "index issue";
-					}
-				}
+				checkCgi(absoluteResourcePath,request);
 			}
 			else
 			{
 				if (!remove_directory(absoluteResourcePath.c_str()))
 				{
 					this->statusCode = "204";
-					buildResponse();
+					this->bodyPath.clear();
+					throw "204";
 				}
 				else
 				{
-					if(!isPermission(absoluteResourcePath, "r"))
+					if(!isPermission(absoluteResourcePath, "x") || !isPermission(absoluteResourcePath, "w"))
 					{
 						this->statusCode = "403";
+						this->response_is_tmp = true;
 						buildResponse();
 						throw "Have no permissions";
 					}
 					else
 					{
 						this->statusCode = "500";
+						this->response_is_tmp = true;
 						buildResponse();
+						throw "500";
 					}
 					
 				}
@@ -1109,23 +1088,25 @@ namespace ws {
 				// absoluteResourcePath <=== file path
 				// getCgiPath() <=== cgi path from config
 				///////////////////////
+				request.cgi_ptr = new CGI();
+
+				request.cgi_ptr->cgi(request, getCgiPath().c_str(), absoluteResourcePath.c_str());
 				throw "calling cgi";
 			}
-			else
-				if (fileHandler::removeFile(absoluteResourcePath))
+			else if (fileHandler::removeFile(absoluteResourcePath))
+			{
+				if(!isPermission(absoluteResourcePath, "r"))
 				{
-					if(!isPermission(absoluteResourcePath, "r"))
-					{
-						this->statusCode = "403";
-						buildResponse();
-						throw "Have no permissions";
-					}
-					this->statusCode = "204";
+					this->statusCode = "403";
 					buildResponse();
+					this->response_is_tmp = true;
+					throw "Have no permissions";
 				}
-							// this->statusCode = "200";
-			// this->bodyPath = absoluteResourcePath;
-			// throw "File response with success";
+				this->statusCode = "204";
+				this->bodyPath.clear();
+				throw "204";
+			}
+
 		}
 	}
 	
