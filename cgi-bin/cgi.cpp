@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/26 00:21:17 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/26 00:27:27 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ void CGI::craft_response(Client &client)
 		for (std::string line; std::getline(client.file, line);)
 		{
 			if (line.empty() || line == "\r")
-			break;
+				break;
 			if (strncasecmp("Status:", line.c_str(), 7) == 0)
 			{
 			std::string::iterator it = line.begin() + 7;
