@@ -34,8 +34,7 @@ void CGI::set_env_map(const Request &request, const char *script_path) {
   _env["GATEWAY_INTERFACE"] = "CGI/1.1";
   _env["QUERY_STRING"] = request.getQuery();
   _env["REQUEST_METHOD"] = request.getMethod();
-  _env["SCRIPT_FILENAME"] =
- script_path; //* script_path is the path of the file to be executed.
+  _env["SCRIPT_FILENAME"] = script_path; //* script_path is the path of the file to be executed.
   _env["SERVER_SOFTWARE"] = "WEBSERV";
   _env["SERVER_PROTOCOL"] = request.getVersion();
   _env["REDIRECT_STATUS"] = "true";
