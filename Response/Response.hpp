@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 18:42:05 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/25 15:31:04 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ namespace ws {
 		public:
 			bool response_is_tmp;
 			
-			
 		public:
 			Response();
 			~Response();
@@ -41,7 +40,6 @@ namespace ws {
 			
 		private:
 			struct stat 						fileStat;
-			int 								buildResponseTry;
 			std::string 						bodyPath;
 			std::string 						statusCode;
 			Location 							currentLocation;
@@ -53,8 +51,9 @@ namespace ws {
 			void						buildResponse();
 			void						bodyDefaultTemplate(std::string &responsePath);
 			void						autoIndexTemplate(std::multimap<std::string, std::pair<struct stat , long long> > &dirList, std::string filePath);
-			void						craftGetRequests(Request &request);
-			void						craftPostRequests(Request &request);
+			void						craftGetResponse(Request &request);
+			void						craftPostResponse(Request &request);
+			void 						craftDeleteResponse(Request &request);
 			void 						checkIndexes(Request &request);
 			void						checkCgi(std::string &filepath, Request &request);
 			void						autoIndexHandler(Request &request);
@@ -100,6 +99,7 @@ namespace ws {
 			bool 						hasUpload();
 			void 						isResourceValid(std::string &resourcePath);
 			void 						isResourceEndSlash(Request &request);
+			void 						isResourceEndSlash1(Request &request);
 			bool 						isCgi();
 			bool						isUpload();
 
@@ -113,5 +113,6 @@ namespace ws {
 	std::string 								ltrim(const std::string &s);
 	std::string 								rtrim(const std::string &s);
 	std::string 								trim(const std::string &s);
+	int 										remove_directory(const char *path);
 }
 #endif
