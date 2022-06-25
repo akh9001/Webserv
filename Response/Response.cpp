@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/25 07:24:06 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/25 15:31:46 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,12 @@
 
 namespace ws {
 
-	Response::Response():response_is_tmp(false),buildResponseTry(0)
+	Response::Response():response_is_tmp(false)
 	{
 		init_statusCodeMessages();
 		init_mimetype();
 		setHeader("Server","WebServ/1.0");
-		setHeader("Content-Type","text/html");	//TODO make it octet/stream
+		setHeader("Content-Type","application/octet-stream");
 	}
 
 	Response::~Response(){};
@@ -107,6 +107,7 @@ namespace ws {
 						{
 							error_pages = true;
 							this->bodyPath = errorPath; 
+							setHeader("Content-Type","text/html");
 							throw "error page delevered seccussfuly";
 							return ;
 						}
@@ -133,8 +134,6 @@ namespace ws {
 			}
 		}
 
-		// this->buildResponseTry = 0;
-
 		if(!error_pages)
 		{
 			std::string responsePath;
@@ -148,6 +147,7 @@ namespace ws {
 			}
 			bodyDefaultTemplate(responsePath);
 			this->bodyPath = responsePath;
+			setHeader("Content-Type","text/html");
 			this->response_is_tmp = true;
 		}
 
@@ -180,9 +180,9 @@ namespace ws {
 		char tmp[2048];
 		getcwd(tmp, 2048);
 
+		root = this->currentLocation.getRoot();
 		if(!resourcePath.empty() && resourcePath.at(0) != '/')
 			slash = "/";
-		root = this->currentLocation.getRoot();
 		// root  = ltrim(root);
 		// if(!root.empty())
 		// 	s = ".";
@@ -221,7 +221,6 @@ namespace ws {
 			{
 				//TODO to be tested at school
 				std::string tmpDirectory = ("./response_tmp_files");
-				// std::string tmpDirectoryPath = buildPath(tmpDirectory);
 				std::string tmpPath = ws::fileHandler::createTmp(tmpDirectory);
 				ws::fileHandler::write(tmpPath,redirectionPath);
 				this->bodyPath = tmpPath;
@@ -250,16 +249,15 @@ namespace ws {
 
 		if(getMethod(request) == "GET")
 		{
-			craftGetRequests(request);
+			craftGetResponse(request);
 		}
 		else if(getMethod(request) == "POST")
 		{
-			craftPostRequests(request);
+			craftPostResponse(request);
 		}
 		else if(getMethod(request) == "DELETE")
 		{
-			//TODO delete
-			craftDeleteRequest(request);
+			craftDeleteResponse(request);
 		}
 	}
 	void Response::isResourceEndSlash(Request &request)
@@ -295,7 +293,7 @@ namespace ws {
 					{
 						if(isCgi())
 						{
-							//TODO cgi
+							//cgi
 							//////////////////
 							// request <=== request object
 							// filePath <=== absolute file path
@@ -314,9 +312,9 @@ namespace ws {
 							throw "calling cgi";
 						}
 						this->statusCode = "200";
-						//TODO content type
 						setContentType(indexPath);
 						this->bodyPath = indexPath;
+						setHeader("Content-Type","text/html");
 						throw "index delevered success 1";
 					}
 				}
@@ -349,11 +347,12 @@ namespace ws {
 
 			this->statusCode = "200";
 			this->bodyPath = defaultIndexPath;
+			setHeader("Content-Type","text/html");
 			throw "default index succesfuly delevered ";
  		}
 	}
 
-	void	Response::craftGetRequests(Request &request)
+	void	Response::craftGetResponse(Request &request)
 	{
 		std::string absoluteResourcePath = buildAbsolutePath(request);
 		// std::cout << absoluteResourcePath << std::endl;
@@ -411,7 +410,7 @@ namespace ws {
 			}
 			if(isCgi())
 			{
-				//TODO cgi
+				//cgi
 				//////////////////
 				// request <=== request object
 				// filePath <=== absolute file path
@@ -432,6 +431,7 @@ namespace ws {
 			this->statusCode = "200";
 			setContentType(absoluteResourcePath);
 			this->bodyPath = absoluteResourcePath;
+			setHeader("Content-Type","text/html");
 			throw "File response with success";
 		}
 	}
@@ -498,6 +498,7 @@ namespace ws {
 		autoIndexTemplate(dirList,tmpPath);
 		this->statusCode = "200";
 		this->bodyPath = tmpPath;
+		setHeader("Content-Type","text/html");
 		this->response_is_tmp = true;
 		throw "autoindex";
 	}
@@ -540,7 +541,7 @@ namespace ws {
 		return date.str();
 	}
 	
-	void	Response::craftPostRequests(Request &request)
+	void	Response::craftPostResponse(Request &request)
 	{
 		std::string absoluteResourcePath = buildAbsolutePath(request);
 
@@ -575,20 +576,16 @@ namespace ws {
 				// std::string tmpFilePath = buildPath(tmpFile);
 				// std::cout << "tmp " << tmpFile << std::endl;
 				std::vector<std::string> dirList = pathSpliter(uploadPath);
+				// int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
 				int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
 	
 				if(ret == 1)//directories path exist with no file
 				{
-					// rename(tmpFile.c_str(),absoluteResourcePath.c_str());
-					// std::string cmd = "mv "+ tmpFile +" " + absoluteResourcePath;
-					// std::cout<< cmd << std::endl;
-					// int err = system(cmd.c_str());//TODO
 					int err = rename(tmpFile.c_str(),absoluteResourcePath.c_str());
 					if(err)
 					{	
 						this->statusCode = "500";
 						buildResponse();
-						this->response_is_tmp = true;
 						throw "Internal error 1";
 					}
 					else
@@ -596,6 +593,7 @@ namespace ws {
 						setHeader("Location",uploadPath);
 						this->statusCode = "201";
 						this->bodyPath.clear();
+						setHeader("Content-Type","");//TODO !!!
 						setHeader("Content-Length","0");
 						this->response_is_tmp = false;
 					}
@@ -604,7 +602,6 @@ namespace ws {
 				{
 					this->statusCode = "500";
 					buildResponse();
-					this->response_is_tmp = true;
 					throw "Internal error 2";
 				}
 			}
@@ -653,7 +650,7 @@ namespace ws {
 	{
 		int ret = 0;
 		std::string path = buildPath(filename);
-		std::cout << path << std::endl;
+		// std::cout << path << std::endl;
 		if(i < (int)dirList.size() - 2)
 		{	
 			i++;
@@ -670,12 +667,25 @@ namespace ws {
 		{	
 			//TODO check permissions
 			size_t pos = originPath.find_last_of('/');
-			pathCmd = "mkdir -p "+ originPath.substr(0,pos);
-			int err = system(pathCmd.c_str());//TODO
-			if(err)
-			{	
-				return 403;
+			/////////////////////
+			std::string dirs = ltrim(originPath.substr(0,pos));
+			for (size_t i = 0; i < dirs.length(); i++)
+			{
+				if(dirs[i] == '/')
+				{
+					dirs[i] = '\0';
+					if(mkdir(dirs.c_str(),0777) != 0)
+					{
+						return 500;
+					}
+					dirs[i] = '/';
+				}
 			}
+			if(mkdir(dirs.c_str(),0777) != 0)
+			{
+				return 500;
+			}
+			
 			return 1;
 		}
 		if(pathStat == 0)
@@ -727,7 +737,7 @@ namespace ws {
 				}
 			}
 		}
-		//TODO cgi
+		//cgi
 		//////////////////
 		// request <=== request object
 		// filePath <=== absolute file path
@@ -989,10 +999,11 @@ namespace ws {
         mimetypeMap["wmlc"]= "application/vnd.wap.wmlc";
 	}
 
-//TODO MIME TYPES for content type
-//TODO paths as subject
+//TODO MIME TYPES for content type //done
+//TODO paths as subject 
 //TODO response_tmp_files and response 
 //TODO /dir/../../test
+//flaging all tmp as true to be deleted
 
 	const std::string WHITESPACE = " \n\r\t\f\v./";
  
@@ -1024,7 +1035,7 @@ namespace ws {
 		}
 	}
 	
-	void Response::craftDeleteRequest(Request &request) 
+	void Response::craftDeleteResponse(Request &request) 
 	{
 		std::string absoluteResourcePath = buildAbsolutePath(request);
 		try
@@ -1055,6 +1066,7 @@ namespace ws {
 				{
 					this->statusCode = "204";
 					this->bodyPath.clear();
+					setHeader("Content-Type","");
 					throw "204";
 				}
 				else
@@ -1062,14 +1074,12 @@ namespace ws {
 					if(!isPermission(absoluteResourcePath, "x") || !isPermission(absoluteResourcePath, "w"))
 					{
 						this->statusCode = "403";
-						this->response_is_tmp = true;
 						buildResponse();
 						throw "Have no permissions";
 					}
 					else
 					{
 						this->statusCode = "500";
-						this->response_is_tmp = true;
 						buildResponse();
 						throw "500";
 					}
@@ -1082,14 +1092,13 @@ namespace ws {
 		{
 			if(isCgi())
 			{
-				//TODO cgi
+				//cgi
 				//////////////////
 				// request <=== request object
 				// absoluteResourcePath <=== file path
 				// getCgiPath() <=== cgi path from config
 				///////////////////////
 				request.cgi_ptr = new CGI();
-
 				request.cgi_ptr->cgi(request, getCgiPath().c_str(), absoluteResourcePath.c_str());
 				throw "calling cgi";
 			}
@@ -1099,11 +1108,11 @@ namespace ws {
 				{
 					this->statusCode = "403";
 					buildResponse();
-					this->response_is_tmp = true;
 					throw "Have no permissions";
 				}
 				this->statusCode = "204";
 				this->bodyPath.clear();
+				setHeader("Content-Type","");
 				throw "204";
 			}
 
@@ -1111,46 +1120,45 @@ namespace ws {
 	}
 	
 	int remove_directory(const char *path) {
-   DIR *d = opendir(path);
-   size_t path_len = strlen(path);
-   int r = -1;
+		DIR *d = opendir(path);
+		size_t path_len = strlen(path);
+		int r = -1;
 
-   if (d) {
-      struct dirent *p;
+		if (d) {
+			struct dirent *p;
 
-      r = 0;
-      while (!r && (p=readdir(d))) {
-          int r2 = -1;
-          char *buf;
-          size_t len;
+			r = 0;
+			while (!r && (p=readdir(d))) {
+				int r2 = -1;
+				char *buf;
+				size_t len;
 
-          /* Skip the names "." and ".." as we don't want to recurse on them. */
-          if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
-             continue;
+				/* Skip the names "." and ".." as we don't want to recurse on them. */
+				if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
+					continue;
 
-          len = path_len + strlen(p->d_name) + 2; 
-          buf = (char *)malloc(len);
+				len = path_len + strlen(p->d_name) + 2; 
+				buf = (char *)malloc(len);
 
-          if (buf) {
-             struct stat statbuf;
+				if (buf) {
+					struct stat statbuf;
 
-             snprintf(buf, len, "%s/%s", path, p->d_name);
-             if (!stat(buf, &statbuf)) {
-                if (S_ISDIR(statbuf.st_mode))
-                   r2 = remove_directory(buf);
-                else
-                   r2 = unlink(buf);
-             }
-             free(buf);
-          }
-          r = r2;
-      }
-      closedir(d);
-   }
+					snprintf(buf, len, "%s/%s", path, p->d_name);
+					if (!stat(buf, &statbuf)) {
+						if (S_ISDIR(statbuf.st_mode))
+						r2 = remove_directory(buf);
+						else
+						r2 = unlink(buf);
+					}
+					free(buf);
+				}
+				r = r2;
+			}
+			closedir(d);
+		}
 
-   if (!r)
-      r =rmdir(path);
-
+		if (!r)
+			r =rmdir(path);
    return r;
 }
 }
