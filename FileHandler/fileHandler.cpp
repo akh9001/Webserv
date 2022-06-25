@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 02:22:26 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/22 00:37:50 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 15:27:21 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ bool ws::fileHandler::checkIfExist(std::string filePath)
 
 void ws::fileHandler::write(std::string filePath, std::string buffer)
 {
-	//TODO check if permission
 	std::fstream file;
 	file.open(filePath, std::fstream::app);
 	file << buffer;
@@ -32,7 +31,6 @@ void ws::fileHandler::write(std::string filePath, std::string buffer)
 
 void ws::fileHandler::moveFile(std::string fileOldPath,std::string fileNewPath)
 {
-	//TODO check if already exist the same name throw error
 	std::ofstream newFile(fileNewPath, std::fstream::app|std::fstream::out);
 	std::ifstream file;
 	file.open(fileOldPath, std::fstream::in);
@@ -71,10 +69,6 @@ std::string ws::fileHandler::createTmp(std::string path)
 
 int ws::fileHandler::removeFile(std::string filePath)
 {
-	//TODO
-	//check permission
-	//check if exist
-	//throw error
 	return remove(filePath.c_str());
 }
 
