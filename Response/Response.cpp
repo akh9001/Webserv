@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/25 00:04:29 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 12:31:45 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ namespace ws {
 		this->statusCode = statusCode;
 		int status;
 		std::istringstream(statusCode) >> status;
-		std::cerr << "__>" <<statusCode<<std::endl;		
+		// std::cerr << "__>" <<statusCode<<std::endl;		
 		if(statusCode != "-1" && status >= 400)
 		{	
 			buildResponse();
@@ -356,7 +356,7 @@ namespace ws {
 	void	Response::craftGetRequests(Request &request)
 	{
 		std::string absoluteResourcePath = buildAbsolutePath(request);
-		std::cout << absoluteResourcePath << std::endl;
+		// std::cout << absoluteResourcePath << std::endl;
 		try
 		{
 			isResourceValid(absoluteResourcePath);
@@ -992,7 +992,7 @@ namespace ws {
 //TODO MIME TYPES for content type
 //TODO paths as subject
 //TODO response_tmp_files and response 
-//
+//TODO /dir/../../test
 	const std::string WHITESPACE = " \n\r\t\f\v./";
  
 	std::string ltrim(const std::string &s)
@@ -1183,3 +1183,5 @@ namespace ws {
 //	| 		w		|	can write the file		|		can modify the directory's contents		|
 //	| 		x		|	can execute the file	|		can cd to the directory					|
 //	x-------------------------------------------------------------------------------------------x
+
+
