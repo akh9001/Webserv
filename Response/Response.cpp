@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 22:58:02 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 00:04:29 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1064,7 +1064,7 @@ namespace ws {
 					// std::cout << absoluteResourcePath << std::endl;
 					if(isAutoIndexOn())
 					{
-						autoIndexHandler();
+						autoIndexHandler(request);
 					}
 					else
 					{

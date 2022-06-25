@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/24 22:57:35 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 00:02:58 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,9 +198,7 @@ int Request::parse_header(std::string c)
 
 void Request::parseHeaderLines(Config config)
 {
-
     size_t pos = 0;
-    // std::cout << "i am here" << std::endl;
     for (size_t i = 1; i < headerPart.size(); i++)
     {
         if ((pos = headerPart[i].find(":")) != std::string::npos)
@@ -269,7 +267,25 @@ void Request::parseUri()
         uri.erase(uri.find("?"), uri.size());
     }
 }
-
+void Request::parseCookies()
+{
+    if (headerMap.find("Cookie")  != headerMap.end())
+    {
+        std::string cookie = headerMap["Cookie"];
+        size_t pos = 0;
+        while ((pos = cookie.find(";")) != std::string::npos)
+        {
+            std::string tmp = cookie.substr(0, pos);
+            if (size_t pos1 = tmp.find("=") != std::string::npos)
+            {
+                std::string key = tmp.substr(0, pos1);
+                std::string value = tmp.substr(pos1 + 1, tmp.size());
+                CoockieMap[key] = value;
+            }
+            cookie.erase(0, pos + 1);
+        }
+    }
+}
 // ! /////////////////////// erros check //////////////////
     
     void Request::main_error_check()

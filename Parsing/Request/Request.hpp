@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:38 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/24 17:22:09 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/24 23:52:20 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class Request
                 
                 long long contentLength;
                 std::map<std::string, std::string> headerMap;
+                std::map<std::string, std::string> CoockieMap;
         
         
                 int fchuncked;
@@ -114,6 +115,7 @@ class Request
                 void parsefline(std::string &);
                 void parseHeaderLines(Config config);
                 void parseUri();
+                void parseCookies();
                 // ! ////////////////////// fetch server or location //////////////////////
                 void fetchContentLength();
                 void fetchHost();
