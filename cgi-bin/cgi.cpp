@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+00/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   cgi.cpp                                            :+:      :+:    :+:   */
@@ -35,7 +35,7 @@ void CGI::set_env_map(const Request &request, const char *script_path) {
   _env["QUERY_STRING"] = request.getQuery();
   _env["REQUEST_METHOD"] = request.getMethod();
   _env["SCRIPT_FILENAME"] =
-  script_path; //* script_path is the path of the file to be executed.
+ script_path; //* script_path is the path of the file to be executed.
   _env["SERVER_SOFTWARE"] = "WEBSERV";
   _env["SERVER_PROTOCOL"] = request.getVersion();
   _env["REDIRECT_STATUS"] = "true";
@@ -151,7 +151,7 @@ void CGI::craft_response(Client &client) {
         ++it;
       _status = std::string(it, std::find(it, line.end(), ' '));
     } else {
-      client.buffer += line + "\r\n";
+      client.buffer += line + "\n";
     }
   }
   struct stat st;
