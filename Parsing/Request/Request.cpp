@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/24 15:23:49 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/24 22:57:35 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ bool Request::parseChunks(std::string c, Config config)
         parseHeaderLines(config);
     if (change == 1)
         parse_body(c);
-    checkContentLength(c.size());
+    checkContentLength(0);
     if (read <= 0 && change == 1)
         return true;
     return false;
@@ -219,9 +219,13 @@ int Request::parse_body(std::string c)
     if (save.size() > 0)
     {
         ws::fileHandler::write(filePath, save);
+        read -= save.size();
     }
     else
+    {
         ws::fileHandler::write(filePath, c);
+        read -= c.size();
+    }
     save = "";
     return 0;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 18:42:05 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/24 22:58:15 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ namespace ws {
 			void						autoIndexTemplate(std::multimap<std::string, std::pair<struct stat , long long> > &dirList, std::string filePath);
 			void						craftGetRequests(Request &request);
 			void						craftPostRequests(Request &request);
+			void 						craftDeleteRequest(Request &request);
 			void 						checkIndexes(Request &request);
 			void						checkCgi(std::string &filepath, Request &request);
 			void						autoIndexHandler(Request &request);
@@ -100,6 +101,7 @@ namespace ws {
 			bool 						hasUpload();
 			void 						isResourceValid(std::string &resourcePath);
 			void 						isResourceEndSlash(Request &request);
+			void 						isResourceEndSlash1(Request &request);
 			bool 						isCgi();
 			bool						isUpload();
 
@@ -113,5 +115,6 @@ namespace ws {
 	std::string 								ltrim(const std::string &s);
 	std::string 								rtrim(const std::string &s);
 	std::string 								trim(const std::string &s);
+	int 										remove_directory(const char *path);
 }
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/24 18:14:16 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/24 22:56:56 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,19 +17,10 @@
 // #include <iostream>
 #include <sstream>
 
-// _env["DOCUMENT_ROOT"] = "/Users/akhalidy/Desktop/akh/";
-// _env["HTTP_HOST"] = request.getHostIp();
-// _env["REMOTE_ADDR"] = "127.0.0.1";
-// _env["REMOTE_HOST"] = "127.0.0.1";
-// _env["DOCUMENT_URI"] = script_path;
-// _env["REMOTE_PORT"] = "8001";//std::to_string(request.getHostPort());
-// _env["PATH"] = std::string(std::getenv("PATH"));
-// _env["SCRIPT_NAME"] = "/Users/akhalidy/Desktop/akh/cgi-bin/php-cgi";
-
 CGI::CGI(void) : finished(false) {
   char filename[] = "/tmp/tmp_cgi_XXXXXX";
   file = mktemp(filename);
-  std::cout << file << std::endl;
+  //*   std::cout << file << std::endl;
 }
 
 void CGI::set_env_map(const Request &request, const char *script_path) {
@@ -74,11 +65,10 @@ bool CGI::execute(char **args, const Request &request) {
   int status;
   int ret;
   const char *post_body = request.getFilePath().c_str();
-  std::cout << "Fuuuuuuuu !" << file << std::endl;
   _pid = fork();
   if (_pid == -1) {
     std::cerr << "fork failed !" << std::endl;
-	_pid = 1;
+    _pid = 1;
     return false;
   }
   if (_pid == 0) {
@@ -106,25 +96,23 @@ int CGI::cgi(const Request &request, const char *cgi_path,
   args[0] = (char *)cgi_path;
   args[1] = (char *)script_path;
   args[2] = NULL;
-  std::cerr << GREEN << "MAKE IT HERE !" << RESET << std::endl;
   if (execute(args, request))
     return true;
   return false;
 }
 
-void	cgi_internal_error(Client &client)
-{
-    ws::Response response;
+void cgi_internal_error(Client &client) {
+  ws::Response response;
 
-    delete client.request.cgi_ptr; 
-	client.request.cgi_ptr = NULL;
-	
-    Location location = client.request.getLocation();
-	std::string status = "500";
-    client.buffer = response.getHeaders(client.request, location, status);
-    client.body_inf = response.getbody();
-	if (client.body_inf.first.size() > 0)
-			client.file.open(client.body_inf.first);
+  delete client.request.cgi_ptr;
+  client.request.cgi_ptr = NULL;
+
+  Location location = client.request.getLocation();
+  std::string status = "500";
+  client.buffer = response.getHeaders(client.request, location, status);
+  client.body_inf = response.getbody();
+  if (client.body_inf.first.size() > 0)
+    client.file.open(client.body_inf.first);
 }
 
 bool CGI::is_finished(Client &client) {
@@ -136,16 +124,16 @@ bool CGI::is_finished(Client &client) {
   if (pid == 0)
     return false;
   if (pid == -1 || !WIFEXITED(status) || WEXITSTATUS(status) == 111) {
-	  	cgi_internal_error(client);
+    cgi_internal_error(client);
     return true;
   }
-  
+
   finished = true;
   // call a function that will open the tmp file as client.file and read all the
   // headers and craft a header response and put it in the
   //  header response and put it in the client.buffer
-  std::cerr << "Crafting response\n";
-	craft_response(client);
+  //   std::cerr << "Crafting response\n";
+  craft_response(client);
   return true;
 }
 
@@ -167,11 +155,12 @@ void CGI::craft_response(Client &client) {
     }
   }
   struct stat st;
-  if (stat(this->file.c_str(), &st)== -1)
-	return cgi_internal_error(client);
-  std::cerr << st.st_size - client.file.tellg() << std::endl;
+  if (stat(this->file.c_str(), &st) == -1)
+    return cgi_internal_error(client);
+//*   std::cerr << st.st_size - client.file.tellg() << std::endl;
   std::stringstream header;
-  header << "HTTP/1.1 " << _status << " " << ws::Response::getMessage(_status) << "\r\n";
+  header << "HTTP/1.1 " << _status << " " << ws::Response::getMessage(_status)
+         << "\r\n";
   header << client.buffer;
   header << "Content-Length: " << st.st_size - client.file.tellg() << "\r\n";
   header << "\r\n";

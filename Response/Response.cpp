@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/24 19:00:40 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/25 07:10:50 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,6 +259,7 @@ namespace ws {
 		else if(getMethod(request) == "DELETE")
 		{
 			//TODO delete
+			craftDeleteRequest(request);
 		}
 	}
 	void Response::isResourceEndSlash(Request &request)
@@ -1009,6 +1010,168 @@ namespace ws {
 	std::string trim(const std::string &s) {
 		return rtrim(ltrim(s));
 	}
+	void Response::isResourceEndSlash1(Request &request)
+	{
+		int endPos = request.getUri().length();
+		--endPos;
+		if(request.getUri().at(endPos) != '/')
+		{
+			this->statusCode = "409";
+			//setHeader("Location",request.getUri());
+			buildResponse();
+			//throw "Redirect";
+		}
+	}
+	
+	
+	void Response::craftDeleteRequest(Request &request) 
+	{
+		std::string absoluteResourcePath = buildAbsolutePath(request);
+		try
+		{
+			isResourceValid(absoluteResourcePath);
+		}
+		catch(const char* msg)
+		{
+			throw msg;
+		}
+		if(isDir(absoluteResourcePath))
+		{
+			if(!isPermission(absoluteResourcePath, "x"))
+			{
+				this->statusCode = "403";
+				buildResponse();
+				throw "Have no permissions";
+			}
+			isResourceEndSlash1(request);
+			searchForLocation(request);
+			if(isCgi())
+			{
+				if(isIndexes()) 
+				{
+					try
+					{
+						checkIndexes(request);
+					}
+					catch(const char* msg)
+					{
+						throw msg;
+					}
+				}
+				else 
+				{
+					checkDefaultIndex(absoluteResourcePath);
+					// std::cout << absoluteResourcePath << std::endl;
+					if(isAutoIndexOn())
+					{
+						autoIndexHandler();
+					}
+					else
+					{
+						this->statusCode = "403";
+						buildResponse();
+						throw "index issue";
+					}
+				}
+			}
+			else
+			{
+				if (!remove_directory(absoluteResourcePath.c_str()))
+				{
+					this->statusCode = "204";
+					buildResponse();
+				}
+				else
+				{
+					if(!isPermission(absoluteResourcePath, "r"))
+					{
+						this->statusCode = "403";
+						buildResponse();
+						throw "Have no permissions";
+					}
+					else
+					{
+						this->statusCode = "500";
+						buildResponse();
+					}
+					
+				}
+				
+			}
+		}
+		else if(isFile(absoluteResourcePath))
+		{
+			if(isCgi())
+			{
+				//TODO cgi
+				//////////////////
+				// request <=== request object
+				// absoluteResourcePath <=== file path
+				// getCgiPath() <=== cgi path from config
+				///////////////////////
+				throw "calling cgi";
+			}
+			else
+				if (fileHandler::removeFile(absoluteResourcePath))
+				{
+					if(!isPermission(absoluteResourcePath, "r"))
+					{
+						this->statusCode = "403";
+						buildResponse();
+						throw "Have no permissions";
+					}
+					this->statusCode = "204";
+					buildResponse();
+				}
+							// this->statusCode = "200";
+			// this->bodyPath = absoluteResourcePath;
+			// throw "File response with success";
+		}
+	}
+	
+	int remove_directory(const char *path) {
+   DIR *d = opendir(path);
+   size_t path_len = strlen(path);
+   int r = -1;
+
+   if (d) {
+      struct dirent *p;
+
+      r = 0;
+      while (!r && (p=readdir(d))) {
+          int r2 = -1;
+          char *buf;
+          size_t len;
+
+          /* Skip the names "." and ".." as we don't want to recurse on them. */
+          if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
+             continue;
+
+          len = path_len + strlen(p->d_name) + 2; 
+          buf = (char *)malloc(len);
+
+          if (buf) {
+             struct stat statbuf;
+
+             snprintf(buf, len, "%s/%s", path, p->d_name);
+             if (!stat(buf, &statbuf)) {
+                if (S_ISDIR(statbuf.st_mode))
+                   r2 = remove_directory(buf);
+                else
+                   r2 = unlink(buf);
+             }
+             free(buf);
+          }
+          r = r2;
+      }
+      closedir(d);
+   }
+
+   if (!r)
+      r =rmdir(path);
+
+   return r;
+}
 }
 
 
