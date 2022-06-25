@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:33 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/18 14:33:34 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 00:17:51 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,7 @@ class Server
         int spaceCount(std::string &c, int a) const;
 
         // ! ///////////////////////////// Error  ///////////////////
+        int parsePath(std::string& path);
         // ! ///////////////////////////// checkers  /////////////////////
         bool checkServerName(std::string& c);
        // void checkStatusCode(std::string& c);

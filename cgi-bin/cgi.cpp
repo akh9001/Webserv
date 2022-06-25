@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/24 22:56:56 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/24 23:46:47 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void CGI::set_env_map(const Request &request, const char *script_path) {
   _env["QUERY_STRING"] = request.getQuery();
   _env["REQUEST_METHOD"] = request.getMethod();
   _env["SCRIPT_FILENAME"] =
-      script_path; //* script_path is the path of the file to be executed.
+  script_path; //* script_path is the path of the file to be executed.
   _env["SERVER_SOFTWARE"] = "WEBSERV";
   _env["SERVER_PROTOCOL"] = request.getVersion();
   _env["REDIRECT_STATUS"] = "true";
