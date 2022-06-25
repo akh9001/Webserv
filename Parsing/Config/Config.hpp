@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:21 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/25 16:20:25 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 16:48:32 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,7 @@ class Config
         std::vector<std::string> lines;
         std::vector<Server> servers;
         std::map<int, std::string> _binders;
-        static std::map<std::string,std::string>	statusCodeMessages;
-	    static std::map<std::string, std::string> 	mimetypeMap;
+       
 
     public :
 
@@ -89,4 +88,9 @@ class Config
     void check_brekets();
 };
 
+static std::map<std::string,std::string>	statusCodeMessages;
+static std::map<std::string, std::string> 	mimetypeMap;
+
+void 										init_statusCodeMessages();
+void										init_mimetype();
 #endif
