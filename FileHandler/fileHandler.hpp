@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fileHandler.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 02:20:13 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/22 00:38:03 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 15:27:44 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 # include <sys/stat.h>
 # include <vector>
 
-//TODO documentation
 namespace ws {
 	class fileHandler
 	{
@@ -36,11 +35,10 @@ namespace ws {
 			static std::string createTmp(std::string fileName);
 			static bool checkIfExist(std::string filePath);
 			static void write(std::string filePath, std::string buffer);
-			static void moveFile(std::string fileOldPath, std::string newPath);//maybe return value bool if removed moved
-			static int removeFile(std::string filePath);//maybe return value bool to check if removed
-			static std::string readFile(std::ifstream& ifile);//getnextline
-			// bool checkIfFile(); //TODO if needed
-			// bool checkIPermissions(); //TODO if needed
+			static void moveFile(std::string fileOldPath, std::string newPath);
+			static int removeFile(std::string filePath);
+			static std::string readFile(std::ifstream& ifile);
+
 		struct FileExist : public std::exception
 		{
 			const char * what () const throw ()
