@@ -6,18 +6,11 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/26 00:27:27 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/26 00:42:39 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/cgi.hpp"
-#include <cstddef>
-#include <iostream>
-// #include <cstdlib>
-// #include <cstring>
-// #include <iostream>
-#include <sstream>
-#include <string>
 
 CGI::CGI(void) : finished(false) {
   char filename[] = "/tmp/tmp_cgi_XXXXXX";
@@ -32,8 +25,8 @@ void CGI::set_env_map(const Request &request, const char *script_path) {
   std::size_t found;
 
   if (request.getContentLenth() && method != "GET") {
-    _env["CONTENT_LENGTH"] = request.getHeaderMap()["Content-Length"];
-    _env["CONTENT_TYPE"] = request.getHeaderMap()["Content-Type"];
+	_env["CONTENT_LENGTH"] = request.getHeaderMap()["Content-Length"];
+	_env["CONTENT_TYPE"] = request.getHeaderMap()["Content-Type"];
   }
   _env["GATEWAY_INTERFACE"] = "CGI/1.1";
   _env["QUERY_STRING"] = request.getQuery();
@@ -56,10 +49,10 @@ char **CGI::set_envp(void) {
 
   envp = new char *[len + 1];
   while (it != _env.end()) {
-    str = it->first + "=" + it->second;
-    envp[i] = strdup(str.c_str());
-    i++;
-    it++;
+	str = it->first + "=" + it->second;
+	envp[i] = strdup(str.c_str());
+	i++;
+	it++;
   }
   envp[i] = NULL;
   return (envp);
@@ -73,30 +66,30 @@ bool CGI::execute(char **args, const Request &request) {
   const char *post_body = request.getFilePath().c_str();
   _pid = fork();
   if (_pid == -1) {
-    std::cerr << "fork failed !" << std::endl;
-    _pid = 1;
-    return false;
+	std::cerr << "fork failed !" << std::endl;
+	_pid = 1;
+	return false;
   }
   if (_pid == 0) {
-    if (post_body && *post_body)
-      in = open(post_body, O_RDONLY);
-    out = open(file.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0644);
-    if (in) {
-      dup2(in, 0);
-      close(in);
-    }
-    dup2(out, 1);
-    set_env_map(request, args[1]);
-    if (execve(args[0], args, set_envp()) == -1) {
-      std::cerr << "execve failed !" << std::endl;
-      exit(111);
-    }
+	if (post_body && *post_body)
+	  in = open(post_body, O_RDONLY);
+	out = open(file.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0644);
+	if (in) {
+	  dup2(in, 0);
+	  close(in);
+	}
+	dup2(out, 1);
+	set_env_map(request, args[1]);
+	if (execve(args[0], args, set_envp()) == -1) {
+	  std::cerr << "execve failed !" << std::endl;
+	  exit(111);
+	}
   }
   return true;
 }
 
 int CGI::cgi(const Request &request, const char *cgi_path,
-             const char *script_path) {
+			 const char *script_path) {
   char *args[3];
 
   args[0] = (char *)cgi_path;
@@ -105,7 +98,7 @@ int CGI::cgi(const Request &request, const char *cgi_path,
   //TODO
 //   std::cerr << GREEN << "Make it here! " << RESET << std::endl;
   if (execute(args, request))
-    return true;
+	return true;
   return false;
 }
 
@@ -120,20 +113,20 @@ void cgi_internal_error(Client &client) {
   client.buffer = response.getHeaders(client.request, location, status);
   client.body_inf = response.getbody();
   if (client.body_inf.first.size() > 0)
-    client.file.open(client.body_inf.first);
+	client.file.open(client.body_inf.first);
 }
 
 bool CGI::is_finished(Client &client) {
   int pid;
   int status;
   if (finished)
-    return true;
+	return true;
   pid = waitpid(_pid, &status, WNOHANG);
   if (pid == 0)
-    return false;
+	return false;
   if (pid == -1 || !WIFEXITED(status) || WEXITSTATUS(status) == 111) {
-    cgi_internal_error(client);
-    return true;
+	cgi_internal_error(client);
+	return true;
   }
 
   finished = true;
@@ -172,17 +165,18 @@ void CGI::craft_response(Client &client)
 	}
   struct stat st;
   if (stat(this->file.c_str(), &st) == -1)
-    return cgi_internal_error(client);
+	return cgi_internal_error(client);
 //*   std::cerr << st.st_size - client.file.tellg() << std::endl;
   std::stringstream header;
   header << "HTTP/1.1 " << _status << " " << ws::Response::getMessage(_status)
-         << "\r\n";
+		 << "\r\n";
   header << client.buffer;
   header << "Content-Length: " << st.st_size - client.file.tellg() << "\r\n";
   header << "\r\n";
 //   //TODO
 //   std::cerr << RED << " The fucking headers : " <<  header.str() << std::endl;
   client.buffer = header.str();
+//   std::cerr << " jhgk : " << client.buffer << std::endl;
 }
 
 std::string CGI::getDateHeader() {
@@ -190,17 +184,17 @@ std::string CGI::getDateHeader() {
   struct tm *tm;
   std::string days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
   std::string months[] = {"Jan", "Feb", "MAar", "Apr", "May", "Jun",
-                          "Jul", "Aug", "Sep",  "Oct", "Nov", "Ded"};
+						  "Jul", "Aug", "Sep",  "Oct", "Nov", "Ded"};
   // Mon, 06 Jun 2022 03:48:42 GMT
   time(&curr_time);
   tm = gmtime(&curr_time);
   std::stringstream date;
   date << days[tm->tm_wday].c_str() << ", " << std::setw(2) << std::setfill('0')
-       << tm->tm_mday;
+	   << tm->tm_mday;
   date << " " << months[tm->tm_mon].c_str() << " " << tm->tm_year + 1900 << " ";
   date << std::setw(2) << std::setfill('0') << (tm->tm_hour + 1) % 24 << ":"
-       << std::setw(2) << std::setfill('0') << tm->tm_min << ":" << std::setw(2)
-       << std::setfill('0') << tm->tm_sec << " GMT+1";
+	   << std::setw(2) << std::setfill('0') << tm->tm_min << ":" << std::setw(2)
+	   << std::setfill('0') << tm->tm_sec << " GMT+1";
   return ("Date: " + date.str() + "\r\n");
 }
 
