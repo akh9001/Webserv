@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:21 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/25 16:48:32 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/26 12:43:58 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ class Config
        
 
     public :
+        static std::map<std::string,std::string>	statusCodeMessages;
+        static std::map<std::string, std::string> 	mimetypeMap;
 
     class fileErrorException : public std::exception
     {
@@ -86,11 +88,14 @@ class Config
     // ! /////////////////////// Errors Managers //////////////////////
     void main_error_check();
     void check_brekets();
+    void 										init_statusCodeMessages();
+    void										init_mimetype();
 };
 
-static std::map<std::string,std::string>	statusCodeMessages;
-static std::map<std::string, std::string> 	mimetypeMap;
+// static std::map<std::string,std::string>	statusCodeMessages;
+// static std::map<std::string, std::string> 	mimetypeMap;
 
-void 										init_statusCodeMessages();
-void										init_mimetype();
+// void 										init_statusCodeMessages();
+// void										init_mimetype();
+
 #endif

@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/25 15:31:04 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/26 06:13:51 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ namespace ws {
 			std::vector<std::string>	pathSpliter(std::string &filePath);
 			int							directoriesHandler(std::string filename, std::vector<std::string> dirList, int i, std::string originPath);
 			std::string					formatMtime(struct stat);
+			int							remove_directory(const char *path);
 
 			//setters
 			void 						setDateHeader();
@@ -104,15 +105,8 @@ namespace ws {
 			bool						isUpload();
 
 	};
-	
-	static std::map<std::string,std::string>	statusCodeMessages;
-	static std::map<std::string, std::string> 	mimetypeMap;
-	void 										init_statusCodeMessages();
-	void										init_mimetype();
-	
 	std::string 								ltrim(const std::string &s);
 	std::string 								rtrim(const std::string &s);
 	std::string 								trim(const std::string &s);
-	int 										remove_directory(const char *path);
 }
 #endif

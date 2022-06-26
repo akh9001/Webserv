@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/26 02:01:55 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/26 13:36:35 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,13 +170,13 @@ void CGI::craft_response(Client &client)
   header << "HTTP/1.1 " << _status << " " << ws::Response::getMessage(_status)
 		 << "\r\n";
   header << client.buffer;
-  std::cerr << GREEN << "Buffer : " << client.buffer << "\n Is python : " << is_python << RESET << std::endl;
+//   std::cerr << GREEN << "Buffer : " << client.buffer << "\n Is python : " << is_python << RESET << std::endl;
 //   if (is_python)
 //   	header << "Content-Type: text/html" << "\r\n";
   header << "Content-Length: " << st.st_size - client.file.tellg() << "\r\n";
   header << "\r\n";
 //   //TODO
-  std::cerr << RED << " The fucking headers : " <<  header.str() << RESET << std::endl;
+//   std::cerr << RED << " The fucking headers : " <<  header.str() << RESET << std::endl;
   client.buffer = header.str();
 //   std::cerr << " jhgk : " << client.buffer << std::endl;
 }
