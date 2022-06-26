@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/25 15:40:17 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/26 06:35:38 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@ namespace ws {
 
 	Response::Response():response_is_tmp(false)
 	{
-		init_statusCodeMessages();
-		init_mimetype();
 		setHeader("Server","WebServ/1.0");
 		setHeader("Content-Type","application/octet-stream");
 	}
@@ -39,7 +37,6 @@ namespace ws {
 		this->statusCode = statusCode;
 		int status;
 		std::istringstream(statusCode) >> status;
-		// std::cerr << "__>" <<statusCode<<std::endl;		
 		if(statusCode != "-1" && status >= 400)
 		{	
 			buildResponse();
@@ -68,11 +65,9 @@ namespace ws {
 	std::string Response::headerBuilder()
 	{
 		std::stringstream headers;
-
-		//build status line
-		headers << "HTTP/1.1 "+ this->statusCode +" "+getMessage(this->statusCode)+"\r\n";
-		//build headers
 		std::map<std::string,std::string>::iterator it;
+
+		headers << "HTTP/1.1 "+ this->statusCode +" "+getMessage(this->statusCode)+"\r\n";
 		for (it = this->headers_list.begin(); it != this->headers_list.end(); ++it)
     			headers << it->first << ": " << it->second << "\r\n";
 		headers << "\r\n";
@@ -183,12 +178,8 @@ namespace ws {
 		root = this->currentLocation.getRoot();
 		if(!resourcePath.empty() && resourcePath.at(0) != '/')
 			slash = "/";
-		// root  = ltrim(root);
-		// if(!root.empty())
-		// 	s = ".";
-		
-		std::string path =    root + slash + resourcePath;//  /
-		// std::cout << path << std::endl;
+
+		std::string path =    root + slash + resourcePath;
 		return path;
 	}
 
@@ -293,21 +284,7 @@ namespace ws {
 					{
 						if(isCgi())
 						{
-							//cgi
-							//////////////////
-							// request <=== request object
-							// filePath <=== absolute file path
-							// getCgiPath() <=== cgi path from config
-							///////////////////////
-
-							// calling cgi
-							// std::string tmpfile = cgi(request,indexPath.c_str()) ;
-							
-							//vvv this is not the final return need to work on it
-							// this->statusCode = "200";
-							// this->bodyPath = tmpfile;
 							request.cgi_ptr = new CGI();
-
 							request.cgi_ptr->cgi(request, getCgiPath().c_str(), indexPath.c_str());
 							throw "calling cgi";
 						}
@@ -355,7 +332,6 @@ namespace ws {
 	void	Response::craftGetResponse(Request &request)
 	{
 		std::string absoluteResourcePath = buildAbsolutePath(request);
-		// std::cout << absoluteResourcePath << std::endl;
 		try
 		{
 			isResourceValid(absoluteResourcePath);
@@ -410,21 +386,7 @@ namespace ws {
 			}
 			if(isCgi())
 			{
-				//cgi
-				//////////////////
-				// request <=== request object
-				// filePath <=== absolute file path
-				// getCgiPath() <=== cgi path from config
-				///////////////////////
-
-				// calling cgi
-				// std::string tmpfile = cgi(request,absoluteResourcePath.c_str()) ;
-				
-				//vvv this is not the final return need to work on it
-				// this->statusCode = "200";
-				// this->bodyPath = tmpfile;
 				request.cgi_ptr = new CGI();
-
 				request.cgi_ptr->cgi(request, getCgiPath().c_str(), absoluteResourcePath.c_str());
 				throw "calling cgi";
 			}
@@ -472,17 +434,13 @@ namespace ws {
 
 		DIR *dir;
 		struct dirent *ent;
-		// std::string currLoc = this->currentLocation.getLocation_match();
 		std::string currLoc = request.getUri();
 		std::string absPath = buildPath(currLoc);
-		// std::cout << "=========================== " <<  << std::endl;
 
 		if ((dir = opendir(absPath.c_str())) != NULL) 
 		{
 			while ((ent = readdir(dir)) != NULL) {
 				std::string filePath = absPath+"/"+std::string(ent->d_name);
-				// struct stat st;
-				// stat(filePath.c_str(), &st);
 				stat(filePath.c_str(), &this->fileStat);
 				dirList.insert(std::make_pair(std::string(ent->d_name),std::make_pair(this->fileStat,getFileSize(filePath))));
 			}
@@ -492,7 +450,6 @@ namespace ws {
 		}
 		
 		tmpDirectory = "./response_tmp_files";
-		// tmpDirectoryPath = buildPath(tmpDirectory);
 		tmpPath = ws::fileHandler::createTmp(tmpDirectory);
 		
 		autoIndexTemplate(dirList,tmpPath);
@@ -529,7 +486,6 @@ namespace ws {
 	{
 		std::string months [] = {"Jan", "Feb", "MAar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Ded"};
 		std::stringstream date;
-		// struct stat st = stat;
 		this->fileStat = sta;
 		struct tm * tm;
 
@@ -553,13 +509,13 @@ namespace ws {
 		{
 			int endPos = request.getUri().length();
 			--endPos;
-			if((request.getUri().at(endPos) == '/') || (ws::fileHandler::checkIfExist(absoluteResourcePath) && isDir(absoluteResourcePath)))// || if exist and dir
+			if((request.getUri().at(endPos) == '/') || (ws::fileHandler::checkIfExist(absoluteResourcePath) && isDir(absoluteResourcePath)))
 			{
 				this->statusCode = "500";
 				buildResponse();
 				throw "Internal server error";
 			}
-			//building upload path
+
 			std::string uploadPath = this->currentLocation.getUploadPath() + request.getUri();
 			absoluteResourcePath = buildPath(uploadPath);
 			
@@ -571,15 +527,12 @@ namespace ws {
 			}
 			else
 			{
-				//upload
 				std::string tmpFile = request.getFilePath();
-				// std::string tmpFilePath = buildPath(tmpFile);
-				// std::cout << "tmp " << tmpFile << std::endl;
 				std::vector<std::string> dirList = pathSpliter(uploadPath);
-				// int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
+
 				int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
 	
-				if(ret == 1)//directories path exist with no file
+				if(ret == 1)
 				{
 					int err = rename(tmpFile.c_str(),absoluteResourcePath.c_str());
 					if(err)
@@ -593,7 +546,6 @@ namespace ws {
 						setHeader("Location",uploadPath);
 						this->statusCode = "201";
 						this->bodyPath.clear();
-						setHeader("Content-Type","");//TODO !!!
 						setHeader("Content-Length","0");
 						this->response_is_tmp = false;
 					}
@@ -650,7 +602,6 @@ namespace ws {
 	{
 		int ret = 0;
 		std::string path = buildPath(filename);
-		// std::cout << path << std::endl;
 		if(i < (int)dirList.size() - 2)
 		{	
 			i++;
@@ -659,33 +610,32 @@ namespace ws {
 		}
 		if(ret != 0)
 			return ret;
-		// struct stat info;
 
 		int pathStat = stat(path.c_str(), &this->fileStat);
 		std::string pathCmd ;	
 		if( pathStat != 0)
 		{	
-			//TODO check permissions
 			size_t pos = originPath.find_last_of('/');
-			/////////////////////
 			std::string dirs = ltrim(originPath.substr(0,pos));
+			int flag = 0;
 			for (size_t i = 0; i < dirs.length(); i++)
 			{
 				if(dirs[i] == '/')
 				{
 					dirs[i] = '\0';
 					if(mkdir(dirs.c_str(),0777) != 0)
-					{
-						return 500;
-					}
+						flag = 1;
+					else
+						flag = 0;
 					dirs[i] = '/';
 				}
 			}
 			if(mkdir(dirs.c_str(),0777) != 0)
-			{
+				flag = 1;
+			else
+				flag = 0;
+			if(flag)
 				return 500;
-			}
-			
 			return 1;
 		}
 		if(pathStat == 0)
@@ -693,18 +643,12 @@ namespace ws {
 			if( this->fileStat.st_mode & S_IFDIR )
 			{	
 				if(this->fileStat.st_mode & S_IWUSR)
-				{	
-					return 1; // exist
-				}
+					return 1;
 				else if (!(this->fileStat.st_mode & S_IWUSR))
-				{	
 					return 403;
-				}
 			}
 			else
-			{	
 				return 409;
-			}
 		}
 
 		return ret;
@@ -737,19 +681,7 @@ namespace ws {
 				}
 			}
 		}
-		//cgi
-		//////////////////
-		// request <=== request object
-		// filePath <=== absolute file path
-		// getCgiPath() <=== cgi path from config
-		///////////////////////
-
-		// calling cgi
-		// std::string tmpfile = cgi(request,filePath.c_str()) ;
-
-		//vvv this is not the final return
-		// this->statusCode = "200";
-		// this->bodyPath = tmpfile;
+		
 		request.cgi_ptr = new CGI();
 		request.cgi_ptr->cgi(request, getCgiPath().c_str(), filePath.c_str());
 		throw "calling cgi";
@@ -757,11 +689,11 @@ namespace ws {
 
 	void Response::setDateHeader()
 	{
+		// Mon, 06 Jun 2022 03:48:42 GMT
 		time_t curr_time;
 		struct tm * tm;
 		std::string days[] =  {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 		std::string months [] = {"Jan", "Feb", "MAar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Ded"};
-		// Mon, 06 Jun 2022 03:48:42 GMT
 		time(&curr_time);
 		tm = gmtime(&curr_time);
 		std::stringstream date;
@@ -778,8 +710,6 @@ namespace ws {
 
 	long long Response::getFileSize(std::string &filePath)
 	{
-		// struct stat st;
-
 		if(!filePath.empty() && filePath.length() > 0)
 		{
 			stat(filePath.c_str(), &this->fileStat);
@@ -790,9 +720,8 @@ namespace ws {
 
 	std::string Response::getMessage(std::string &statusCode)
 	{
-		if(statusCodeMessages.find(statusCode) != statusCodeMessages.end())
-			return statusCodeMessages.find(statusCode)->second;
-		//else throw error
+		if(Config::statusCodeMessages.find(statusCode) != Config::statusCodeMessages.end())
+			return Config::statusCodeMessages.find(statusCode)->second;
 		return "";
 	}
 
@@ -832,7 +761,6 @@ namespace ws {
 
 	void Response::setHeader(std::string key, std::string value)
 	{
-		// this->headers_list.insert(std::make_pair(key, value));
 		this->headers_list[key] = value;
 	}
 
@@ -841,8 +769,8 @@ namespace ws {
 		int pos = filePath.find_last_of('.');
 		pos++;
 		std::string extention = filePath.substr(pos,filePath.size()-pos);
-		if(mimetypeMap.find(extention) != mimetypeMap.end())
-			setHeader("Content-Type",mimetypeMap[extention]);
+		if(Config::mimetypeMap.find(extention) != Config::mimetypeMap.end())
+			setHeader("Content-Type",Config::mimetypeMap[extention]);
 	}
 
 	bool Response::isMethodeAllowed(Request &request)
@@ -863,8 +791,6 @@ namespace ws {
 
 	bool Response::isPermission(std::string &path, std::string permission)
 	{
-		// struct stat fileStat;
-
 		if(stat(path.c_str(),&this->fileStat) < 0)    
 			return false;
 
@@ -880,16 +806,12 @@ namespace ws {
 
 	bool Response::isDir(std::string &resourcePath)
 	{
-		// struct stat info;
-
 		stat( resourcePath.c_str(), &this->fileStat );
 		return (this->fileStat.st_mode & S_IFDIR);
 	}
 	
 	bool Response::isFile(std::string &resourcePath)
 	{
-		// struct stat info;
-
 		stat( resourcePath.c_str(), &this->fileStat );
 		return (this->fileStat.st_mode & S_IFREG);
 	}
@@ -906,7 +828,6 @@ namespace ws {
 
 	bool Response::isAutoIndexOn()
 	{
-		// std::cout << this->currentLocation.getAutoIndex() << std::endl;
 		return (this->currentLocation.getAutoIndex() == true);
 	}
 
@@ -934,76 +855,6 @@ namespace ws {
 	{
 		return (!this->currentLocation.getUploadPath().empty());
 	}
-
-	void init_statusCodeMessages()//TODO put it in a better place
-	{
-		statusCodeMessages["100"] = "Continue";
-		statusCodeMessages["200"] = "OK";
-		statusCodeMessages["201"] = "Created";
-		statusCodeMessages["202"] = "Accepted";
-		statusCodeMessages["203"] = "Non-Authoritative Information";
-		statusCodeMessages["204"] = "No Content";
-		statusCodeMessages["205"] = "Reset Content";
-		statusCodeMessages["206"] = "Partial Content";
-		statusCodeMessages["300"] = "Multiple Choices";
-		statusCodeMessages["301"] = "Moved Permanently";
-		statusCodeMessages["302"] = "Found";
-		statusCodeMessages["303"] = "See Other";
-		statusCodeMessages["304"] = "Not Modified";
-		statusCodeMessages["305"] = "Use Proxy";
-		statusCodeMessages["307"] = "Temporary Redirect";
-		statusCodeMessages["400"] = "Bad Request";
-		statusCodeMessages["401"] = "Unauthorized";
-		statusCodeMessages["403"] = "Forbidden";
-		statusCodeMessages["404"] = "Not Found";
-		statusCodeMessages["405"] = "Method Not Allowed";
-		statusCodeMessages["406"] = "Not Acceptable";
-		statusCodeMessages["407"] = "Proxy Authentication Required";
-		statusCodeMessages["408"] = "Request Time-out";
-		statusCodeMessages["409"] = "Conflict";
-		statusCodeMessages["410"] = "Gone";
-		statusCodeMessages["411"] = "Length Required";
-		statusCodeMessages["412"] = "Precondition Failed";
-		statusCodeMessages["413"] = "Request Entity Too Large";
-		statusCodeMessages["414"] = "Request-URI Too Large";
-		statusCodeMessages["415"] = "Unsupported Media Type";
-		statusCodeMessages["416"] = "Requested range not satisfiable";
-		statusCodeMessages["417"] = "Expectation Failed";
-		statusCodeMessages["500"] = "Internal Server Error";
-		statusCodeMessages["501"] = "Not Implemented";
-		statusCodeMessages["502"] = "Bad Gateway";
-		statusCodeMessages["503"] = "Service Unavailable";
-		statusCodeMessages["504"] = "Gateway Time-out";
-		statusCodeMessages["505"] = "HTTP Version not supported";
-	}
-	void init_mimetype()
-	{
-		mimetypeMap["txt"]= "text/plain";
-        mimetypeMap["pdf"]= "application/pdf";
-        mimetypeMap["html"]= "text/html";
-        mimetypeMap["htm"]= "text/html";
-        mimetypeMap["xml"]= "text/xml";
-        mimetypeMap["js"]= "application/x-javascript";
-        mimetypeMap["xhtml"]= "application/xhtml+xml";
-        mimetypeMap["svg"]= "image/svg+xml";
-        mimetypeMap["svgz"]= "image/svg+xml";
-        mimetypeMap["jpg"]= "image/jpeg";
-        mimetypeMap["jpeg"]= "image/jpeg";
-        mimetypeMap["png"]= "image/png";
-        mimetypeMap["tif"]= "image/tiff";
-        mimetypeMap["tiff"]= "image/tiff";
-        mimetypeMap["ico"]= "image/ico";
-        mimetypeMap["cur"]= "image/ico";
-        mimetypeMap["bmp"]= "image/bmp";
-        mimetypeMap["wml"]= "text/vnd.wap.wml";
-        mimetypeMap["wmlc"]= "application/vnd.wap.wmlc";
-	}
-
-//TODO MIME TYPES for content type //done
-//TODO paths as subject 
-//TODO response_tmp_files and response 
-//TODO /dir/../../test
-//flaging all tmp as true to be deleted
 
 	const std::string WHITESPACE = " \n\r\t\f\v./";
  
@@ -1066,7 +917,7 @@ namespace ws {
 				{
 					this->statusCode = "204";
 					this->bodyPath.clear();
-					setHeader("Content-Type","");
+					setHeader("Content-Type","");//TODO NOT SURE
 					throw "204";
 				}
 				else
@@ -1092,17 +943,11 @@ namespace ws {
 		{
 			if(isCgi())
 			{
-				//cgi
-				//////////////////
-				// request <=== request object
-				// absoluteResourcePath <=== file path
-				// getCgiPath() <=== cgi path from config
-				///////////////////////
 				request.cgi_ptr = new CGI();
 				request.cgi_ptr->cgi(request, getCgiPath().c_str(), absoluteResourcePath.c_str());
 				throw "calling cgi";
 			}
-			else if (fileHandler::removeFile(absoluteResourcePath))
+			else
 			{
 				if(!isPermission(absoluteResourcePath, "r"))
 				{
@@ -1110,16 +955,25 @@ namespace ws {
 					buildResponse();
 					throw "Have no permissions";
 				}
-				this->statusCode = "204";
-				this->bodyPath.clear();
-				setHeader("Content-Type","");
-				throw "204";
+				if(fileHandler::removeFile(absoluteResourcePath) == 0)
+				{
+					this->statusCode = "204";
+					this->bodyPath.clear();
+					setHeader("Content-Type","");//TODO NOT SURE
+					throw "204";
+				}
+				else
+				{
+					this->statusCode = "500";
+					buildResponse();
+					throw "500";
+				}
 			}
 
 		}
 	}
 	
-	int remove_directory(const char *path) {
+	int Response::remove_directory(const char *path) {
 		DIR *d = opendir(path);
 		size_t path_len = strlen(path);
 		int r = -1;
@@ -1159,18 +1013,15 @@ namespace ws {
 
 		if (!r)
 			r =rmdir(path);
-   return r;
+		
+  		return r;
+	}
 }
-}
 
 
-
-//	x-------------------------------------------------------------------------------------------x
-//	|	Permission	|        Files    			|   	Directories							 	|
-//	|-------------------------------------------------------------------------------------------|
-//	| 		r		|	can read the file		|		can ls the directory					|
-//	| 		w		|	can write the file		|		can modify the directory's contents		|
-//	| 		x		|	can execute the file	|		can cd to the directory					|
-//	x-------------------------------------------------------------------------------------------x
-
-
+//TODO MIME TYPES for content type //done
+//TODO paths as subject 
+//TODO response_tmp_files and request_tmp_files
+//TODO /dir/../../test
+//flaging all tmp as true to be deleted
+//TODO test DELETE AND POST AND GET

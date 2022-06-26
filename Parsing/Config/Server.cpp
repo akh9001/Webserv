@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:30 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/25 12:42:04 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/26 13:02:59 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,8 @@ void Server::parseLines()
  {
      int i = spaceCount(c, 12);
     std::string tmp = c.substr(i, c.size() - i);
+    if (tmp.empty())
+        throw NotacceptableError();
     size_t pos = 0;
     while ((pos = tmp.find(" ")) != std::string::npos || (pos = tmp.find("\t")) != std::string::npos)
     {
@@ -130,6 +132,8 @@ void Server::parseLines()
     i = 0;
     for (;tmp[i] == ' '; i++);
     tmp = tmp.substr(i, tmp.size() - i);
+    if (tmp.empty())
+        throw NotacceptableError();
     std::vector<std::string> a;
      size_t pos = 0;
     while ((pos = tmp.find(" ")) != std::string::npos || (pos = tmp.find("\t")) != std::string::npos)
@@ -154,8 +158,10 @@ void Server::fetch_upload(std::string& c)
      //std::cout << "root insde fetch " <<  c << std::endl;
     int i = spaceCount(c, 7);
     this->setUploadPath(c.substr(i, c.size() - i));
-    if (!parsePath(this->uploadPath))
-        std::cout << "fuck u" << std::endl;
+    if (uploadPath.empty())
+        throw NotacceptableError();
+    // if (!parsePath(this->uploadPath))
+    //     std::cout << "fuck u" << std::endl;
  }
 
  void Server::fetch_cgi(std::string& c)
@@ -163,14 +169,18 @@ void Server::fetch_upload(std::string& c)
      //std::cout << "root insde fetch " <<  c << std::endl;
      int i = spaceCount(c, 9);
     this->setCgiPath(c.substr(i, c.size() - i));
+     if (cgiPath.empty())
+        throw NotacceptableError();
 
  }
 
  void Server::fetch_root(std::string& c)
  {
      //std::cout << "root insde fetch " <<  c << std::endl;
-     int i = spaceCount(c, 5);
+    int i = spaceCount(c, 5);
     this->setRoot(c.substr(i, c.size() - i));
+    if (root.empty())
+        throw NotacceptableError();
 
  }
 //  void Server::fetch_index(std::string& c)
