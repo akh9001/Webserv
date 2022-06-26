@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/25 15:31:04 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/26 06:07:05 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,12 +104,6 @@ namespace ws {
 			bool						isUpload();
 
 	};
-	
-	static std::map<std::string,std::string>	statusCodeMessages;
-	static std::map<std::string, std::string> 	mimetypeMap;
-	void 										init_statusCodeMessages();
-	void										init_mimetype();
-	
 	std::string 								ltrim(const std::string &s);
 	std::string 								rtrim(const std::string &s);
 	std::string 								trim(const std::string &s);

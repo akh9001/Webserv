@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/26 05:00:03 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/26 06:06:55 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@ namespace ws {
 
 	Response::Response():response_is_tmp(false)
 	{
-		init_statusCodeMessages();
-		init_mimetype();
 		setHeader("Server","WebServ/1.0");
 		setHeader("Content-Type","application/octet-stream");
 	}
@@ -617,26 +615,27 @@ namespace ws {
 		std::string pathCmd ;	
 		if( pathStat != 0)
 		{	
-			//TODO check permissions
 			size_t pos = originPath.find_last_of('/');
 			std::string dirs = ltrim(originPath.substr(0,pos));
+			int flag = 0;
 			for (size_t i = 0; i < dirs.length(); i++)
 			{
 				if(dirs[i] == '/')
 				{
 					dirs[i] = '\0';
 					if(mkdir(dirs.c_str(),0777) != 0)
-					{
-						return 500;
-					}
+						flag = 1;
+					else
+						flag = 0;
 					dirs[i] = '/';
 				}
 			}
 			if(mkdir(dirs.c_str(),0777) != 0)
-			{
+				flag = 1;
+			else
+				flag = 0;
+			if(flag)
 				return 500;
-			}
-			
 			return 1;
 		}
 		if(pathStat == 0)
@@ -721,8 +720,8 @@ namespace ws {
 
 	std::string Response::getMessage(std::string &statusCode)
 	{
-		if(statusCodeMessages.find(statusCode) != statusCodeMessages.end())
-			return statusCodeMessages.find(statusCode)->second;
+		if(Config::statusCodeMessages.find(statusCode) != Config::statusCodeMessages.end())
+			return Config::statusCodeMessages.find(statusCode)->second;
 		return "";
 	}
 
@@ -770,8 +769,8 @@ namespace ws {
 		int pos = filePath.find_last_of('.');
 		pos++;
 		std::string extention = filePath.substr(pos,filePath.size()-pos);
-		if(mimetypeMap.find(extention) != mimetypeMap.end())
-			setHeader("Content-Type",mimetypeMap[extention]);
+		if(Config::mimetypeMap.find(extention) != Config::mimetypeMap.end())
+			setHeader("Content-Type",Config::mimetypeMap[extention]);
 	}
 
 	bool Response::isMethodeAllowed(Request &request)
@@ -855,71 +854,6 @@ namespace ws {
 	bool Response::isUpload()
 	{
 		return (!this->currentLocation.getUploadPath().empty());
-	}
-	
-	//TODO put it in a better place
-	void init_statusCodeMessages()
-	{
-		statusCodeMessages["100"] = "Continue";
-		statusCodeMessages["200"] = "OK";
-		statusCodeMessages["201"] = "Created";
-		statusCodeMessages["202"] = "Accepted";
-		statusCodeMessages["203"] = "Non-Authoritative Information";
-		statusCodeMessages["204"] = "No Content";
-		statusCodeMessages["205"] = "Reset Content";
-		statusCodeMessages["206"] = "Partial Content";
-		statusCodeMessages["300"] = "Multiple Choices";
-		statusCodeMessages["301"] = "Moved Permanently";
-		statusCodeMessages["302"] = "Found";
-		statusCodeMessages["303"] = "See Other";
-		statusCodeMessages["304"] = "Not Modified";
-		statusCodeMessages["305"] = "Use Proxy";
-		statusCodeMessages["307"] = "Temporary Redirect";
-		statusCodeMessages["400"] = "Bad Request";
-		statusCodeMessages["401"] = "Unauthorized";
-		statusCodeMessages["403"] = "Forbidden";
-		statusCodeMessages["404"] = "Not Found";
-		statusCodeMessages["405"] = "Method Not Allowed";
-		statusCodeMessages["406"] = "Not Acceptable";
-		statusCodeMessages["407"] = "Proxy Authentication Required";
-		statusCodeMessages["408"] = "Request Time-out";
-		statusCodeMessages["409"] = "Conflict";
-		statusCodeMessages["410"] = "Gone";
-		statusCodeMessages["411"] = "Length Required";
-		statusCodeMessages["412"] = "Precondition Failed";
-		statusCodeMessages["413"] = "Request Entity Too Large";
-		statusCodeMessages["414"] = "Request-URI Too Large";
-		statusCodeMessages["415"] = "Unsupported Media Type";
-		statusCodeMessages["416"] = "Requested range not satisfiable";
-		statusCodeMessages["417"] = "Expectation Failed";
-		statusCodeMessages["500"] = "Internal Server Error";
-		statusCodeMessages["501"] = "Not Implemented";
-		statusCodeMessages["502"] = "Bad Gateway";
-		statusCodeMessages["503"] = "Service Unavailable";
-		statusCodeMessages["504"] = "Gateway Time-out";
-		statusCodeMessages["505"] = "HTTP Version not supported";
-	}
-	void init_mimetype()
-	{
-		mimetypeMap["txt"]= "text/plain";
-        mimetypeMap["pdf"]= "application/pdf";
-        mimetypeMap["html"]= "text/html";
-        mimetypeMap["htm"]= "text/html";
-        mimetypeMap["xml"]= "text/xml";
-        mimetypeMap["js"]= "application/x-javascript";
-        mimetypeMap["xhtml"]= "application/xhtml+xml";
-        mimetypeMap["svg"]= "image/svg+xml";
-        mimetypeMap["svgz"]= "image/svg+xml";
-        mimetypeMap["jpg"]= "image/jpeg";
-        mimetypeMap["jpeg"]= "image/jpeg";
-        mimetypeMap["png"]= "image/png";
-        mimetypeMap["tif"]= "image/tiff";
-        mimetypeMap["tiff"]= "image/tiff";
-        mimetypeMap["ico"]= "image/ico";
-        mimetypeMap["cur"]= "image/ico";
-        mimetypeMap["bmp"]= "image/bmp";
-        mimetypeMap["wml"]= "text/vnd.wap.wml";
-        mimetypeMap["wmlc"]= "application/vnd.wap.wmlc";
 	}
 
 	const std::string WHITESPACE = " \n\r\t\f\v./";
