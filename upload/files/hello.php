@@ -3,6 +3,5 @@
 //   {
 //     echo "Hello World ";
 // }
-echo "12345678910";
-while (true);
+phpinfo();
 ?>

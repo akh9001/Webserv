@@ -6,16 +6,18 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/26 13:36:35 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/26 20:42:38 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/cgi.hpp"
+#include <cstdio>
+#include <unistd.h>
 
 CGI::CGI(void) : finished(false) {
   char filename[] = "/tmp/tmp_cgi_XXXXXX";
   file = mktemp(filename);
-  //*   std::cout << file << std::endl;
+//   std::cout << file << std::endl;
 }
 
 void CGI::set_env_map(const Request &request, const char *script_path) {
@@ -93,7 +95,6 @@ int CGI::cgi(const Request &request, const char *cgi_path,
 	args[1] = (char *)script_path;
 	args[2] = NULL;
 	found = extension.find_last_of(".");
-	is_python = (extension.compare(found, 4, ".py") == 0);
   //TODO
 //   std::cerr << GREEN << "Make it here! " << RESET << std::endl;
 	if (execute(args, request))
@@ -104,9 +105,9 @@ int CGI::cgi(const Request &request, const char *cgi_path,
 void cgi_internal_error(Client &client) {
   ws::Response response;
 
-  delete client.request.cgi_ptr;
-  client.request.cgi_ptr = NULL;
-
+//   delete client.request.cgi_ptr;
+//   client.request.cgi_ptr = NULL;
+	client.file.close();
   Location location = client.request.getLocation();
   std::string status = "500";
   client.buffer = response.getHeaders(client.request, location, status);
@@ -123,6 +124,26 @@ bool CGI::is_finished(Client &client) {
   pid = waitpid(_pid, &status, WNOHANG);
   if (pid == 0)
 	return false;
+if (pid > 0)
+{
+	if (WIFSIGNALED(status))
+	{
+		if (WTERMSIG(status) == SIGKILL)
+		{
+			finished = true;
+			client.file.close();
+			ws::Response response;
+			Location location = client.request.getLocation();
+			std::string status = "504";
+			client.buffer = response.getHeaders(client.request, location, status);
+			client.body_inf = response.getbody();
+			if (client.body_inf.first.size() > 0)
+				client.file.open(client.body_inf.first);
+			return true;
+		}
+	}
+}
+	
   if (pid == -1 || !WIFEXITED(status) || WEXITSTATUS(status) == 111) {
 	cgi_internal_error(client);
 	return true;
@@ -143,8 +164,6 @@ void CGI::craft_response(Client &client)
   _status = "200";
   client.file.open(file);
 
-	if (!is_python)
-	{
 		for (std::string line; std::getline(client.file, line);)
 		{
 			if (line.empty() || line == "\r")
@@ -161,7 +180,6 @@ void CGI::craft_response(Client &client)
 			client.buffer += line + "\n";
 			}
 		}
-	}
   struct stat st;
   if (stat(this->file.c_str(), &st) == -1)
 	return cgi_internal_error(client);
@@ -171,12 +189,11 @@ void CGI::craft_response(Client &client)
 		 << "\r\n";
   header << client.buffer;
 //   std::cerr << GREEN << "Buffer : " << client.buffer << "\n Is python : " << is_python << RESET << std::endl;
-//   if (is_python)
 //   	header << "Content-Type: text/html" << "\r\n";
   header << "Content-Length: " << st.st_size - client.file.tellg() << "\r\n";
   header << "\r\n";
 //   //TODO
-//   std::cerr << RED << " The fucking headers : " <<  header.str() << RESET << std::endl;
+//   std::cerr << RED << " The fucking headers : \n" <<  header.str() << RESET << std::endl;
   client.buffer = header.str();
 //   std::cerr << " jhgk : " << client.buffer << std::endl;
 }
@@ -200,6 +217,15 @@ std::string CGI::getDateHeader() {
   return ("Date: " + date.str() + "\r\n");
 }
 
+int		CGI::get_pid()
+{
+	return (_pid);
+}
+
+CGI::~CGI(void)
+{
+	unlink(file.c_str());
+}
 // TODO
 //* When execve failed I should return a specific status.
 //* I should separate the query args

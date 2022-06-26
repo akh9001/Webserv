@@ -1,9 +1,0 @@
-GET /test1/ HTTP/1.1
-User-Agent: PostmanRuntime/7.29.0
-Accept: */*
-Postman-Token: 4725ead1-590e-4d34-bb25-b34f7af6a729
-Accept-Encoding: gzip, deflate, br
-Connection: keep-alive
-Referer: http://127.0.0.1:8001/test1?a=helloworld
-Host: 127.0.0.1:8001
-
