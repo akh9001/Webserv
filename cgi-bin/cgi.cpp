@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/26 00:42:39 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/26 02:01:55 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@ CGI::CGI(void) : finished(false) {
 void CGI::set_env_map(const Request &request, const char *script_path) {
 
   std::string method = request.getMethod();
-  std::string	extension(script_path);
-  std::size_t found;
 
   if (request.getContentLenth() && method != "GET") {
 	_env["CONTENT_LENGTH"] = request.getHeaderMap()["Content-Length"];
@@ -35,9 +33,6 @@ void CGI::set_env_map(const Request &request, const char *script_path) {
   _env["SERVER_SOFTWARE"] = "WEBSERV";
   _env["SERVER_PROTOCOL"] = request.getVersion();
   _env["REDIRECT_STATUS"] = "true";
-	found = extension.find_last_of(".");
-	is_python = (extension.compare(found, 4, ".py") == 0);
-	// std::cerr << " fhjgdfj" << is_python << std::endl;
 }
 
 char **CGI::set_envp(void) {
@@ -90,16 +85,20 @@ bool CGI::execute(char **args, const Request &request) {
 
 int CGI::cgi(const Request &request, const char *cgi_path,
 			 const char *script_path) {
-  char *args[3];
+	char *args[3];
+	std::string	extension(script_path);
+	std::size_t found;
 
-  args[0] = (char *)cgi_path;
-  args[1] = (char *)script_path;
-  args[2] = NULL;
+	args[0] = (char *)cgi_path;
+	args[1] = (char *)script_path;
+	args[2] = NULL;
+	found = extension.find_last_of(".");
+	is_python = (extension.compare(found, 4, ".py") == 0);
   //TODO
 //   std::cerr << GREEN << "Make it here! " << RESET << std::endl;
-  if (execute(args, request))
-	return true;
-  return false;
+	if (execute(args, request))
+		return true;
+	return false;
 }
 
 void cgi_internal_error(Client &client) {
@@ -171,10 +170,13 @@ void CGI::craft_response(Client &client)
   header << "HTTP/1.1 " << _status << " " << ws::Response::getMessage(_status)
 		 << "\r\n";
   header << client.buffer;
+  std::cerr << GREEN << "Buffer : " << client.buffer << "\n Is python : " << is_python << RESET << std::endl;
+//   if (is_python)
+//   	header << "Content-Type: text/html" << "\r\n";
   header << "Content-Length: " << st.st_size - client.file.tellg() << "\r\n";
   header << "\r\n";
 //   //TODO
-//   std::cerr << RED << " The fucking headers : " <<  header.str() << std::endl;
+  std::cerr << RED << " The fucking headers : " <<  header.str() << RESET << std::endl;
   client.buffer = header.str();
 //   std::cerr << " jhgk : " << client.buffer << std::endl;
 }
