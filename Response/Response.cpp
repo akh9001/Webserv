@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/26 06:14:47 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/26 06:35:38 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -917,7 +917,7 @@ namespace ws {
 				{
 					this->statusCode = "204";
 					this->bodyPath.clear();
-					setHeader("Content-Type","");
+					setHeader("Content-Type","");//TODO NOT SURE
 					throw "204";
 				}
 				else
@@ -947,7 +947,7 @@ namespace ws {
 				request.cgi_ptr->cgi(request, getCgiPath().c_str(), absoluteResourcePath.c_str());
 				throw "calling cgi";
 			}
-			else if (fileHandler::removeFile(absoluteResourcePath))
+			else
 			{
 				if(!isPermission(absoluteResourcePath, "r"))
 				{
@@ -955,10 +955,19 @@ namespace ws {
 					buildResponse();
 					throw "Have no permissions";
 				}
-				this->statusCode = "204";
-				this->bodyPath.clear();
-				setHeader("Content-Type","");
-				throw "204";
+				if(fileHandler::removeFile(absoluteResourcePath) == 0)
+				{
+					this->statusCode = "204";
+					this->bodyPath.clear();
+					setHeader("Content-Type","");//TODO NOT SURE
+					throw "204";
+				}
+				else
+				{
+					this->statusCode = "500";
+					buildResponse();
+					throw "500";
+				}
 			}
 
 		}
