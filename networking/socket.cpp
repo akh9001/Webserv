@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/26 17:56:57 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/26 20:37:39 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,14 @@
 #include "../Includes/socket.hpp"
 #include "../Parsing/Config/Config.hpp"
 #include "../Response/Response.hpp"
+#include <sys/signal.h>
 // #include <exception>
 // #include <string>
 // #include <strings.h>
 // #include <unistd.h>
 // #include <signal.h>
 
-#define	TIME_OUT_CLIENT	50
+#define	TIME_OUT_CLIENT	5
 #define SIZE_BUFFER		1024
 
 int		Socket::max_socket = 0;
@@ -97,11 +98,17 @@ inline void	Socket::supervise(std::map<int,  Client> &client_map)
 	{
 		if (now - it->second.last_activity > TIME_OUT_CLIENT)
 		{
-			FD_CLR(it->first, &__master_rd);
-			FD_CLR(it->first, &__master_wr);
-			close(it->first);
-			client_map.erase(it);
-			break;
+			if (it->second.request.cgi_ptr != NULL)
+				kill(it->second.request.cgi_ptr->get_pid(), SIGKILL);
+			else {
+				
+				std::cout << "2222STOP CGI " <<  std::endl;
+				FD_CLR(it->first, &__master_rd);
+				FD_CLR(it->first, &__master_wr);
+				close(it->first);
+				client_map.erase(it);
+				break;
+			}
 		}
 	}
 }
