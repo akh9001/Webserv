@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/26 06:06:55 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/26 06:14:47 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -964,7 +964,7 @@ namespace ws {
 		}
 	}
 	
-	int remove_directory(const char *path) {
+	int Response::remove_directory(const char *path) {
 		DIR *d = opendir(path);
 		size_t path_len = strlen(path);
 		int r = -1;

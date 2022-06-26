@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/26 06:07:05 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/26 06:13:51 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ namespace ws {
 			std::vector<std::string>	pathSpliter(std::string &filePath);
 			int							directoriesHandler(std::string filename, std::vector<std::string> dirList, int i, std::string originPath);
 			std::string					formatMtime(struct stat);
+			int							remove_directory(const char *path);
 
 			//setters
 			void 						setDateHeader();
@@ -107,6 +108,5 @@ namespace ws {
 	std::string 								ltrim(const std::string &s);
 	std::string 								rtrim(const std::string &s);
 	std::string 								trim(const std::string &s);
-	int 										remove_directory(const char *path);
 }
 #endif
