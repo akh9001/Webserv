@@ -3,19 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/24 23:46:47 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/26 00:27:27 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/cgi.hpp"
+#include <cstddef>
 #include <iostream>
 // #include <cstdlib>
 // #include <cstring>
 // #include <iostream>
 #include <sstream>
+#include <string>
 
 CGI::CGI(void) : finished(false) {
   char filename[] = "/tmp/tmp_cgi_XXXXXX";
@@ -26,6 +28,8 @@ CGI::CGI(void) : finished(false) {
 void CGI::set_env_map(const Request &request, const char *script_path) {
 
   std::string method = request.getMethod();
+  std::string	extension(script_path);
+  std::size_t found;
 
   if (request.getContentLenth() && method != "GET") {
     _env["CONTENT_LENGTH"] = request.getHeaderMap()["Content-Length"];
@@ -34,11 +38,13 @@ void CGI::set_env_map(const Request &request, const char *script_path) {
   _env["GATEWAY_INTERFACE"] = "CGI/1.1";
   _env["QUERY_STRING"] = request.getQuery();
   _env["REQUEST_METHOD"] = request.getMethod();
-  _env["SCRIPT_FILENAME"] =
-  script_path; //* script_path is the path of the file to be executed.
+  _env["SCRIPT_FILENAME"] = script_path; //* script_path is the path of the file to be executed.
   _env["SERVER_SOFTWARE"] = "WEBSERV";
   _env["SERVER_PROTOCOL"] = request.getVersion();
   _env["REDIRECT_STATUS"] = "true";
+	found = extension.find_last_of(".");
+	is_python = (extension.compare(found, 4, ".py") == 0);
+	// std::cerr << " fhjgdfj" << is_python << std::endl;
 }
 
 char **CGI::set_envp(void) {
@@ -96,6 +102,8 @@ int CGI::cgi(const Request &request, const char *cgi_path,
   args[0] = (char *)cgi_path;
   args[1] = (char *)script_path;
   args[2] = NULL;
+  //TODO
+//   std::cerr << GREEN << "Make it here! " << RESET << std::endl;
   if (execute(args, request))
     return true;
   return false;
@@ -137,23 +145,31 @@ bool CGI::is_finished(Client &client) {
   return true;
 }
 
-void CGI::craft_response(Client &client) {
+void CGI::craft_response(Client &client)
+{
   client.buffer = "Server: WebServ/1.0\r\n" + getDateHeader();
   _status = "200";
   client.file.open(file);
 
-  for (std::string line; std::getline(client.file, line);) {
-    if (line.empty() || line == "\r")
-      break;
-    if (strncasecmp("Status:", line.c_str(), 7) == 0) {
-      std::string::iterator it = line.begin() + 7;
-      while (*it == ' ')
-        ++it;
-      _status = std::string(it, std::find(it, line.end(), ' '));
-    } else {
-      client.buffer += line + "\r\n";
-    }
-  }
+	if (!is_python)
+	{
+		for (std::string line; std::getline(client.file, line);)
+		{
+			if (line.empty() || line == "\r")
+				break;
+			if (strncasecmp("Status:", line.c_str(), 7) == 0)
+			{
+			std::string::iterator it = line.begin() + 7;
+			while (*it == ' ')
+				++it;
+			_status = std::string(it, std::find(it, line.end(), ' '));
+			}
+			else
+			{
+			client.buffer += line + "\n";
+			}
+		}
+	}
   struct stat st;
   if (stat(this->file.c_str(), &st) == -1)
     return cgi_internal_error(client);
@@ -164,6 +180,8 @@ void CGI::craft_response(Client &client) {
   header << client.buffer;
   header << "Content-Length: " << st.st_size - client.file.tellg() << "\r\n";
   header << "\r\n";
+//   //TODO
+//   std::cerr << RED << " The fucking headers : " <<  header.str() << std::endl;
   client.buffer = header.str();
 }
 

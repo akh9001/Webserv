@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/25 00:02:58 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 15:06:48 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,11 @@ bool Request::parseChunks(std::string c, Config config)
     if (change == 0)
         parse_header(c);
     if (change == 1 && parsed == false)
+    {
         parseHeaderLines(config);
+        if (method == "GET")
+            return true;
+    }
     if (change == 1)
         parse_body(c);
     checkContentLength(0);
@@ -216,6 +220,8 @@ int Request::parse_body(std::string c)
 {
     if (save.size() > 0)
     {
+
+        // std::cout << save << std::endl;
         ws::fileHandler::write(filePath, save);
         read -= save.size();
     }
@@ -343,23 +349,21 @@ void Request::parseCookies()
             throw "501";
         if ((headerMap.find("Transfer-Encoding") == headerMap.end()) && (headerMap.find("Content-Length") == headerMap.end()) && method == "POST")
             throw "411";
-        if (headerMap.find("Content-Length") != headerMap.end() && headerMap["Content-Length"] != "0")
+        if (headerMap.find("Content-Length") != headerMap.end() && headerMap["Content-Length"] != "0" && method != "GET")
             filePath = ws::fileHandler::createTmp("request_tmp_files/");
         
     }
     // ! ///////////////////////clear  //////////////////
     void Request::clear()
     {
+        std::cout << "clear" << std::endl;
         Server a;
         Location b;
         headerPart.clear();
         headerMap.clear();
-        // server.~Server();
         server = a;
         location = b;
-        // location.~Location();
         save = "";
-        
         parsed = false;
         method = "";
         hostIp = "127.0.0.1";
@@ -368,7 +372,8 @@ void Request::parseCookies()
         version = "";
         fchuncked = 0;
         change = 0;
-        ws::fileHandler::removeFile(filePath);
+       // if (!filePath.empty())
+            ws::fileHandler::removeFile(filePath);
         filePath = "";
 		if (cgi_ptr)
 		{

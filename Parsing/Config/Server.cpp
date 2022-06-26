@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:30 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/25 00:23:31 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 12:42:04 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,6 +307,7 @@ void Server::fetchErrorPage(std::string& c)
     errorPages.insert(std::make_pair(q, a[1]));
     // std::cout << q << std::endl;
 }
+
 int Server::spaceCount(std::string &c, int a) const {
 
     int i = a;

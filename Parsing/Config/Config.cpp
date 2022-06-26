@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:17 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/18 14:33:18 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/25 16:47:49 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 
 Config::Config(std::string file) : file_name(file) , full_file(), lines(), servers()
 {
+    init_statusCodeMessages();
+	init_mimetype();
 }
 
 Config::~Config(){}
@@ -33,6 +35,8 @@ Config &Config::operator=(Config const& c)
     servers = c.servers;
     lines = c.lines;
     _binders = c._binders;
+    init_statusCodeMessages();
+	init_mimetype();
     return *this;
 }
 
@@ -207,3 +211,68 @@ void Config::check_brekets()
     if (open != 0)
         throw NotclosedBrackets();
 }
+
+
+void init_statusCodeMessages()//TODO put it in a better place
+	{
+		statusCodeMessages["100"] = "Continue";
+		statusCodeMessages["200"] = "OK";
+		statusCodeMessages["201"] = "Created";
+		statusCodeMessages["202"] = "Accepted";
+		statusCodeMessages["203"] = "Non-Authoritative Information";
+		statusCodeMessages["204"] = "No Content";
+		statusCodeMessages["205"] = "Reset Content";
+		statusCodeMessages["206"] = "Partial Content";
+		statusCodeMessages["300"] = "Multiple Choices";
+		statusCodeMessages["301"] = "Moved Permanently";
+		statusCodeMessages["302"] = "Found";
+		statusCodeMessages["303"] = "See Other";
+		statusCodeMessages["304"] = "Not Modified";
+		statusCodeMessages["305"] = "Use Proxy";
+		statusCodeMessages["307"] = "Temporary Redirect";
+		statusCodeMessages["400"] = "Bad Request";
+		statusCodeMessages["401"] = "Unauthorized";
+		statusCodeMessages["403"] = "Forbidden";
+		statusCodeMessages["404"] = "Not Found";
+		statusCodeMessages["405"] = "Method Not Allowed";
+		statusCodeMessages["406"] = "Not Acceptable";
+		statusCodeMessages["407"] = "Proxy Authentication Required";
+		statusCodeMessages["408"] = "Request Time-out";
+		statusCodeMessages["409"] = "Conflict";
+		statusCodeMessages["410"] = "Gone";
+		statusCodeMessages["411"] = "Length Required";
+		statusCodeMessages["412"] = "Precondition Failed";
+		statusCodeMessages["413"] = "Request Entity Too Large";
+		statusCodeMessages["414"] = "Request-URI Too Large";
+		statusCodeMessages["415"] = "Unsupported Media Type";
+		statusCodeMessages["416"] = "Requested range not satisfiable";
+		statusCodeMessages["417"] = "Expectation Failed";
+		statusCodeMessages["500"] = "Internal Server Error";
+		statusCodeMessages["501"] = "Not Implemented";
+		statusCodeMessages["502"] = "Bad Gateway";
+		statusCodeMessages["503"] = "Service Unavailable";
+		statusCodeMessages["504"] = "Gateway Time-out";
+		statusCodeMessages["505"] = "HTTP Version not supported";
+	}
+	void init_mimetype()
+	{
+		mimetypeMap["txt"]= "text/plain";
+        mimetypeMap["pdf"]= "application/pdf";
+        mimetypeMap["html"]= "text/html";
+        mimetypeMap["htm"]= "text/html";
+        mimetypeMap["xml"]= "text/xml";
+        mimetypeMap["js"]= "application/x-javascript";
+        mimetypeMap["xhtml"]= "application/xhtml+xml";
+        mimetypeMap["svg"]= "image/svg+xml";
+        mimetypeMap["svgz"]= "image/svg+xml";
+        mimetypeMap["jpg"]= "image/jpeg";
+        mimetypeMap["jpeg"]= "image/jpeg";
+        mimetypeMap["png"]= "image/png";
+        mimetypeMap["tif"]= "image/tiff";
+        mimetypeMap["tiff"]= "image/tiff";
+        mimetypeMap["ico"]= "image/ico";
+        mimetypeMap["cur"]= "image/ico";
+        mimetypeMap["bmp"]= "image/bmp";
+        mimetypeMap["wml"]= "text/vnd.wap.wml";
+        mimetypeMap["wmlc"]= "application/vnd.wap.wmlc";
+	}

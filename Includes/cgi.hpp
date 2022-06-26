@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:32 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/24 18:47:05 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/25 22:15:46 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class CGI
 		int									_pid;
 		std::string							_status;
 		bool								finished;
+		bool								is_python;
 	public:
 		CGI(void);
 		void	set_env_map(const Request &request, const char *script_path);
