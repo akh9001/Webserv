@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:17 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/25 16:47:49 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/26 12:45:36 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,10 @@
 #include "Server.hpp"
 #include "Location.hpp"
 #include <map>
+
+
+std::map<std::string,std::string>	Config::statusCodeMessages;
+std::map<std::string, std::string> 	Config::mimetypeMap;
 
 // ! //////////////////// Constuctors and destructor /////////////////
 
@@ -213,7 +217,7 @@ void Config::check_brekets()
 }
 
 
-void init_statusCodeMessages()//TODO put it in a better place
+void Config::init_statusCodeMessages()//TODO put it in a better place
 	{
 		statusCodeMessages["100"] = "Continue";
 		statusCodeMessages["200"] = "OK";
@@ -254,7 +258,7 @@ void init_statusCodeMessages()//TODO put it in a better place
 		statusCodeMessages["504"] = "Gateway Time-out";
 		statusCodeMessages["505"] = "HTTP Version not supported";
 	}
-	void init_mimetype()
+	void Config::init_mimetype()
 	{
 		mimetypeMap["txt"]= "text/plain";
         mimetypeMap["pdf"]= "application/pdf";
