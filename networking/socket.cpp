@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/24 15:49:27 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/26 17:56:57 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,7 +296,6 @@ void	Socket::wait(const std::vector<Socket> &socket_listen, Config config)
 			perror("select() failed. !");
 			continue;
 		}
-		supervise(client_map);
 		//? check timeout 
 		for (int i = 3; i <= max_socket; i++)
 		{
@@ -310,6 +309,7 @@ void	Socket::wait(const std::vector<Socket> &socket_listen, Config config)
 			else if (FD_ISSET(i, &__writes))
 				write_response(i, client_map);
 		}
+		supervise(client_map);
 	}
 }
 
