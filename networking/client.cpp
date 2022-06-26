@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 01:36:14 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/11 11:11:11 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/26 00:44:46 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,5 +51,6 @@ Client& Client::operator=(const Client& other)
 
 Client::~Client()
 {
+	request.clear();
 	// std::cout << "Client destructor called" << std::endl;
 }

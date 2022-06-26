@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/25 15:06:48 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/26 00:45:50 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -356,7 +356,6 @@ void Request::parseCookies()
     // ! ///////////////////////clear  //////////////////
     void Request::clear()
     {
-        std::cout << "clear" << std::endl;
         Server a;
         Location b;
         headerPart.clear();
@@ -372,8 +371,7 @@ void Request::parseCookies()
         version = "";
         fchuncked = 0;
         change = 0;
-       // if (!filePath.empty())
-            ws::fileHandler::removeFile(filePath);
+		ws::fileHandler::removeFile(filePath);
         filePath = "";
 		if (cgi_ptr)
 		{
