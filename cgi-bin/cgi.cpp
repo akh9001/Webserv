@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/26 20:42:38 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/27 17:35:01 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,60 +102,50 @@ int CGI::cgi(const Request &request, const char *cgi_path,
 	return false;
 }
 
-void cgi_internal_error(Client &client) {
+void cgi_internal_error(Client &client, std::string status) {
   ws::Response response;
 
 //   delete client.request.cgi_ptr;
 //   client.request.cgi_ptr = NULL;
 	client.file.close();
   Location location = client.request.getLocation();
-  std::string status = "500";
   client.buffer = response.getHeaders(client.request, location, status);
   client.body_inf = response.getbody();
   if (client.body_inf.first.size() > 0)
 	client.file.open(client.body_inf.first);
 }
 
-bool CGI::is_finished(Client &client) {
-  int pid;
-  int status;
-  if (finished)
-	return true;
-  pid = waitpid(_pid, &status, WNOHANG);
-  if (pid == 0)
-	return false;
-if (pid > 0)
-{
-	if (WIFSIGNALED(status))
+bool	CGI::is_finished(Client &client) {
+	int pid;
+	int status;
+	if (finished)
+		return true;
+	pid = waitpid(_pid, &status, WNOHANG);
+	if (pid == 0)
+		return false;
+	if (pid > 0)
 	{
-		if (WTERMSIG(status) == SIGKILL)
+		if (WIFSIGNALED(status))
 		{
-			finished = true;
-			client.file.close();
-			ws::Response response;
-			Location location = client.request.getLocation();
-			std::string status = "504";
-			client.buffer = response.getHeaders(client.request, location, status);
-			client.body_inf = response.getbody();
-			if (client.body_inf.first.size() > 0)
-				client.file.open(client.body_inf.first);
-			return true;
+			if (WTERMSIG(status) == SIGKILL)
+			{
+				finished = true;
+				cgi_internal_error(client, "504");
+				return true;
+			}
 		}
 	}
-}
-	
-  if (pid == -1 || !WIFEXITED(status) || WEXITSTATUS(status) == 111) {
-	cgi_internal_error(client);
+	if (pid == -1 || !WIFEXITED(status) || WEXITSTATUS(status) == 111) {
+		cgi_internal_error(client, "502");
+		return true;
+	}
+	finished = true;
+	// call a function that will open the tmp file as client.file and read all the
+	// headers and craft a header response and put it in the
+	//  header response and put it in the client.buffer
+	//   std::cerr << "Crafting response\n";
+	craft_response(client);
 	return true;
-  }
-
-  finished = true;
-  // call a function that will open the tmp file as client.file and read all the
-  // headers and craft a header response and put it in the
-  //  header response and put it in the client.buffer
-  //   std::cerr << "Crafting response\n";
-  craft_response(client);
-  return true;
 }
 
 void CGI::craft_response(Client &client)
@@ -180,22 +170,22 @@ void CGI::craft_response(Client &client)
 			client.buffer += line + "\n";
 			}
 		}
-  struct stat st;
-  if (stat(this->file.c_str(), &st) == -1)
-	return cgi_internal_error(client);
-//*   std::cerr << st.st_size - client.file.tellg() << std::endl;
-  std::stringstream header;
-  header << "HTTP/1.1 " << _status << " " << ws::Response::getMessage(_status)
-		 << "\r\n";
-  header << client.buffer;
-//   std::cerr << GREEN << "Buffer : " << client.buffer << "\n Is python : " << is_python << RESET << std::endl;
-//   	header << "Content-Type: text/html" << "\r\n";
-  header << "Content-Length: " << st.st_size - client.file.tellg() << "\r\n";
-  header << "\r\n";
-//   //TODO
-//   std::cerr << RED << " The fucking headers : \n" <<  header.str() << RESET << std::endl;
-  client.buffer = header.str();
-//   std::cerr << " jhgk : " << client.buffer << std::endl;
+	struct stat st;
+	if (stat(this->file.c_str(), &st) == -1)
+		return cgi_internal_error(client, "500");
+	//*   std::cerr << st.st_size - client.file.tellg() << std::endl;
+	std::stringstream header;
+	header << "HTTP/1.1 " << _status << " " << ws::Response::getMessage(_status)
+			<< "\r\n";
+	header << client.buffer;
+	//   std::cerr << GREEN << "Buffer : " << client.buffer << "\n Is python : " << is_python << RESET << std::endl;
+	//   	header << "Content-Type: text/html" << "\r\n";
+	header << "Content-Length: " << st.st_size - client.file.tellg() << "\r\n";
+	header << "\r\n";
+	//   //TODO
+	//   std::cerr << RED << " The fucking headers : \n" <<  header.str() << RESET << std::endl;
+	client.buffer = header.str();
+	//   std::cerr << " jhgk : " << client.buffer << std::endl;
 }
 
 std::string CGI::getDateHeader() {
