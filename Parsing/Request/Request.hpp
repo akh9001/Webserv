@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:38 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/27 17:42:53 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/27 21:51:42 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,8 @@ class Request
         
                 // ! /////////////////////// Getters & Setters //////////////////////
                 std::map<std::string, std::string> getHeaderMap() const { return headerMap; }
-                std::map<std::string, std::string> getCoockieMap() const { return CookieMap; }
+                std::map<std::string, std::string> getCookieMap() const { return CookieMap; }
+                std::vector<std::string> getCookies() const { return cookies; }
                 long long getContentLenth() const { return contentLength; }
                 std::string getMethod() const { return method; }
                 std::string getUri() const { return uri; }
