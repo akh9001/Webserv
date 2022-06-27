@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/27 17:35:01 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/27 21:37:46 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,7 @@ bool	CGI::is_finished(Client &client) {
 		}
 	}
 	if (pid == -1 || !WIFEXITED(status) || WEXITSTATUS(status) == 111) {
+		finished = true;
 		cgi_internal_error(client, "502");
 		return true;
 	}
@@ -150,42 +151,53 @@ bool	CGI::is_finished(Client &client) {
 
 void CGI::craft_response(Client &client)
 {
-  client.buffer = "Server: WebServ/1.0\r\n" + getDateHeader();
-  _status = "200";
-  client.file.open(file);
+	std::string line;
+	std::size_t	len;
+	
+	client.buffer = "Server: WebServ/1.0\r\n" + getDateHeader();
+	_status = "200";
+	client.file.open(file);
 
-		for (std::string line; std::getline(client.file, line);)
+	for (; std::getline(client.file, line);)
+	{
+		if (line.empty() || line == "\r")
+			break;
+		if (strncasecmp("Status:", line.c_str(), 7) == 0)
 		{
-			if (line.empty() || line == "\r")
-				break;
-			if (strncasecmp("Status:", line.c_str(), 7) == 0)
-			{
 			std::string::iterator it = line.begin() + 7;
 			while (*it == ' ')
 				++it;
 			_status = std::string(it, std::find(it, line.end(), ' '));
-			}
-			else
-			{
-			client.buffer += line + "\n";
-			}
 		}
+		else
+		{
+			client.buffer += line + "\n";
+		}
+	}
+	if (line.empty())
+	{
+		cgi_internal_error(client, "502");
+		return;
+	}
+	//* I may need to check if I have content type header or not here!
 	struct stat st;
 	if (stat(this->file.c_str(), &st) == -1)
 		return cgi_internal_error(client, "500");
 	//*   std::cerr << st.st_size - client.file.tellg() << std::endl;
 	std::stringstream header;
+	//1- first line : HTTP/1.1 status msg
 	header << "HTTP/1.1 " << _status << " " << ws::Response::getMessage(_status)
 			<< "\r\n";
+	//2- Server: WebServ/1.0\r\n + date + cgi header.
 	header << client.buffer;
 	//   std::cerr << GREEN << "Buffer : " << client.buffer << "\n Is python : " << is_python << RESET << std::endl;
 	//   	header << "Content-Type: text/html" << "\r\n";
+	//2- Content-Length.
 	header << "Content-Length: " << st.st_size - client.file.tellg() << "\r\n";
 	header << "\r\n";
-	//   //TODO
-	//   std::cerr << RED << " The fucking headers : \n" <<  header.str() << RESET << std::endl;
+	//TODO
+	//   std::cerr << RED << " The headers : \n" <<  header.str() << RESET << std::endl;
 	client.buffer = header.str();
-	//   std::cerr << " jhgk : " << client.buffer << std::endl;
 }
 
 std::string CGI::getDateHeader() {
@@ -216,6 +228,6 @@ CGI::~CGI(void)
 {
 	unlink(file.c_str());
 }
-// TODO
-//* When execve failed I should return a specific status.
-//* I should separate the query args
+
+//* staus cgi response :
+// ?https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses
