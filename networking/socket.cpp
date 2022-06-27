@@ -6,20 +6,13 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/26 20:37:39 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/27 16:39:25 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "../Includes/socket.hpp"
 #include "../Parsing/Config/Config.hpp"
 #include "../Response/Response.hpp"
-#include <sys/signal.h>
-// #include <exception>
-// #include <string>
-// #include <strings.h>
-// #include <unistd.h>
-// #include <signal.h>
 
 #define	TIME_OUT_CLIENT	5
 #define SIZE_BUFFER		1024
@@ -258,7 +251,7 @@ inline void	Socket::write_response(int i, std::map<int,  Client> &clients)
 	// std::cout << YELLOW << clients[i].buffer << RESET << " byte send " << bytes_sent << " Bytes read : " << bytes_read << std::endl;
 	if (bytes_sent < 0)
 	{
-		perror("send() failed. !");
+		std::cerr << "send() failed. !" << std::endl;
 		if (clients[i].file.is_open())
 			clients[i].file.close();
 		remove_client(i, clients, false, true);
@@ -300,7 +293,7 @@ void	Socket::wait(const std::vector<Socket> &socket_listen, Config config)
 	
 		if ((ret = select(FD_SETSIZE, &__reads, &__writes, NULL, &timeout)) == -1)
 		{
-			perror("select() failed. !");
+			std::cerr << "select() failed. !" << std::endl;
 			continue;
 		}
 		//? check timeout 
