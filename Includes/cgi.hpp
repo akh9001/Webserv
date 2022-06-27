@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:32 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/25 22:15:46 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/27 22:01:42 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,14 +32,15 @@ class CGI
 		bool								is_python;
 	public:
 		CGI(void);
+		int		get_pid();
 		void	set_env_map(const Request &request, const char *script_path);
-		char	**set_envp(void);
+		char	**set_envp(const std::vector<std::string> &cookies);
 		int		cgi(const Request &request, const char *cgi_path, const char *script_path);
 		bool	execute(char **args, const Request &request);
 		bool	is_finished(Client &client);
 		void	craft_response(Client &client);
 		std::string getDateHeader();
-		// ~CGI(void);
+		~CGI(void);
 };
 
 #endif

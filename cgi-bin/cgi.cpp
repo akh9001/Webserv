@@ -6,16 +6,20 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/26 13:36:35 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/27 22:19:06 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/cgi.hpp"
+#include <cstdio>
+#include <string>
+#include <unistd.h>
+#include <vector>
 
 CGI::CGI(void) : finished(false) {
   char filename[] = "/tmp/tmp_cgi_XXXXXX";
   file = mktemp(filename);
-  //*   std::cout << file << std::endl;
+//   std::cout << file << std::endl;
 }
 
 void CGI::set_env_map(const Request &request, const char *script_path) {
@@ -35,19 +39,28 @@ void CGI::set_env_map(const Request &request, const char *script_path) {
   _env["REDIRECT_STATUS"] = "true";
 }
 
-char **CGI::set_envp(void) {
-  char **envp;
-  int i = 0;
-  int len = _env.size();
-  std::string str;
-  std::map<std::string, std::string>::iterator it = _env.begin();
-
-  envp = new char *[len + 1];
+char **CGI::set_envp(const std::vector<std::string> &cookies) {
+	char **envp;
+	int i = 0;
+	int len = _env.size();
+	std::string str;
+	std::map<std::string, std::string>::iterator	it = _env.begin();
+	std::vector<std::string>::const_iterator		it_vec = cookies.begin();
+  
+  envp = new char *[len + 1 + cookies.size()];
   while (it != _env.end()) {
 	str = it->first + "=" + it->second;
 	envp[i] = strdup(str.c_str());
 	i++;
 	it++;
+  }
+  while (it_vec != cookies.end())
+  {
+	str = std::string("HTTP_COOKIE") + "=" + *it_vec;
+	// std::cerr << "cookie : " << str << std::endl;
+	envp[i] = strdup(str.c_str());
+	i++;
+	it_vec++;
   }
   envp[i] = NULL;
   return (envp);
@@ -75,7 +88,7 @@ bool CGI::execute(char **args, const Request &request) {
 	}
 	dup2(out, 1);
 	set_env_map(request, args[1]);
-	if (execve(args[0], args, set_envp()) == -1) {
+	if (execve(args[0], args, set_envp(request.getCookies())) == -1) {
 	  std::cerr << "execve failed !" << std::endl;
 	  exit(111);
 	}
@@ -93,7 +106,6 @@ int CGI::cgi(const Request &request, const char *cgi_path,
 	args[1] = (char *)script_path;
 	args[2] = NULL;
 	found = extension.find_last_of(".");
-	is_python = (extension.compare(found, 4, ".py") == 0);
   //TODO
 //   std::cerr << GREEN << "Make it here! " << RESET << std::endl;
 	if (execute(args, request))
@@ -101,84 +113,102 @@ int CGI::cgi(const Request &request, const char *cgi_path,
 	return false;
 }
 
-void cgi_internal_error(Client &client) {
+void cgi_internal_error(Client &client, std::string status) {
   ws::Response response;
 
-  delete client.request.cgi_ptr;
-  client.request.cgi_ptr = NULL;
-
+//   delete client.request.cgi_ptr;
+//   client.request.cgi_ptr = NULL;
+	client.file.close();
   Location location = client.request.getLocation();
-  std::string status = "500";
   client.buffer = response.getHeaders(client.request, location, status);
   client.body_inf = response.getbody();
   if (client.body_inf.first.size() > 0)
 	client.file.open(client.body_inf.first);
 }
 
-bool CGI::is_finished(Client &client) {
-  int pid;
-  int status;
-  if (finished)
+bool	CGI::is_finished(Client &client) {
+	int pid;
+	int status;
+	if (finished)
+		return true;
+	pid = waitpid(_pid, &status, WNOHANG);
+	if (pid == 0)
+		return false;
+	if (pid > 0)
+	{
+		if (WIFSIGNALED(status))
+		{
+			if (WTERMSIG(status) == SIGKILL)
+			{
+				finished = true;
+				cgi_internal_error(client, "504");
+				return true;
+			}
+		}
+	}
+	if (pid == -1 || !WIFEXITED(status) || WEXITSTATUS(status) == 111) {
+		finished = true;
+		cgi_internal_error(client, "502");
+		return true;
+	}
+	finished = true;
+	// call a function that will open the tmp file as client.file and read all the
+	// headers and craft a header response and put it in the
+	//  header response and put it in the client.buffer
+	//   std::cerr << "Crafting response\n";
+	craft_response(client);
 	return true;
-  pid = waitpid(_pid, &status, WNOHANG);
-  if (pid == 0)
-	return false;
-  if (pid == -1 || !WIFEXITED(status) || WEXITSTATUS(status) == 111) {
-	cgi_internal_error(client);
-	return true;
-  }
-
-  finished = true;
-  // call a function that will open the tmp file as client.file and read all the
-  // headers and craft a header response and put it in the
-  //  header response and put it in the client.buffer
-  //   std::cerr << "Crafting response\n";
-  craft_response(client);
-  return true;
 }
 
 void CGI::craft_response(Client &client)
 {
-  client.buffer = "Server: WebServ/1.0\r\n" + getDateHeader();
-  _status = "200";
-  client.file.open(file);
+	std::string line;
+	std::size_t	len;
+	
+	client.buffer = "Server: WebServ/1.0\r\n" + getDateHeader();
+	_status = "200";
+	client.file.open(file);
 
-	if (!is_python)
+	for (; std::getline(client.file, line);)
 	{
-		for (std::string line; std::getline(client.file, line);)
+		if (line.empty() || line == "\r")
+			break;
+		if (strncasecmp("Status:", line.c_str(), 7) == 0)
 		{
-			if (line.empty() || line == "\r")
-				break;
-			if (strncasecmp("Status:", line.c_str(), 7) == 0)
-			{
 			std::string::iterator it = line.begin() + 7;
 			while (*it == ' ')
 				++it;
 			_status = std::string(it, std::find(it, line.end(), ' '));
-			}
-			else
-			{
+		}
+		else
+		{
 			client.buffer += line + "\n";
-			}
 		}
 	}
-  struct stat st;
-  if (stat(this->file.c_str(), &st) == -1)
-	return cgi_internal_error(client);
-//*   std::cerr << st.st_size - client.file.tellg() << std::endl;
-  std::stringstream header;
-  header << "HTTP/1.1 " << _status << " " << ws::Response::getMessage(_status)
-		 << "\r\n";
-  header << client.buffer;
-//   std::cerr << GREEN << "Buffer : " << client.buffer << "\n Is python : " << is_python << RESET << std::endl;
-//   if (is_python)
-//   	header << "Content-Type: text/html" << "\r\n";
-  header << "Content-Length: " << st.st_size - client.file.tellg() << "\r\n";
-  header << "\r\n";
-//   //TODO
-//   std::cerr << RED << " The fucking headers : " <<  header.str() << RESET << std::endl;
-  client.buffer = header.str();
-//   std::cerr << " jhgk : " << client.buffer << std::endl;
+	if (line.empty())
+	{
+		cgi_internal_error(client, "502");
+		return;
+	}
+	//* I may need to check if I have content type header or not here!
+	struct stat st;
+	if (stat(this->file.c_str(), &st) == -1)
+		return cgi_internal_error(client, "500");
+	//*   std::cerr << st.st_size - client.file.tellg() << std::endl;
+	std::stringstream header;
+	//1- first line : HTTP/1.1 status msg
+	header << "HTTP/1.1 " << _status << " " << ws::Response::getMessage(_status)
+			<< "\r\n";
+	//2- Server: WebServ/1.0\r\n + date + cgi header.
+	header << client.buffer;
+	//   std::cerr << GREEN << "Buffer : " << client.buffer << "\n Is python : " << is_python << RESET << std::endl;
+	//   	header << "Content-Type: text/html" << "\r\n";
+	//2- Content-Length.
+	header << "Content-Length: " << st.st_size - client.file.tellg() << "\r\n";
+	header << "\r\n";
+	//TODO
+	//   std::cerr << RED << " The headers : \n" <<  header.str() << RESET << std::endl;
+	client.buffer = header.str();
 }
 
 std::string CGI::getDateHeader() {
@@ -200,6 +230,15 @@ std::string CGI::getDateHeader() {
   return ("Date: " + date.str() + "\r\n");
 }
 
-// TODO
-//* When execve failed I should return a specific status.
-//* I should separate the query args
+int		CGI::get_pid()
+{
+	return (_pid);
+}
+
+CGI::~CGI(void)
+{
+	unlink(file.c_str());
+}
+
+//* staus cgi response :
+// ?https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses
