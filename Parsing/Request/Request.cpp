@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/26 00:45:50 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/27 13:09:36 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,7 +206,12 @@ void Request::parseHeaderLines(Config config)
     for (size_t i = 1; i < headerPart.size(); i++)
     {
         if ((pos = headerPart[i].find(":")) != std::string::npos)
-            headerMap[headerPart[i].substr(0, pos)] = headerPart[i].substr(pos + 2, headerPart[i].find("\r\n") - pos - 2);   
+        {
+            if (headerPart[i].substr(0, pos) == "Cookie")
+                cookies.push_back(headerPart[i].substr(pos + 2, headerPart[i].find("\r\n") - pos - 2));
+            else
+                headerMap[headerPart[i].substr(0, pos)] = headerPart[i].substr(pos + 2, headerPart[i].find("\r\n") - pos - 2); 
+        }
     }
     getRightServer(config);
     fetchContentLength();
@@ -275,23 +280,27 @@ void Request::parseUri()
 }
 void Request::parseCookies()
 {
-    if (headerMap.find("Cookie")  != headerMap.end())
+    if (cookies.size())
     {
-        std::string cookie = headerMap["Cookie"];
-        size_t pos = 0;
-        while ((pos = cookie.find(";")) != std::string::npos)
+        for (size_t i = 0; i < cookies.size(); i++)
         {
-            std::string tmp = cookie.substr(0, pos);
-            if (size_t pos1 = tmp.find("=") != std::string::npos)
+            std::string cookie = cookies[i];
+            size_t pos = 0;
+            while ((pos = cookie.find(";")) != std::string::npos)
             {
-                std::string key = tmp.substr(0, pos1);
-                std::string value = tmp.substr(pos1 + 1, tmp.size());
-                CoockieMap[key] = value;
+                std::string tmp = cookie.substr(0, pos);
+                if (size_t pos1 = tmp.find("=") != std::string::npos)
+                {
+                    std::string key = tmp.substr(0, pos1);
+                    std::string value = tmp.substr(pos1 + 1, tmp.size());
+                    CookieMap[key] = value;
+                }
+                cookie.erase(0, pos + 1);
             }
-            cookie.erase(0, pos + 1);
         }
     }
 }
+
 // ! /////////////////////// erros check //////////////////
     
     void Request::main_error_check()
