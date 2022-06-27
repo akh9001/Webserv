@@ -6,13 +6,15 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/27 21:37:46 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/27 22:19:06 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Includes/cgi.hpp"
 #include <cstdio>
+#include <string>
 #include <unistd.h>
+#include <vector>
 
 CGI::CGI(void) : finished(false) {
   char filename[] = "/tmp/tmp_cgi_XXXXXX";
@@ -37,19 +39,28 @@ void CGI::set_env_map(const Request &request, const char *script_path) {
   _env["REDIRECT_STATUS"] = "true";
 }
 
-char **CGI::set_envp(void) {
-  char **envp;
-  int i = 0;
-  int len = _env.size();
-  std::string str;
-  std::map<std::string, std::string>::iterator it = _env.begin();
-
-  envp = new char *[len + 1];
+char **CGI::set_envp(const std::vector<std::string> &cookies) {
+	char **envp;
+	int i = 0;
+	int len = _env.size();
+	std::string str;
+	std::map<std::string, std::string>::iterator	it = _env.begin();
+	std::vector<std::string>::const_iterator		it_vec = cookies.begin();
+  
+  envp = new char *[len + 1 + cookies.size()];
   while (it != _env.end()) {
 	str = it->first + "=" + it->second;
 	envp[i] = strdup(str.c_str());
 	i++;
 	it++;
+  }
+  while (it_vec != cookies.end())
+  {
+	str = std::string("HTTP_COOKIE") + "=" + *it_vec;
+	// std::cerr << "cookie : " << str << std::endl;
+	envp[i] = strdup(str.c_str());
+	i++;
+	it_vec++;
   }
   envp[i] = NULL;
   return (envp);
@@ -77,7 +88,7 @@ bool CGI::execute(char **args, const Request &request) {
 	}
 	dup2(out, 1);
 	set_env_map(request, args[1]);
-	if (execve(args[0], args, set_envp()) == -1) {
+	if (execve(args[0], args, set_envp(request.getCookies())) == -1) {
 	  std::cerr << "execve failed !" << std::endl;
 	  exit(111);
 	}
