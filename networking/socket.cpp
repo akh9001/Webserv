@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/27 16:39:25 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/27 17:35:33 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,6 @@ inline void	Socket::supervise(std::map<int,  Client> &client_map)
 				kill(it->second.request.cgi_ptr->get_pid(), SIGKILL);
 			else {
 				
-				std::cout << "2222STOP CGI " <<  std::endl;
 				FD_CLR(it->first, &__master_rd);
 				FD_CLR(it->first, &__master_wr);
 				close(it->first);
