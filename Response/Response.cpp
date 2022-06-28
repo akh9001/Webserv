@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/28 13:02:22 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/28 15:37:46 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ namespace ws {
 			std::string responsePath;
 			try
 			{
-				responsePath = ws::fileHandler::createTmp("/tmp");
+				responsePath = ws::fileHandler::createTmp("./tmp");
 			}
 			catch(const std::exception& e)
 			{
@@ -179,7 +179,6 @@ namespace ws {
 		char tmp[2048];
 		getcwd(tmp, 2048);
 
-		std::cout << " path "<< resourcePath << std::endl;
 		root = this->currentLocation.getRoot();
 		if(!resourcePath.empty() && resourcePath.at(0) != '/')
 			slash = "/";
@@ -459,7 +458,7 @@ namespace ws {
 			throw "Could not open directory";
 		}
 		
-		tmpDirectory = "/tmp";
+		tmpDirectory = "./tmp";
 		tmpPath = ws::fileHandler::createTmp(tmpDirectory);
 		
 		autoIndexTemplate(dirList,tmpPath);
