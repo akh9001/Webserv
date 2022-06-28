@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:56 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/26 06:13:51 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/28 12:58:56 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ namespace ws {
 		private:
 			//response builders
 			std::string 				headerBuilder();
-			void						buildResponse();
+			void						buildResponse(Request &request);
 			void						bodyDefaultTemplate(std::string &responsePath);
 			void						autoIndexTemplate(std::multimap<std::string, std::pair<struct stat , long long> > &dirList, std::string filePath);
 			void						craftGetResponse(Request &request);
@@ -57,13 +57,13 @@ namespace ws {
 			void 						checkIndexes(Request &request);
 			void						checkCgi(std::string &filepath, Request &request);
 			void						autoIndexHandler(Request &request);
-			void						checkDefaultIndex(std::string &absoluteResourcePath);
+			void						checkDefaultIndex(std::string &absoluteResourcePath, Request &request);
 			void 						checkResourceLocation(Request &request);
 			void 						checkResource(Request &request);
-			void 						checkRedirection();
+			void 						checkRedirection(Request &request);
 			void 						checkAllowedMethods(Request &request);
 			void 						defineMethode(Request &request);
-			void						checkRoot();
+			void						checkRoot(Request &request);
 
 			//helpers
 			std::string 				buildPath(std::string &resourcePath);
@@ -73,6 +73,7 @@ namespace ws {
 			int							directoriesHandler(std::string filename, std::vector<std::string> dirList, int i, std::string originPath);
 			std::string					formatMtime(struct stat);
 			int							remove_directory(const char *path);
+			std::string 				buildLocationPath(std::string &path,  Request &Request);
 
 			//setters
 			void 						setDateHeader();
@@ -87,6 +88,9 @@ namespace ws {
 			std::vector<std::string> 	getIndexes();
 			std::pair<int,std::string>	getRedirection();
 			std::string					getCgiPath();
+			std::string					getHost(const Request &request);
+			std::string					getPort(const Request &request);
+
 
 			//checkers
 			bool 						isMethodeAllowed(Request &request);
@@ -98,7 +102,7 @@ namespace ws {
 			bool 						isIndexes();
 			bool 						isAutoIndexOn();
 			bool 						hasUpload();
-			void 						isResourceValid(std::string &resourcePath);
+			void 						isResourceValid(std::string &resourcePath, Request &request);
 			void 						isResourceEndSlash(Request &request);
 			void 						isResourceEndSlash1(Request &request);
 			bool 						isCgi();

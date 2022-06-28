@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/26 06:35:38 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/28 13:02:22 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,14 +39,14 @@ namespace ws {
 		std::istringstream(statusCode) >> status;
 		if(statusCode != "-1" && status >= 400)
 		{	
-			buildResponse();
+			buildResponse(request);
 		}
 		else
 		{
 			try
 			{
 				checkResourceLocation(request);
-				checkRedirection();
+				checkRedirection(request);
 				checkAllowedMethods(request);
 				defineMethode(request);
 			}
@@ -75,7 +75,7 @@ namespace ws {
 		return headers.str();
 	}
 
-	void	Response::buildResponse()
+	void	Response::buildResponse(Request &request)
 	{
 		bool error_pages = false;
 		std::string originErrorPath = std::string();
@@ -102,7 +102,8 @@ namespace ws {
 						{
 							error_pages = true;
 							this->bodyPath = errorPath; 
-							setHeader("Content-Type","text/html");
+							// setHeader("Content-Type","text/html");
+							setContentType(errorPath);
 							throw "error page delevered seccussfuly";
 							return ;
 						}
@@ -124,6 +125,9 @@ namespace ws {
 			else
 			{
 				this->statusCode = "302";
+				//TODO
+				originErrorPath = ltrim(originErrorPath);
+				originErrorPath = buildLocationPath(originErrorPath, request);
 				setHeader("Location",originErrorPath);
 				throw "redirect error page";
 			}
@@ -134,7 +138,7 @@ namespace ws {
 			std::string responsePath;
 			try
 			{
-				responsePath = ws::fileHandler::createTmp("./response_tmp_files");
+				responsePath = ws::fileHandler::createTmp("/tmp");
 			}
 			catch(const std::exception& e)
 			{
@@ -175,6 +179,7 @@ namespace ws {
 		char tmp[2048];
 		getcwd(tmp, 2048);
 
+		std::cout << " path "<< resourcePath << std::endl;
 		root = this->currentLocation.getRoot();
 		if(!resourcePath.empty() && resourcePath.at(0) != '/')
 			slash = "/";
@@ -196,7 +201,7 @@ namespace ws {
 			searchForLocation(request);
 	}
 
-	void Response::checkRedirection()
+	void Response::checkRedirection(Request &request)
 	{
 		if(isRedirection())
 		{
@@ -205,8 +210,10 @@ namespace ws {
 			this->statusCode = std::to_string(status);
 			if(status >= 300 && status < 400)
 			{	
+				redirectionPath = ltrim(redirectionPath);
+				redirectionPath = buildLocationPath(redirectionPath, request);
 				setHeader("Location",redirectionPath);
-				buildResponse();
+				buildResponse(request);
 			}
 			else
 			{
@@ -225,12 +232,12 @@ namespace ws {
 	{
 		if(isMethodeAllowed(request))
 		{
-			checkRoot();
+			checkRoot(request);
 		}
 		else
 		{
 			this->statusCode = "405";
-			buildResponse();
+			buildResponse(request);
 			throw "Method not allowed";
 		}
 	}
@@ -258,8 +265,10 @@ namespace ws {
 		if(request.getUri().at(endPos) != '/')
 		{
 			this->statusCode = "301";
-			setHeader("Location",request.getUri()+"/");
-			buildResponse();
+			std::string redirectionPath = ltrim(request.getUri());
+			redirectionPath = buildLocationPath(redirectionPath, request);
+			setHeader("Location",redirectionPath+"/");
+			buildResponse(request);
 			throw "Redirect";
 		}
 	}
@@ -275,7 +284,7 @@ namespace ws {
 				if(isDir(indexPath))
 				{
 					this->statusCode = "501";
-					buildResponse();
+					buildResponse(request);
 					throw "dir as index not supported";
 				}
 				else if(isFile(indexPath))
@@ -291,7 +300,8 @@ namespace ws {
 						this->statusCode = "200";
 						setContentType(indexPath);
 						this->bodyPath = indexPath;
-						setHeader("Content-Type","text/html");
+						// setHeader("Content-Type","text/html");
+						setContentType(indexPath);
 						throw "index delevered success 1";
 					}
 				}
@@ -304,12 +314,12 @@ namespace ws {
 		else
 		{
 			this->statusCode = "403";
-			buildResponse();
+			buildResponse(request);
 			throw "index have an issue";
 		}
 	}
 
-	void	Response::checkDefaultIndex(std::string &absoluteResourcePath)
+	void	Response::checkDefaultIndex(std::string &absoluteResourcePath, Request &request)
 	{
 		std::string defaultIndexPath = absoluteResourcePath+"index.html";
 						
@@ -318,7 +328,7 @@ namespace ws {
 			if(!isPermission(defaultIndexPath,"r"))
 			{
 				this->statusCode = "403";
-				buildResponse();
+				buildResponse(request);
 				throw "default index.html have no permission";
 			}
 
@@ -334,7 +344,7 @@ namespace ws {
 		std::string absoluteResourcePath = buildAbsolutePath(request);
 		try
 		{
-			isResourceValid(absoluteResourcePath);
+			isResourceValid(absoluteResourcePath,request);
 		}
 		catch(const char* msg)
 		{
@@ -345,7 +355,7 @@ namespace ws {
 			if(!isPermission(absoluteResourcePath, "x"))
 			{
 				this->statusCode = "403";
-				buildResponse();
+				buildResponse(request);
 				throw "Have no permissions";
 			}
 			isResourceEndSlash(request);
@@ -363,7 +373,7 @@ namespace ws {
 			}
 			else 
 			{
-				checkDefaultIndex(absoluteResourcePath);
+				checkDefaultIndex(absoluteResourcePath, request);
 				if(isAutoIndexOn())
 				{
 					autoIndexHandler(request);
@@ -371,7 +381,7 @@ namespace ws {
 				else
 				{
 					this->statusCode = "403";
-					buildResponse();
+					buildResponse(request);
 					throw "index issue";
 				}
 			}
@@ -381,7 +391,7 @@ namespace ws {
 			if(!isPermission(absoluteResourcePath, "r"))
 			{
 				this->statusCode = "403";
-				buildResponse();
+				buildResponse(request);
 				throw "Have no permissions";
 			}
 			if(isCgi())
@@ -393,17 +403,17 @@ namespace ws {
 			this->statusCode = "200";
 			setContentType(absoluteResourcePath);
 			this->bodyPath = absoluteResourcePath;
-			setHeader("Content-Type","text/html");
+			setContentType(absoluteResourcePath);
 			throw "File response with success";
 		}
 	}
 
-	void Response::checkRoot()
+	void Response::checkRoot(Request &request)
 	{
 		if(this->currentLocation.getRoot().empty())
 		{
 			this->statusCode = "404";
-			buildResponse();
+			buildResponse(request);
 			throw "There is no root";
 		}
 		else
@@ -413,13 +423,13 @@ namespace ws {
 			if(!ws::fileHandler::checkIfExist(root))
 			{
 				this->statusCode = "404";
-				buildResponse();
+				buildResponse(request);
 				throw "root doesnt exist";
 			}
 			if(!isPermission(root, "x"))
 			{
 				this->statusCode = "403";
-				buildResponse();
+				buildResponse(request);
 				throw "root path doesnt have permissions";
 			}
 		}
@@ -449,7 +459,7 @@ namespace ws {
 			throw "Could not open directory";
 		}
 		
-		tmpDirectory = "./response_tmp_files";
+		tmpDirectory = "/tmp";
 		tmpPath = ws::fileHandler::createTmp(tmpDirectory);
 		
 		autoIndexTemplate(dirList,tmpPath);
@@ -512,7 +522,7 @@ namespace ws {
 			if((request.getUri().at(endPos) == '/') || (ws::fileHandler::checkIfExist(absoluteResourcePath) && isDir(absoluteResourcePath)))
 			{
 				this->statusCode = "500";
-				buildResponse();
+				buildResponse(request);
 				throw "Internal server error";
 			}
 
@@ -522,7 +532,7 @@ namespace ws {
 			if(ws::fileHandler::checkIfExist(absoluteResourcePath))
 			{
 				this->statusCode = "409";
-				buildResponse();
+				buildResponse(request);
 				throw "cant upload this resource already exist";
 			}
 			else
@@ -538,11 +548,13 @@ namespace ws {
 					if(err)
 					{	
 						this->statusCode = "500";
-						buildResponse();
+						buildResponse(request);
 						throw "Internal error 1";
 					}
 					else
 					{
+						uploadPath = ltrim(uploadPath);
+						uploadPath = buildLocationPath(uploadPath, request);
 						setHeader("Location",uploadPath);
 						this->statusCode = "201";
 						this->bodyPath.clear();
@@ -553,7 +565,7 @@ namespace ws {
 				else 
 				{
 					this->statusCode = "500";
-					buildResponse();
+					buildResponse(request);
 					throw "Internal error 2";
 				}
 			}
@@ -561,7 +573,7 @@ namespace ws {
 		else
 		{
 			this->statusCode = "403";
-			buildResponse();
+			buildResponse(request);
 			throw "coudldnt process the upload";
 		}
 	}
@@ -687,6 +699,12 @@ namespace ws {
 		throw "calling cgi";
 	}
 
+	std::string Response::buildLocationPath(std::string &path, Request &request)
+	{
+		std::string locationPath = getHost(request) + ":"+getPort(request) +"/"+path; 
+		return locationPath;
+	}
+
 	void Response::setDateHeader()
 	{
 		// Mon, 06 Jun 2022 03:48:42 GMT
@@ -751,6 +769,16 @@ namespace ws {
 	std::string	Response::getCgiPath()
 	{
 		return (this->currentLocation.getCgiPath());
+	}
+
+	std::string	Response::getHost(const Request &request)
+	{
+		return request.getHostIp();
+	}
+
+	std::string	Response::getPort(const Request &request)
+	{
+		return std::to_string(request.getHostPort());
 	}
 
 	void Response::setContentLength(std::string filePath)
@@ -836,12 +864,12 @@ namespace ws {
 		return (!this->currentLocation.getUploadPath().empty());
 	}
 
-	void Response::isResourceValid(std::string &resourcePath)
+	void Response::isResourceValid(std::string &resourcePath, Request &request)
 	{
 		if(!ws::fileHandler::checkIfExist(resourcePath))
 		{
 			this->statusCode = "404";
-			buildResponse();
+			buildResponse(request);
 			throw "Resource doesnt exist";
 		}
 	}
@@ -881,7 +909,7 @@ namespace ws {
 		if(request.getUri().at(endPos) != '/')
 		{
 			this->statusCode = "409";
-			buildResponse();
+			buildResponse(request);
 			throw "Conflict";
 		}
 	}
@@ -891,7 +919,7 @@ namespace ws {
 		std::string absoluteResourcePath = buildAbsolutePath(request);
 		try
 		{
-			isResourceValid(absoluteResourcePath);
+			isResourceValid(absoluteResourcePath,request);
 		}
 		catch(const char* msg)
 		{
@@ -902,7 +930,7 @@ namespace ws {
 			if(!isPermission(absoluteResourcePath, "x"))
 			{
 				this->statusCode = "403";
-				buildResponse();
+				buildResponse(request);
 				throw "Have no permissions";
 			}
 			isResourceEndSlash1(request);
@@ -925,13 +953,13 @@ namespace ws {
 					if(!isPermission(absoluteResourcePath, "x") || !isPermission(absoluteResourcePath, "w"))
 					{
 						this->statusCode = "403";
-						buildResponse();
+						buildResponse(request);
 						throw "Have no permissions";
 					}
 					else
 					{
 						this->statusCode = "500";
-						buildResponse();
+						buildResponse(request);
 						throw "500";
 					}
 					
@@ -952,7 +980,7 @@ namespace ws {
 				if(!isPermission(absoluteResourcePath, "r"))
 				{
 					this->statusCode = "403";
-					buildResponse();
+					buildResponse(request);
 					throw "Have no permissions";
 				}
 				if(fileHandler::removeFile(absoluteResourcePath) == 0)
@@ -965,7 +993,7 @@ namespace ws {
 				else
 				{
 					this->statusCode = "500";
-					buildResponse();
+					buildResponse(request);
 					throw "500";
 				}
 			}
@@ -1019,9 +1047,12 @@ namespace ws {
 }
 
 
-//TODO MIME TYPES for content type //done
-//TODO paths as subject 
+//TODO paths as subject !!!
+
 //TODO response_tmp_files and request_tmp_files
 //TODO /dir/../../test
 //flaging all tmp as true to be deleted
 //TODO test DELETE AND POST AND GET
+// add / to dir in auto index
+//change log msgs to more clear ones
+//check put nginx in case no fie name
