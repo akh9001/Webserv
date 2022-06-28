@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/28 01:27:57 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/28 12:21:56 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -354,13 +354,15 @@ void Request::parseCookies()
     }
     void Request::checkTransferEncoding()
     {
+          char filename[] = "/tmp/tmp_cgi_XXXXXX";
         if (headerMap.find("Transfer-Encoding") != headerMap.end() && headerMap["Transfer-Encoding"] != "chunked")
             throw "501";
         if ((headerMap.find("Transfer-Encoding") == headerMap.end()) && (headerMap.find("Content-Length") == headerMap.end()) && method == "POST")
             throw "411";
-        if (headerMap.find("Content-Length") != headerMap.end() && headerMap["Content-Length"] != "0" && method != "GET")
-            filePath = ws::fileHandler::createTmp("request_tmp_files/");
-        
+        if (headerMap.find("Content-Length") != headerMap.end() && headerMap["Content-Length"] != "0")
+            // filePath = ws::fileHandler::createTmp("/tmp");
+            filePath =  mktemp(filename);
+        std::cout << filePath << std::endl;
     }
     // ! ///////////////////////clear  //////////////////
     void Request::clear()
@@ -375,7 +377,7 @@ void Request::parseCookies()
         parsed = false;
         method = "";
         hostIp = "127.0.0.1";
-        hostPort = 8080;
+        hostPort = 8001;
         uri = "";
         version = "";
         fchuncked = 0;
@@ -405,6 +407,8 @@ void Request::parseCookies()
      void Request::fetchHost()
      {
         hostIp = headerMap["Host"].substr(0, headerMap["Host"].find(":"));
+        if (headerMap["Host"].find(":") == std::string::npos)
+            throw "400";
         hostPort = atoi(headerMap["Host"].substr(headerMap["Host"].find(":") + 1, headerMap["Host"].size()).c_str());
         
      }
