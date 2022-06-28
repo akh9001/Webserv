@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/28 15:37:46 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/28 17:17:04 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,6 @@ namespace ws {
 						{
 							error_pages = true;
 							this->bodyPath = errorPath; 
-							// setHeader("Content-Type","text/html");
 							setContentType(errorPath);
 							throw "error page delevered seccussfuly";
 							return ;
@@ -299,7 +298,6 @@ namespace ws {
 						this->statusCode = "200";
 						setContentType(indexPath);
 						this->bodyPath = indexPath;
-						// setHeader("Content-Type","text/html");
 						setContentType(indexPath);
 						throw "index delevered success 1";
 					}
@@ -445,13 +443,18 @@ namespace ws {
 		struct dirent *ent;
 		std::string currLoc = request.getUri();
 		std::string absPath = buildPath(currLoc);
+		std::string slash;
 
 		if ((dir = opendir(absPath.c_str())) != NULL) 
 		{
 			while ((ent = readdir(dir)) != NULL) {
 				std::string filePath = absPath+"/"+std::string(ent->d_name);
 				stat(filePath.c_str(), &this->fileStat);
-				dirList.insert(std::make_pair(std::string(ent->d_name),std::make_pair(this->fileStat,getFileSize(filePath))));
+				if(isDir(filePath))
+					slash = "/";
+				else
+					slash = "";
+				dirList.insert(std::make_pair(std::string(ent->d_name)+slash,std::make_pair(this->fileStat,getFileSize(filePath))));
 			}
 			closedir(dir);
 		} else {
@@ -700,7 +703,7 @@ namespace ws {
 
 	std::string Response::buildLocationPath(std::string &path, Request &request)
 	{
-		std::string locationPath = getHost(request) + ":"+getPort(request) +"/"+path; 
+		std::string locationPath = "http://"+getHost(request) + ":"+getPort(request) +"/"+path; 
 		return locationPath;
 	}
 
@@ -944,7 +947,6 @@ namespace ws {
 				{
 					this->statusCode = "204";
 					this->bodyPath.clear();
-					setHeader("Content-Type","");//TODO NOT SURE
 					throw "204";
 				}
 				else
@@ -976,17 +978,10 @@ namespace ws {
 			}
 			else
 			{
-				if(!isPermission(absoluteResourcePath, "r"))
-				{
-					this->statusCode = "403";
-					buildResponse(request);
-					throw "Have no permissions";
-				}
 				if(fileHandler::removeFile(absoluteResourcePath) == 0)
 				{
 					this->statusCode = "204";
 					this->bodyPath.clear();
-					setHeader("Content-Type","");//TODO NOT SURE
 					throw "204";
 				}
 				else
