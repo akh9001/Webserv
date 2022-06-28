@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/28 16:17:12 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/28 17:12:24 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,11 +137,7 @@ bool Request::parseChunks(std::string c, Config config)
     if (change == 0)
         parse_header(c);
     if (change == 1 && parsed == false)
-    {
         parseHeaderLines(config);
-        if (method == "GET")
-            return true;
-    }
     if (change == 1)
         parse_body(c);
     checkContentLength(0);
@@ -339,6 +335,8 @@ void Request::parseCookies()
 
     void Request::checkContentLength(int a)
     {
+        // std::cout << location.getClientMaxBodySize() << std::endl;
+        // std::cout << location.getUploadPath() << std::endl;
         if (contentLength > (long long)location.getClientMaxBodySize()
             || contentLength < 0)
         {
@@ -426,9 +424,10 @@ void Request::parseCookies()
                 return 1;
             }
         }
-        while (clone.size() > 0 && (pos = clone.find("/")) != std::string::npos && pos != 0)
-            clone.erase(0, pos);
-        tmpUri.erase(0, pos);
+        pos = clone.find_last_of("/");
+        if (pos != std::string::npos)
+            clone.erase(pos, std::string::npos);
+        tmpUri = clone;
         if (pos != 0)
             getRightLocation();
         return 0;
