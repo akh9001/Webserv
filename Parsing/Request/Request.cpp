@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/28 17:12:24 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/28 22:36:11 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -337,7 +337,7 @@ void Request::parseCookies()
     {
         // std::cout << location.getClientMaxBodySize() << std::endl;
         // std::cout << location.getUploadPath() << std::endl;
-        if (contentLength > (long long)location.getClientMaxBodySize()
+        if ((contentLength > (long long)location.getClientMaxBodySize() && method != "GET")
             || contentLength < 0)
         {
             throw "413";
@@ -428,10 +428,29 @@ void Request::parseCookies()
         if (pos != std::string::npos)
             clone.erase(pos, std::string::npos);
         tmpUri = clone;
-        if (pos != 0)
+        if (pos != 0 && pos != std::string::npos)
             getRightLocation();
         return 0;
     }
+    
+    //     int  Request::getRightLocation()
+    // {
+    //     size_t pos = 0;
+    //     std::string clone(tmpUri);
+    //     int n = server.getLocation().size();
+    //     for (int i = 0; i < n; i++) {
+    //         if (server.getLocation()[i].getLocation_match() == tmpUri) {
+    //             location = server.getLocation()[i];
+    //             return 1;
+    //         }
+    //     }
+    //     while (clone.size() > 0 && (pos = clone.find("/")) != std::string::npos && pos != 0)
+    //         clone.erase(0, pos);
+    //     tmpUri.erase(0, pos);
+    //     if (pos != 0)
+    //         getRightLocation();
+    //     return 0;
+    // }
 
 
 		
