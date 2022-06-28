@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/28 12:21:56 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/28 17:12:24 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,6 @@ Request::Request()
     this->version = "HTTP/1.1";
     hostIp = "127.0.0.1";
     hostPort = 8080;
-    // this->connection = "";
-    // this->user_agent = "";
-    // this->accept = "";
-    // this->accept_encoding = "";
-    // this->accept_language = "";
-    // this->accept_charset = "";
     this->content_type = "";
     this->contentLength = 0;
     this->read = 0;
@@ -143,11 +137,7 @@ bool Request::parseChunks(std::string c, Config config)
     if (change == 0)
         parse_header(c);
     if (change == 1 && parsed == false)
-    {
         parseHeaderLines(config);
-        if (method == "GET")
-            return true;
-    }
     if (change == 1)
         parse_body(c);
     checkContentLength(0);
@@ -345,6 +335,8 @@ void Request::parseCookies()
 
     void Request::checkContentLength(int a)
     {
+        // std::cout << location.getClientMaxBodySize() << std::endl;
+        // std::cout << location.getUploadPath() << std::endl;
         if (contentLength > (long long)location.getClientMaxBodySize()
             || contentLength < 0)
         {
@@ -354,15 +346,13 @@ void Request::parseCookies()
     }
     void Request::checkTransferEncoding()
     {
-          char filename[] = "/tmp/tmp_cgi_XXXXXX";
+        char a[] = "./tmp";
         if (headerMap.find("Transfer-Encoding") != headerMap.end() && headerMap["Transfer-Encoding"] != "chunked")
             throw "501";
         if ((headerMap.find("Transfer-Encoding") == headerMap.end()) && (headerMap.find("Content-Length") == headerMap.end()) && method == "POST")
             throw "411";
         if (headerMap.find("Content-Length") != headerMap.end() && headerMap["Content-Length"] != "0")
-            // filePath = ws::fileHandler::createTmp("/tmp");
-            filePath =  mktemp(filename);
-        std::cout << filePath << std::endl;
+            filePath = ws::fileHandler::createTmp("./tmp");
     }
     // ! ///////////////////////clear  //////////////////
     void Request::clear()
@@ -434,9 +424,10 @@ void Request::parseCookies()
                 return 1;
             }
         }
-        while (clone.size() > 0 && (pos = clone.find("/")) != std::string::npos && pos != 0)
-            clone.erase(0, pos);
-        tmpUri.erase(0, pos);
+        pos = clone.find_last_of("/");
+        if (pos != std::string::npos)
+            clone.erase(pos, std::string::npos);
+        tmpUri = clone;
         if (pos != 0)
             getRightLocation();
         return 0;
