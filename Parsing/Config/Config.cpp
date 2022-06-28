@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:17 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/26 12:45:36 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/28 01:25:57 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,11 +74,13 @@ Server Config::getServer(int port, std::string &c) const
         if (servers[i].getPort() == port)
             a.push_back(servers[i]);
     }
-    // std::cout << "Server " << std::endl;
-    if (!c.size() && a.size())
+    if (a.size() == 1)
+        return a[0];
+    if (c == "127.0.0.1")
         return a[0];
     else if (!c.size())
             throw NoServerFoundException();
+    if (a.size() > 1)
     for (size_t i = 0; i < a.size(); i++)
     {
         if (a[i].checkServerName(c))
@@ -90,7 +92,7 @@ Server Config::getServer(int port, std::string &c) const
     }
     if (j > 1)
         throw (MultpiteServerName());
-    return servers[save];
+    return a[save];
 }
  std::map<int, std::string> Config::getBinders() const
  {
