@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 17:31:58 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/14 10:40:02 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/28 16:16:02 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 int	main(int argc, char **argv)
 {
 	//Config config("default.conf");
+	char tmpFolder[] = "./tmp";
 	std::string a = "default.conf";
 	if (argc == 2)
 		a =	argv[1];
@@ -44,5 +45,7 @@ int	main(int argc, char **argv)
 		socket_list[i].bind_socket();
 		socket_list[i++].listen_socket();
 	}
+	if (!ws::fileHandler::checkIfExist(tmpFolder))
+                mkdir(tmpFolder,0777);
 	Socket::wait(socket_list, config); // added the config to prototype
 }
