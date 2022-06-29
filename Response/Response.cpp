@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/29 23:20:32 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/30 00:11:35 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,13 +175,19 @@ namespace ws {
 		// std::string slash;
 		// std::string s ;
 		std::string root;
-
-		root = this->currentLocation.getRoot();
-		// if(!resourcePath.empty() && resourcePath.at(0) != '/')
+		// if(this->currentLocation.getLocation_match()  == "/")
 		// 	slash = "/";
 
+		root = this->currentLocation.getRoot() + "/";
+		// if(!resourcePath.empty() && resourcePath.at(0) != '/')
+		// std::cout << "res path " << resourcePath << std::endl;
+		// std::cout << "loc " << this->currentLocation.getLocation_match() << std::endl;
+		// std::cout << "root " << root << std::endl;
+
 		std::string path = resourcePath.replace(0,this->currentLocation.getLocation_match().length(),root);
+
 		// std::string path =    root + slash + resourcePath;
+		// std::cout<<"result path " << path << std::endl;
 		return path;
 	}
 
@@ -716,6 +722,7 @@ namespace ws {
 	void Response::checkCgi(std::string &resourcePath, Request &request)
 	{
 		std::string filePath = resourcePath;
+		// std::cout <<"file path ================ 1 "<< filePath << std::endl;
 		if(ws::fileHandler::checkIfExist(resourcePath))
 		{
 			if(isDir(resourcePath))
@@ -740,7 +747,7 @@ namespace ws {
 				}
 			}
 		}
-		
+		// std::cout <<"file path ================ 2"<< filePath << std::endl;
 		request.cgi_ptr = new CGI();
 		request.cgi_ptr->cgi(request, getCgiPath().c_str(), filePath.c_str());
 		throw "calling cgi";
@@ -970,6 +977,7 @@ namespace ws {
 	void Response::craftDeleteResponse(Request &request) 
 	{
 		std::string absoluteResourcePath = buildAbsolutePath(request);
+		// std::cout << absoluteResourcePath << std::endl;
 		try
 		{
 			isResourceValid(absoluteResourcePath,request);
