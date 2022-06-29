@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/27 17:35:33 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/29 16:46:05 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 #include "../Parsing/Config/Config.hpp"
 #include "../Response/Response.hpp"
 
-#define	TIME_OUT_CLIENT	5
-#define SIZE_BUFFER		1024
+#define	TIME_OUT_CLIENT	50
+#define SIZE_BUFFER	16384
 
 int		Socket::max_socket = 0;
 fd_set	Socket::__master_rd = {};
@@ -248,6 +248,11 @@ inline void	Socket::write_response(int i, std::map<int,  Client> &clients)
 		return ;
 	}
 	// std::cout << YELLOW << clients[i].buffer << RESET << " byte send " << bytes_sent << " Bytes read : " << bytes_read << std::endl;
+	if (bytes_sent == 0)
+	{
+		std::cerr << "Nothing has been sent !" << std::endl;
+		return ;
+	}
 	if (bytes_sent < 0)
 	{
 		std::cerr << "send() failed. !" << std::endl;
