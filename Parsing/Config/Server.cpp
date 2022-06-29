@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:30 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/28 16:24:33 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/29 16:46:54 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -364,7 +364,7 @@ int Server::parsePath(std::string &c)
 }
 
 // ! ///////////////////////////// checkers  /////////////////////
-bool Server::checkServerName(std::string &c)
+bool Server::checkServerName(std::string &c) const
 {
     for (size_t i = 0; i < this->serverName.size(); i++)
     {

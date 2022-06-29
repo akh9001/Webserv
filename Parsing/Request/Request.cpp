@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/28 22:36:11 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/29 16:36:43 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ Request::Request()
     this->uri = "";
     this->version = "HTTP/1.1";
     hostIp = "127.0.0.1";
-    hostPort = 8080;
+    hostPort = 0;
     this->content_type = "";
     this->contentLength = 0;
     this->read = 0;
@@ -193,6 +193,7 @@ int Request::parse_header(std::string c)
 void Request::parseHeaderLines(Config config)
 {
     size_t pos = 0;
+    // std::cout << "parseHeaderLines" << std::endl;
     for (size_t i = 1; i < headerPart.size(); i++)
     {
         if ((pos = headerPart[i].find(":")) != std::string::npos)
@@ -367,7 +368,7 @@ void Request::parseCookies()
         parsed = false;
         method = "";
         hostIp = "127.0.0.1";
-        hostPort = 8001;
+        hostPort = 0;
         uri = "";
         version = "";
         fchuncked = 0;
@@ -397,9 +398,8 @@ void Request::parseCookies()
      void Request::fetchHost()
      {
         hostIp = headerMap["Host"].substr(0, headerMap["Host"].find(":"));
-        if (headerMap["Host"].find(":") == std::string::npos)
-            throw "400";
-        hostPort = atoi(headerMap["Host"].substr(headerMap["Host"].find(":") + 1, headerMap["Host"].size()).c_str());
+        if (headerMap["Host"].find(":") != std::string::npos)
+            hostPort = atoi(headerMap["Host"].substr(headerMap["Host"].find(":") + 1, headerMap["Host"].size()).c_str());
         
      }
 

@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:33 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/25 00:17:51 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/29 16:47:04 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ class Server
         // ! ///////////////////////////// Error  ///////////////////
         int parsePath(std::string& path);
         // ! ///////////////////////////// checkers  /////////////////////
-        bool checkServerName(std::string& c);
+        bool checkServerName(std::string& c) const;
        // void checkStatusCode(std::string& c);
 };
 

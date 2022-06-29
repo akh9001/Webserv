@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:17 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/28 01:57:34 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/29 16:50:33 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ Server Config::getServer(int port, std::string &c) const
     std::vector<Server> a;
     int save = 0;
     int j = 0;
+    int check = 0;
     for (size_t i = 0; i < servers.size(); i++)
     {
         if (servers[i].getPort() == port)
@@ -76,24 +77,44 @@ Server Config::getServer(int port, std::string &c) const
     }
     if (a.size() == 1)
         return a[0];
+    if (c == "127.0.0.1" && a.size() == 0)
+        return servers[0];
     if (c == "127.0.0.1")
         return a[0];
     else if (!c.size())
             throw NoServerFoundException();
     if (a.size() > 1)
-    for (size_t i = 0; i < a.size(); i++)
     {
-        if (a[i].checkServerName(c))
+        for (size_t i = 0; i < a.size(); i++)
         {
-            save = i;
-            j++;
+            if (a[i].checkServerName(c))
+            {
+                save = i;
+                j++;
+            }
+    
         }
-
+    }
+    else
+    {
+        check = 1;
+        for (size_t i = 0; i < servers.size(); i++)
+        {
+            if (servers[i].checkServerName(c))
+            {
+                save = i;
+                j++;
+            }
+    
+        }
     }
     if (j > 1)
         throw (MultpiteServerName());
-    return a[save];
+    if (check == 0)
+        return a[save];
+    return servers[save];
 }
+
  std::map<int, std::string> Config::getBinders() const
  {
         return _binders;
