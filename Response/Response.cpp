@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/28 17:17:04 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/29 15:51:47 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,17 +172,16 @@ namespace ws {
 
 	std::string Response::buildPath(std::string &resourcePath)
 	{
-		std::string slash;
-		std::string s ;
+		// std::string slash;
+		// std::string s ;
 		std::string root;
-		char tmp[2048];
-		getcwd(tmp, 2048);
 
 		root = this->currentLocation.getRoot();
-		if(!resourcePath.empty() && resourcePath.at(0) != '/')
-			slash = "/";
+		// if(!resourcePath.empty() && resourcePath.at(0) != '/')
+		// 	slash = "/";
 
-		std::string path =    root + slash + resourcePath;
+		std::string path = resourcePath.replace(0,this->currentLocation.getLocation_match().length(),root);
+		// std::string path =    root + slash + resourcePath;
 		return path;
 	}
 
@@ -415,8 +414,10 @@ namespace ws {
 		}
 		else
 		{
-			std::string keepRoot = "";
-			std::string root = buildPath(keepRoot);
+			// std::string keepRoot = "";
+			// std::string root = buildPath(keepRoot);
+			// std::string keepRoot = "";
+			std::string root = this->currentLocation.getRoot();
 			if(!ws::fileHandler::checkIfExist(root))
 			{
 				this->statusCode = "404";
@@ -529,7 +530,7 @@ namespace ws {
 			}
 
 			std::string uploadPath = this->currentLocation.getUploadPath() + request.getUri();
-			absoluteResourcePath = buildPath(uploadPath);
+			absoluteResourcePath = (uploadPath);
 			
 			if(ws::fileHandler::checkIfExist(absoluteResourcePath))
 			{
@@ -540,10 +541,52 @@ namespace ws {
 			else
 			{
 				std::string tmpFile = request.getFilePath();
-				std::vector<std::string> dirList = pathSpliter(uploadPath);
+				// std::vector<std::string> dirList = pathSpliter(uploadPath);
 
-				int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
-	
+				// int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
+				////////////////////
+				int ret = 1;
+				size_t pos = absoluteResourcePath.find_last_of('/');
+				std::string dirs = absoluteResourcePath.substr(0,pos);
+				int pathStat = stat(dirs.c_str(), &this->fileStat);
+				// std::string pathCmd ;	
+				if( pathStat != 0)
+				{	
+					int flag = 0;
+
+					for (size_t i = 0; i < dirs.length(); i++)
+					{
+						if(dirs[i] == '/')
+						{
+							dirs[i] = '\0';
+							if(mkdir(dirs.c_str(),0777) != 0)
+								flag = 1;
+							else
+								flag = 0;
+							dirs[i] = '/';
+						}
+					}
+					if(mkdir(dirs.c_str(),0777) != 0)
+						flag = 1;
+					else
+						flag = 0;
+					if(flag)
+						ret =  500;
+				}
+				if(pathStat == 0)
+				{
+					if( this->fileStat.st_mode & S_IFDIR )
+					{	
+						if(this->fileStat.st_mode & S_IWUSR)
+							ret =  1;
+						else if (!(this->fileStat.st_mode & S_IWUSR))
+							ret = 500;
+					}
+					else
+						ret =  500;
+				}
+
+				///////////////////
 				if(ret == 1)
 				{
 					int err = rename(tmpFile.c_str(),absoluteResourcePath.c_str());
@@ -612,61 +655,63 @@ namespace ws {
 		return dirList;
 	}
 
-	int Response::directoriesHandler(std::string filename, std::vector<std::string> dirList, int i, std::string originPath)
-	{
-		int ret = 0;
-		std::string path = buildPath(filename);
-		if(i < (int)dirList.size() - 2)
-		{	
-			i++;
-			std::string newf = filename+"/"+dirList[i];
-			ret = directoriesHandler(newf,dirList,i,originPath);
-		}
-		if(ret != 0)
-			return ret;
+	// int Response::directoriesHandler(std::string filename, std::vector<std::string> dirList, int i, std::string originPath)
+	// {
+	// 	std::cerr << filename << std::endl;
+	// 	int ret = 0;
+	// 	std::string path = buildPath(filename);
+	// 	if(i < (int)dirList.size() - 2)
+	// 	{	
+	// 		i++;
+	// 		std::string newf = filename+"/"+dirList[i];
+	// 		ret = directoriesHandler(newf,dirList,i,originPath);
+	// 	}
+	// 	if(ret != 0)
+	// 		return ret;
 
-		int pathStat = stat(path.c_str(), &this->fileStat);
-		std::string pathCmd ;	
-		if( pathStat != 0)
-		{	
-			size_t pos = originPath.find_last_of('/');
-			std::string dirs = ltrim(originPath.substr(0,pos));
-			int flag = 0;
-			for (size_t i = 0; i < dirs.length(); i++)
-			{
-				if(dirs[i] == '/')
-				{
-					dirs[i] = '\0';
-					if(mkdir(dirs.c_str(),0777) != 0)
-						flag = 1;
-					else
-						flag = 0;
-					dirs[i] = '/';
-				}
-			}
-			if(mkdir(dirs.c_str(),0777) != 0)
-				flag = 1;
-			else
-				flag = 0;
-			if(flag)
-				return 500;
-			return 1;
-		}
-		if(pathStat == 0)
-		{
-			if( this->fileStat.st_mode & S_IFDIR )
-			{	
-				if(this->fileStat.st_mode & S_IWUSR)
-					return 1;
-				else if (!(this->fileStat.st_mode & S_IWUSR))
-					return 403;
-			}
-			else
-				return 409;
-		}
+	// 	int pathStat = stat(path.c_str(), &this->fileStat);
+	// 	// std::string pathCmd ;	
+	// 	if( pathStat != 0)
+	// 	{	
+	// 		size_t pos = originPath.find_last_of('/');
+	// 		std::string dirs = ltrim(originPath.substr(0,pos));
+	// 		int flag = 0;
 
-		return ret;
-	}
+	// 		for (size_t i = 0; i < dirs.length(); i++)
+	// 		{
+	// 			if(dirs[i] == '/')
+	// 			{
+	// 				dirs[i] = '\0';
+	// 				if(mkdir(dirs.c_str(),0777) != 0)
+	// 					flag = 1;
+	// 				else
+	// 					flag = 0;
+	// 				dirs[i] = '/';
+	// 			}
+	// 		}
+	// 		if(mkdir(dirs.c_str(),0777) != 0)
+	// 			flag = 1;
+	// 		else
+	// 			flag = 0;
+	// 		if(flag)
+	// 			return 500;
+	// 		return 1;
+	// 	}
+	// 	if(pathStat == 0)
+	// 	{
+	// 		if( this->fileStat.st_mode & S_IFDIR )
+	// 		{	
+	// 			if(this->fileStat.st_mode & S_IWUSR)
+	// 				return 1;
+	// 			else if (!(this->fileStat.st_mode & S_IWUSR))
+	// 				return 403;
+	// 		}
+	// 		else
+	// 			return 409;
+	// 	}
+
+	// 	return ret;
+	// }
 
 	void Response::checkCgi(std::string &resourcePath, Request &request)
 	{
