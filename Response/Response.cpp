@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/29 15:51:47 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/29 23:20:32 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,12 +214,12 @@ namespace ws {
 			}
 			else
 			{
-				//TODO to be tested at school
-				std::string tmpDirectory = ("./response_tmp_files");
-				std::string tmpPath = ws::fileHandler::createTmp(tmpDirectory);
-				ws::fileHandler::write(tmpPath,redirectionPath);
-				this->bodyPath = tmpPath;
-				this->response_is_tmp = true;
+				//TODO to be tested at school// not to be handeled 
+				// std::string tmpDirectory = ("./response_tmp_files");
+				// std::string tmpPath = ws::fileHandler::createTmp(tmpDirectory);
+				// ws::fileHandler::write(tmpPath,redirectionPath);
+				// this->bodyPath = tmpPath;
+				// this->response_is_tmp = true;
 			}
 			throw "Redirection";
 		}
@@ -529,8 +529,8 @@ namespace ws {
 				throw "Internal server error";
 			}
 
-			std::string uploadPath = this->currentLocation.getUploadPath() + request.getUri();
-			absoluteResourcePath = (uploadPath);
+			absoluteResourcePath = this->currentLocation.getUploadPath() + request.getUri().replace(0,this->currentLocation.getLocation_match().length(),"");
+			// absoluteResourcePath = buildPath(uploadPath);
 			
 			if(ws::fileHandler::checkIfExist(absoluteResourcePath))
 			{
@@ -598,9 +598,9 @@ namespace ws {
 					}
 					else
 					{
-						uploadPath = ltrim(uploadPath);
-						uploadPath = buildLocationPath(uploadPath, request);
-						setHeader("Location",uploadPath);
+						// uploadPath = ltrim(uploadPath);
+						// uploadPath = buildLocationPath(uploadPath, request);
+						// setHeader("Location",uploadPath); no need
 						this->statusCode = "201";
 						this->bodyPath.clear();
 						setHeader("Content-Length","0");
@@ -748,7 +748,13 @@ namespace ws {
 
 	std::string Response::buildLocationPath(std::string &path, Request &request)
 	{
-		std::string locationPath = "http://"+getHost(request) + ":"+getPort(request) +"/"+path; 
+		std::string locationPath;
+		if(strncasecmp(path.c_str(),"http://",8) == 0)
+		{
+			locationPath = path;
+		}
+		else
+			locationPath = "http://"+getHost(request) + ":"+getPort(request) +"/"+path; 
 		return locationPath;
 	}
 
