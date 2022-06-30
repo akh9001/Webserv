@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:30 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/30 12:41:38 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:21:07 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,8 @@ void Server::fetch_redirect(std::string &c)
     int q = 0;
     std::istringstream(a[0]) >> q;
     sscanf(a[0].c_str(), "%d", &q);
+    if (q < 300 || q > 399)
+        throw  NotacceptableError();
     redirect_uri.insert(std::make_pair(q, a[1]));
 }
 void Server::fetch_upload(std::string &c)
@@ -325,8 +327,9 @@ void Server::fetchErrorPage(std::string &c)
     int q = 0;
     std::istringstream(a[0]) >> q;
     sscanf(a[0].c_str(), "%d", &q);
+    if (q < 400 || q > 599)
+        throw  NotacceptableError();
     errorPages.insert(std::make_pair(q, a[1]));
-    // std::cout << q << std::endl;
 }
 
 int Server::spaceCount(std::string &c, int a) const
