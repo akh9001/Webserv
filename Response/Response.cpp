@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
+/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/30 18:46:37 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 19:08:39 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,39 +96,34 @@ namespace ws {
 						{
 							error_pages = false;
 							this->statusCode = "403";
-							msg = "No permissions error page";
 						}
 						else
 						{
 							error_pages = true;
 							this->bodyPath = errorPath; 
 							setContentType(errorPath);
-							throw "error page delevered seccussfuly";
-							return ;
+							throw "Error page was delivered successfully";
 						}
 					}
 					else
 					{
 						error_pages = false;
 						this->statusCode = "501";
-						msg = "Not implimented error page";
 					}
 				}
 				else
 				{
 					error_pages = false;
 					this->statusCode = "404";
-					msg = "not found error page";
 				}
 			}
 			else
 			{
 				this->statusCode = "302";
-				//TODO
 				originErrorPath = ltrim(originErrorPath);
 				originErrorPath = buildLocationPath(originErrorPath, request);
 				setHeader("Location",originErrorPath);
-				throw "redirect error page";
+				return ;
 			}
 		}
 
@@ -172,22 +167,11 @@ namespace ws {
 
 	std::string Response::buildPath(std::string &resourcePath)
 	{
-		// std::string slash;
-		// std::string s ;
 		std::string root;
-		// if(this->currentLocation.getLocation_match()  == "/")
-		// 	slash = "/";
 
 		root = this->currentLocation.getRoot() + "/";
-		// if(!resourcePath.empty() && resourcePath.at(0) != '/')
-		// std::cout << "res path " << resourcePath << std::endl;
-		// std::cout << "loc " << this->currentLocation.getLocation_match() << std::endl;
-		// std::cout << "root " << root << std::endl;
-
 		std::string path = resourcePath.replace(0,this->currentLocation.getLocation_match().length(),root);
 
-		// std::string path =    root + slash + resourcePath;
-		// std::cout<<"result path " << path << std::endl;
 		return path;
 	}
 
@@ -217,17 +201,8 @@ namespace ws {
 				redirectionPath = buildLocationPath(redirectionPath, request);
 				setHeader("Location",redirectionPath);
 				buildResponse(request);
+				throw "Redirection";
 			}
-			else
-			{
-				//TODO to be tested at school// not to be handeled 
-				// std::string tmpDirectory = ("./response_tmp_files");
-				// std::string tmpPath = ws::fileHandler::createTmp(tmpDirectory);
-				// ws::fileHandler::write(tmpPath,redirectionPath);
-				// this->bodyPath = tmpPath;
-				// this->response_is_tmp = true;
-			}
-			throw "Redirection";
 		}
 	}
 	
@@ -272,7 +247,7 @@ namespace ws {
 			redirectionPath = buildLocationPath(redirectionPath, request);
 			setHeader("Location",redirectionPath+"/");
 			buildResponse(request);
-			throw "Redirect";
+			throw "Redirection";
 		}
 	}
 
@@ -288,7 +263,7 @@ namespace ws {
 				{
 					this->statusCode = "501";
 					buildResponse(request);
-					throw "dir as index not supported";
+					throw "Index should be a file";
 				}
 				else if(isFile(indexPath))
 				{
@@ -298,13 +273,13 @@ namespace ws {
 						{
 							request.cgi_ptr = new CGI();
 							request.cgi_ptr->cgi(request, getCgiPath().c_str(), indexPath.c_str());
-							throw "calling cgi";
+							throw "Calling cgi";
 						}
 						this->statusCode = "200";
 						setContentType(indexPath);
 						this->bodyPath = indexPath;
 						setContentType(indexPath);
-						throw "index delevered success 1";
+						throw "Index was delivered successfully";
 					}
 				}
 			}
@@ -317,7 +292,7 @@ namespace ws {
 		{
 			this->statusCode = "403";
 			buildResponse(request);
-			throw "index have an issue";
+			throw "Index have an issue";
 		}
 	}
 
@@ -331,13 +306,13 @@ namespace ws {
 			{
 				this->statusCode = "403";
 				buildResponse(request);
-				throw "default index.html have no permission";
+				throw "Default index.html have no permissions";
 			}
 
 			this->statusCode = "200";
 			this->bodyPath = defaultIndexPath;
 			setHeader("Content-Type","text/html");
-			throw "default index succesfuly delevered ";
+			throw "Default index was delivered successfully";
  		}
 	}
 
@@ -358,7 +333,7 @@ namespace ws {
 			{
 				this->statusCode = "403";
 				buildResponse(request);
-				throw "Have no permissions";
+				throw "Resource have no permissions";
 			}
 			isResourceEndSlash(request);
 			searchForLocation(request);
@@ -384,7 +359,7 @@ namespace ws {
 				{
 					this->statusCode = "403";
 					buildResponse(request);
-					throw "index issue";
+					throw "Index have an issue";
 				}
 			}
 		}
@@ -394,19 +369,19 @@ namespace ws {
 			{
 				this->statusCode = "403";
 				buildResponse(request);
-				throw "Have no permissions";
+				throw "Resource have no permissions";
 			}
 			if(isCgi())
 			{
 				request.cgi_ptr = new CGI();
 				request.cgi_ptr->cgi(request, getCgiPath().c_str(), absoluteResourcePath.c_str());
-				throw "calling cgi";
+				throw "Calling cgi";
 			}
 			this->statusCode = "200";
 			setContentType(absoluteResourcePath);
 			this->bodyPath = absoluteResourcePath;
 			setContentType(absoluteResourcePath);
-			throw "File response with success";
+			throw "Resource was delivered successfully";
 		}
 	}
 
@@ -420,21 +395,18 @@ namespace ws {
 		}
 		else
 		{
-			// std::string keepRoot = "";
-			// std::string root = buildPath(keepRoot);
-			// std::string keepRoot = "";
 			std::string root = this->currentLocation.getRoot();
 			if(!ws::fileHandler::checkIfExist(root))
 			{
 				this->statusCode = "404";
 				buildResponse(request);
-				throw "root doesnt exist";
+				throw "Root doesnt exist";
 			}
 			if(!isPermission(root, "x"))
 			{
 				this->statusCode = "403";
 				buildResponse(request);
-				throw "root path doesnt have permissions";
+				throw "Root doesnt have permissions";
 			}
 		}
 	}
@@ -476,7 +448,7 @@ namespace ws {
 		this->bodyPath = tmpPath;
 		setHeader("Content-Type","text/html");
 		this->response_is_tmp = true;
-		throw "autoindex";
+		throw "Autoindex was delivered successfully";
 	}
 
 	void	Response::autoIndexTemplate(std::multimap<std::string, std::pair<struct stat , long long> > &dirList, std::string filePath)
@@ -536,26 +508,22 @@ namespace ws {
 			}
 
 			absoluteResourcePath = this->currentLocation.getUploadPath() + request.getUri().replace(0,this->currentLocation.getLocation_match().length(),"");
-			// absoluteResourcePath = buildPath(uploadPath);
 			
 			if(ws::fileHandler::checkIfExist(absoluteResourcePath))
 			{
 				this->statusCode = "409";
 				buildResponse(request);
-				throw "cant upload this resource already exist";
+				throw "Cant upload this resource already exist";
 			}
 			else
 			{
 				std::string tmpFile = request.getFilePath();
-				// std::vector<std::string> dirList = pathSpliter(uploadPath);
-
-				// int ret = directoriesHandler(dirList[0], dirList, 0,absoluteResourcePath);
-				////////////////////
+				
 				int ret = 1;
 				size_t pos = absoluteResourcePath.find_last_of('/');
 				std::string dirs = absoluteResourcePath.substr(0,pos);
 				int pathStat = stat(dirs.c_str(), &this->fileStat);
-				// std::string pathCmd ;	
+
 				if( pathStat != 0)
 				{	
 					int flag = 0;
@@ -592,7 +560,6 @@ namespace ws {
 						ret =  500;
 				}
 
-				///////////////////
 				if(ret == 1)
 				{
 					int err = rename(tmpFile.c_str(),absoluteResourcePath.c_str());
@@ -600,13 +567,10 @@ namespace ws {
 					{	
 						this->statusCode = "500";
 						buildResponse(request);
-						throw "Internal error 1";
+						throw "Internal server error rename failed";
 					}
 					else
 					{
-						// uploadPath = ltrim(uploadPath);
-						// uploadPath = buildLocationPath(uploadPath, request);
-						// setHeader("Location",uploadPath); no need
 						this->statusCode = "201";
 						this->bodyPath.clear();
 						setHeader("Content-Length","0");
@@ -617,7 +581,7 @@ namespace ws {
 				{
 					this->statusCode = "500";
 					buildResponse(request);
-					throw "Internal error 2";
+					throw "Internal server error";
 				}
 			}
 		}
@@ -625,7 +589,7 @@ namespace ws {
 		{
 			this->statusCode = "403";
 			buildResponse(request);
-			throw "coudldnt process the upload";
+			throw "Coudldnt process the upload";
 		}
 	}
 	
@@ -661,68 +625,9 @@ namespace ws {
 		return dirList;
 	}
 
-	// int Response::directoriesHandler(std::string filename, std::vector<std::string> dirList, int i, std::string originPath)
-	// {
-	// 	std::cerr << filename << std::endl;
-	// 	int ret = 0;
-	// 	std::string path = buildPath(filename);
-	// 	if(i < (int)dirList.size() - 2)
-	// 	{	
-	// 		i++;
-	// 		std::string newf = filename+"/"+dirList[i];
-	// 		ret = directoriesHandler(newf,dirList,i,originPath);
-	// 	}
-	// 	if(ret != 0)
-	// 		return ret;
-
-	// 	int pathStat = stat(path.c_str(), &this->fileStat);
-	// 	// std::string pathCmd ;	
-	// 	if( pathStat != 0)
-	// 	{	
-	// 		size_t pos = originPath.find_last_of('/');
-	// 		std::string dirs = ltrim(originPath.substr(0,pos));
-	// 		int flag = 0;
-
-	// 		for (size_t i = 0; i < dirs.length(); i++)
-	// 		{
-	// 			if(dirs[i] == '/')
-	// 			{
-	// 				dirs[i] = '\0';
-	// 				if(mkdir(dirs.c_str(),0777) != 0)
-	// 					flag = 1;
-	// 				else
-	// 					flag = 0;
-	// 				dirs[i] = '/';
-	// 			}
-	// 		}
-	// 		if(mkdir(dirs.c_str(),0777) != 0)
-	// 			flag = 1;
-	// 		else
-	// 			flag = 0;
-	// 		if(flag)
-	// 			return 500;
-	// 		return 1;
-	// 	}
-	// 	if(pathStat == 0)
-	// 	{
-	// 		if( this->fileStat.st_mode & S_IFDIR )
-	// 		{	
-	// 			if(this->fileStat.st_mode & S_IWUSR)
-	// 				return 1;
-	// 			else if (!(this->fileStat.st_mode & S_IWUSR))
-	// 				return 403;
-	// 		}
-	// 		else
-	// 			return 409;
-	// 	}
-
-	// 	return ret;
-	// }
-
 	void Response::checkCgi(std::string &resourcePath, Request &request)
 	{
 		std::string filePath = resourcePath;
-		// std::cout <<"file path ================ 1 "<< filePath << std::endl;
 		if(ws::fileHandler::checkIfExist(resourcePath))
 		{
 			if(isDir(resourcePath))
@@ -747,10 +652,9 @@ namespace ws {
 				}
 			}
 		}
-		// std::cout <<"file path ================ 2"<< filePath << std::endl;
 		request.cgi_ptr = new CGI();
 		request.cgi_ptr->cgi(request, getCgiPath().c_str(), filePath.c_str());
-		throw "calling cgi";
+		throw "Calling cgi";
 	}
 
 	std::string Response::buildLocationPath(std::string &path, Request &request)
@@ -977,7 +881,6 @@ namespace ws {
 	void Response::craftDeleteResponse(Request &request) 
 	{
 		std::string absoluteResourcePath = buildAbsolutePath(request);
-		// std::cout << absoluteResourcePath << std::endl;
 		try
 		{
 			isResourceValid(absoluteResourcePath,request);
@@ -992,7 +895,7 @@ namespace ws {
 			{
 				this->statusCode = "403";
 				buildResponse(request);
-				throw "Have no permissions";
+				throw "Resource have no permissions";
 			}
 			isResourceEndSlash1(request);
 			searchForLocation(request);
@@ -1006,7 +909,7 @@ namespace ws {
 				{
 					this->statusCode = "204";
 					this->bodyPath.clear();
-					throw "204";
+					throw "Deleted successfully";
 				}
 				else
 				{
@@ -1014,13 +917,13 @@ namespace ws {
 					{
 						this->statusCode = "403";
 						buildResponse(request);
-						throw "Have no permissions";
+						throw "Resource have no permissions";
 					}
 					else
 					{
 						this->statusCode = "500";
 						buildResponse(request);
-						throw "500";
+						throw "Internal server error remove failed";
 					}
 					
 				}
@@ -1033,7 +936,7 @@ namespace ws {
 			{
 				request.cgi_ptr = new CGI();
 				request.cgi_ptr->cgi(request, getCgiPath().c_str(), absoluteResourcePath.c_str());
-				throw "calling cgi";
+				throw "Calling cgi";
 			}
 			else
 			{
@@ -1041,13 +944,13 @@ namespace ws {
 				{
 					this->statusCode = "204";
 					this->bodyPath.clear();
-					throw "204";
+					throw "Deleted successfully";
 				}
 				else
 				{
 					this->statusCode = "500";
 					buildResponse(request);
-					throw "500";
+					throw "Internal server error remove failed";
 				}
 			}
 
@@ -1098,14 +1001,3 @@ namespace ws {
   		return r;
 	}
 }
-
-
-//TODO paths as subject !!!
-
-//TODO response_tmp_files and request_tmp_files
-//TODO /dir/../../test
-//flaging all tmp as true to be deleted
-//TODO test DELETE AND POST AND GET
-// add / to dir in auto index
-//change log msgs to more clear ones
-//check put nginx in case no fie name
