@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/30 14:12:35 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:13:36 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -325,13 +325,16 @@ void Request::parseCookies()
     }
     void Request::checkTransferEncoding()
     {
-        char a[] = "./tmp";
         if (headerMap.find("Transfer-Encoding") != headerMap.end() && headerMap["Transfer-Encoding"] != "chunked")
             throw "501";
         if ((headerMap.find("Transfer-Encoding") == headerMap.end()) && (headerMap.find("Content-Length") == headerMap.end()) && method == "POST")
             throw "411";
         if (headerMap.find("Content-Length") != headerMap.end() && headerMap["Content-Length"] != "0")
+        {
+            if (!ws::fileHandler::checkIfExist("./tmp"))
+                mkdir("./tmp",0777);
             filePath = ws::fileHandler::createTmp("./tmp");
+        }
     }
     // ! ///////////////////////clear  //////////////////
     void Request::clear()
