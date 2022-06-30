@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/30 18:55:06 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/30 19:08:39 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,29 +96,25 @@ namespace ws {
 						{
 							error_pages = false;
 							this->statusCode = "403";
-							msg = "No permissions error page";
 						}
 						else
 						{
 							error_pages = true;
 							this->bodyPath = errorPath; 
 							setContentType(errorPath);
-							throw "error page delevered seccussfuly";
-							return ;
+							throw "Error page was delivered successfully";
 						}
 					}
 					else
 					{
 						error_pages = false;
 						this->statusCode = "501";
-						msg = "Not implimented error page";
 					}
 				}
 				else
 				{
 					error_pages = false;
 					this->statusCode = "404";
-					msg = "not found error page";
 				}
 			}
 			else
@@ -127,7 +123,7 @@ namespace ws {
 				originErrorPath = ltrim(originErrorPath);
 				originErrorPath = buildLocationPath(originErrorPath, request);
 				setHeader("Location",originErrorPath);
-				throw "redirect error page";
+				return ;
 			}
 		}
 
@@ -251,7 +247,7 @@ namespace ws {
 			redirectionPath = buildLocationPath(redirectionPath, request);
 			setHeader("Location",redirectionPath+"/");
 			buildResponse(request);
-			throw "Redirect";
+			throw "Redirection";
 		}
 	}
 
@@ -267,7 +263,7 @@ namespace ws {
 				{
 					this->statusCode = "501";
 					buildResponse(request);
-					throw "dir as index not supported";
+					throw "Index should be a file";
 				}
 				else if(isFile(indexPath))
 				{
@@ -277,13 +273,13 @@ namespace ws {
 						{
 							request.cgi_ptr = new CGI();
 							request.cgi_ptr->cgi(request, getCgiPath().c_str(), indexPath.c_str());
-							throw "calling cgi";
+							throw "Calling cgi";
 						}
 						this->statusCode = "200";
 						setContentType(indexPath);
 						this->bodyPath = indexPath;
 						setContentType(indexPath);
-						throw "index delevered success 1";
+						throw "Index was delivered successfully";
 					}
 				}
 			}
@@ -296,7 +292,7 @@ namespace ws {
 		{
 			this->statusCode = "403";
 			buildResponse(request);
-			throw "index have an issue";
+			throw "Index have an issue";
 		}
 	}
 
@@ -310,13 +306,13 @@ namespace ws {
 			{
 				this->statusCode = "403";
 				buildResponse(request);
-				throw "default index.html have no permission";
+				throw "Default index.html have no permissions";
 			}
 
 			this->statusCode = "200";
 			this->bodyPath = defaultIndexPath;
 			setHeader("Content-Type","text/html");
-			throw "default index succesfuly delevered ";
+			throw "Default index was delivered successfully";
  		}
 	}
 
@@ -337,7 +333,7 @@ namespace ws {
 			{
 				this->statusCode = "403";
 				buildResponse(request);
-				throw "Have no permissions";
+				throw "Resource have no permissions";
 			}
 			isResourceEndSlash(request);
 			searchForLocation(request);
@@ -363,7 +359,7 @@ namespace ws {
 				{
 					this->statusCode = "403";
 					buildResponse(request);
-					throw "index issue";
+					throw "Index have an issue";
 				}
 			}
 		}
@@ -373,19 +369,19 @@ namespace ws {
 			{
 				this->statusCode = "403";
 				buildResponse(request);
-				throw "Have no permissions";
+				throw "Resource have no permissions";
 			}
 			if(isCgi())
 			{
 				request.cgi_ptr = new CGI();
 				request.cgi_ptr->cgi(request, getCgiPath().c_str(), absoluteResourcePath.c_str());
-				throw "calling cgi";
+				throw "Calling cgi";
 			}
 			this->statusCode = "200";
 			setContentType(absoluteResourcePath);
 			this->bodyPath = absoluteResourcePath;
 			setContentType(absoluteResourcePath);
-			throw "File response with success";
+			throw "Resource was delivered successfully";
 		}
 	}
 
@@ -404,13 +400,13 @@ namespace ws {
 			{
 				this->statusCode = "404";
 				buildResponse(request);
-				throw "root doesnt exist";
+				throw "Root doesnt exist";
 			}
 			if(!isPermission(root, "x"))
 			{
 				this->statusCode = "403";
 				buildResponse(request);
-				throw "root path doesnt have permissions";
+				throw "Root doesnt have permissions";
 			}
 		}
 	}
@@ -452,7 +448,7 @@ namespace ws {
 		this->bodyPath = tmpPath;
 		setHeader("Content-Type","text/html");
 		this->response_is_tmp = true;
-		throw "autoindex";
+		throw "Autoindex was delivered successfully";
 	}
 
 	void	Response::autoIndexTemplate(std::multimap<std::string, std::pair<struct stat , long long> > &dirList, std::string filePath)
@@ -517,7 +513,7 @@ namespace ws {
 			{
 				this->statusCode = "409";
 				buildResponse(request);
-				throw "cant upload this resource already exist";
+				throw "Cant upload this resource already exist";
 			}
 			else
 			{
@@ -571,7 +567,7 @@ namespace ws {
 					{	
 						this->statusCode = "500";
 						buildResponse(request);
-						throw "Internal error 1";
+						throw "Internal server error rename failed";
 					}
 					else
 					{
@@ -585,7 +581,7 @@ namespace ws {
 				{
 					this->statusCode = "500";
 					buildResponse(request);
-					throw "Internal error 2";
+					throw "Internal server error";
 				}
 			}
 		}
@@ -593,7 +589,7 @@ namespace ws {
 		{
 			this->statusCode = "403";
 			buildResponse(request);
-			throw "coudldnt process the upload";
+			throw "Coudldnt process the upload";
 		}
 	}
 	
@@ -658,7 +654,7 @@ namespace ws {
 		}
 		request.cgi_ptr = new CGI();
 		request.cgi_ptr->cgi(request, getCgiPath().c_str(), filePath.c_str());
-		throw "calling cgi";
+		throw "Calling cgi";
 	}
 
 	std::string Response::buildLocationPath(std::string &path, Request &request)
@@ -899,7 +895,7 @@ namespace ws {
 			{
 				this->statusCode = "403";
 				buildResponse(request);
-				throw "Have no permissions";
+				throw "Resource have no permissions";
 			}
 			isResourceEndSlash1(request);
 			searchForLocation(request);
@@ -913,7 +909,7 @@ namespace ws {
 				{
 					this->statusCode = "204";
 					this->bodyPath.clear();
-					throw "204";
+					throw "Deleted successfully";
 				}
 				else
 				{
@@ -921,13 +917,13 @@ namespace ws {
 					{
 						this->statusCode = "403";
 						buildResponse(request);
-						throw "Have no permissions";
+						throw "Resource have no permissions";
 					}
 					else
 					{
 						this->statusCode = "500";
 						buildResponse(request);
-						throw "500";
+						throw "Internal server error remove failed";
 					}
 					
 				}
@@ -940,7 +936,7 @@ namespace ws {
 			{
 				request.cgi_ptr = new CGI();
 				request.cgi_ptr->cgi(request, getCgiPath().c_str(), absoluteResourcePath.c_str());
-				throw "calling cgi";
+				throw "Calling cgi";
 			}
 			else
 			{
@@ -948,13 +944,13 @@ namespace ws {
 				{
 					this->statusCode = "204";
 					this->bodyPath.clear();
-					throw "204";
+					throw "Deleted successfully";
 				}
 				else
 				{
 					this->statusCode = "500";
 					buildResponse(request);
-					throw "500";
+					throw "Internal server error remove failed";
 				}
 			}
 
