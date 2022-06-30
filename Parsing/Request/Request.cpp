@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/30 14:04:11 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 14:12:35 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,12 +77,6 @@ Request &Request::operator=(Request const& c)
         hostIp = c.hostIp;
         hostPort = c.hostPort;
         query = c.query;
-        // connection = c.connection;
-        // user_agent = c.user_agent;
-        // accept = c.accept;
-        // accept_encoding = c.accept_encoding;
-        // accept_language = c.accept_language;
-        // accept_charset = c.accept_charset;
         content_type = c.content_type;
         contentLength = c.contentLength;
         parsed = c.parsed;
@@ -92,14 +86,6 @@ Request &Request::operator=(Request const& c)
 
 
 // ! /////////////////////// file_Readers //////////////////////
-
-// void Request::main_read()
-// {
-//     readFile();
-//     split_parts();
-//     parsefline();
-//     main_error_check();
-// }
 
 void Request::readFile()
 {
@@ -176,7 +162,6 @@ int Request::parse_header(std::string c)
                     line.erase(0, pos + 2);
                     save = line;
                     change = 1;
-                    // filePath = ws::fileHandler::createTmp("request_tmp_files/");
                     break;
                 }
                 save += line;
@@ -193,7 +178,6 @@ int Request::parse_header(std::string c)
 void Request::parseHeaderLines(Config config)
 {
     size_t pos = 0;
-    // std::cout << "parseHeaderLines" << std::endl;
     for (size_t i = 1; i < headerPart.size(); i++)
     {
         if ((pos = headerPart[i].find(":")) != std::string::npos)
@@ -216,8 +200,6 @@ int Request::parse_body(std::string c)
 {
     if (save.size() > 0)
     {
-
-        // std::cout << save << std::endl;
         ws::fileHandler::write(filePath, save);
         read -= save.size();
     }
@@ -246,11 +228,9 @@ int Request::parse_body(std::string c)
         pos = line.find(" ");
         method = line.substr(0, pos);
         line.erase(0, pos + 1);
-        // get uri from headerPart[0]
         pos = line.find(" ");
         uri = line.substr(0, pos);
         line.erase(0, pos + 1);
-        // get version from headerPart[0]
         pos = line.find(" ");
         version = line.substr(0, pos);
         line.erase(0, pos + 1);
@@ -336,8 +316,6 @@ void Request::parseCookies()
 
     void Request::checkContentLength(int a)
     {
-        // std::cout << location.getClientMaxBodySize() << std::endl;
-        // std::cout << location.getUploadPath() << std::endl;
         if ((contentLength > (long long)location.getClientMaxBodySize() && method != "GET")
             || contentLength < 0)
         {
@@ -433,25 +411,3 @@ void Request::parseCookies()
             getRightLocation();
         return 0;
     }
-    
-    //     int  Request::getRightLocation()
-    // {
-    //     size_t pos = 0;
-    //     std::string clone(tmpUri);
-    //     int n = server.getLocation().size();
-    //     for (int i = 0; i < n; i++) {
-    //         if (server.getLocation()[i].getLocation_match() == tmpUri) {
-    //             location = server.getLocation()[i];
-    //             return 1;
-    //         }
-    //     }
-    //     while (clone.size() > 0 && (pos = clone.find("/")) != std::string::npos && pos != 0)
-    //         clone.erase(0, pos);
-    //     tmpUri.erase(0, pos);
-    //     if (pos != 0)
-    //         getRightLocation();
-    //     return 0;
-    // }
-
-
-		

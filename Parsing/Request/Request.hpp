@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:38 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/27 21:51:42 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 14:13:07 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@
 
 class CGI;
 class Config;
-// class Server;
-// class Location;
 
 class Request
 {

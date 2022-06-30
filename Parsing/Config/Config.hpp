@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:21 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/30 12:32:16 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 14:13:52 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #define CONFIG_HPP
 
 #include "../webServer.hpp"
-// #include "Server.hpp"
+
 class Server;
 
 class Config
@@ -73,7 +73,6 @@ class Config
     std::string getFullFile() const;
     std::vector<std::string> getLines() const;
     std::string getLine(std::string &) const;
-    //Server getServer(int port) const;
     Server getServer(int port, std::string &) const;
     void getServer2(int port );
     void setfile(std::string&);
@@ -93,10 +92,5 @@ class Config
     void										init_mimetype();
 };
 
-// static std::map<std::string,std::string>	statusCodeMessages;
-// static std::map<std::string, std::string> 	mimetypeMap;
-
-// void 										init_statusCodeMessages();
-// void										init_mimetype();
 
 #endif

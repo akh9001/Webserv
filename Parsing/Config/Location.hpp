@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:28 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/18 14:33:29 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 14:13:36 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,6 @@ class Location : public Server
         // ! /////////////////////// Getters & Setters //////////////////////
         std::string getLocation_match() const;
         void setLocation_match(std::string c);
-        // std::string getRoot() const { return root;}
-        // void setRoot(const std::string &c) {root = c;}
         void checkMissingFields() const;
 };
 
