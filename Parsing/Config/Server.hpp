@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:33 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/29 16:47:04 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 14:13:31 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #define SERVER_HPP
 
 #include "../webServer.hpp"
-//#include "Location.hpp"
 
 class Location;
 
@@ -33,7 +32,6 @@ class TlisternerServer
         TlisternerServer(const std::string ip, const int port) : ip(ip), port(port) {}
         TlisternerServer &operator=(const TlisternerServer &t)
         {
-            //std::cout << "TlisternerServer" << std::endl;
             ip = t.ip;
             port = t.port;
             return *this;
@@ -147,40 +145,9 @@ class Server
         int parsePath(std::string& path);
         // ! ///////////////////////////// checkers  /////////////////////
         bool checkServerName(std::string& c) const;
-       // void checkStatusCode(std::string& c);
+        bool checkServerName1(std::vector<std::string> c) const;
+        void checkRootloc();
+
 };
-
-// class Location : public Server
-// {
-//         private :
-//                 std::string location_match;
-//                 std::string prefix_match;
-//                 //std::string root1;
-//                 std::vector<Location> _locations;
-//         public :
-        
-//         // ! Constuctors and destructor
-//         Location() {}
-//         ~Location() {}
-//         Location(Location const& c) {*this = c;}
-//         Location &operator=(Location const& c) { 
-//             //std::cout << "hnaa " << std::endl; 
-//             location_match = c.location_match;
-//              prefix_match = c.prefix_match;
-//              this->root = c.root;
-//              this->_allowed_methods = c._allowed_methods;
-//              this->_index = c._index;
-//              this->_clinet_max_body_size = c._clinet_max_body_size;
-//              this->_autoindex = c._autoindex;
-//             return *this; 
-//             }
-
-//         // ! /////////////////////// Getters & Setters //////////////////////
-//         std::string getLocation_match() const { return location_match;}
-//         void setLocation_match(std::string c) { location_match = c;}
-//         // std::string getRoot() const { return root;}
-//         // void setRoot(const std::string &c) {root = c;}
-
-// };
 
 #endif

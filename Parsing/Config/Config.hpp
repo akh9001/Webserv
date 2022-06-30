@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:21 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/26 12:43:58 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 14:13:52 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #define CONFIG_HPP
 
 #include "../webServer.hpp"
-// #include "Server.hpp"
+
 class Server;
 
 class Config
@@ -73,8 +73,8 @@ class Config
     std::string getFullFile() const;
     std::vector<std::string> getLines() const;
     std::string getLine(std::string &) const;
-    //Server getServer(int port) const;
     Server getServer(int port, std::string &) const;
+    void getServer2(int port );
     void setfile(std::string&);
     std::map<int, std::string > getBinders() const;
     // ! /////////////////////// file_Readers //////////////////////
@@ -84,7 +84,7 @@ class Config
     void split_servers();
     void parse_server();
     void parse_bind_map();
-
+    void checkServerNamess();
     // ! /////////////////////// Errors Managers //////////////////////
     void main_error_check();
     void check_brekets();
@@ -92,10 +92,5 @@ class Config
     void										init_mimetype();
 };
 
-// static std::map<std::string,std::string>	statusCodeMessages;
-// static std::map<std::string, std::string> 	mimetypeMap;
-
-// void 										init_statusCodeMessages();
-// void										init_mimetype();
 
 #endif
