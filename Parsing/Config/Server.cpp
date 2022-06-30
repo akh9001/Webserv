@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:30 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/29 16:46:54 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 12:41:38 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 // ! Constuctors and destructor
 Server::Server() : serverline(), serverName(), _listen(), _locations(), root(), _allowed_methods(), _index(), redirect_uri(), errorPages(), cgiPath(), _autoindex()
 {
+    // _allowed_methods.push_back("GET");
+    
     setClientMaxBodySize(10000000000);
 }
 Server::~Server() {}
@@ -98,6 +100,7 @@ void Server::parseLines()
         else
             throw NotacceptableError();
     }
+    
 }
 
 void Server::fetch_server_name(std::string &c)
@@ -373,3 +376,42 @@ bool Server::checkServerName(std::string &c) const
     }
     return false;
 }
+
+bool Server::checkServerName1(std::vector<std::string> c) const
+{
+    for (size_t i = 0; i < c.size(); i++)
+    for (size_t j = 0; j < this->serverName.size(); j++)
+    {
+        if (serverName[j] == c[i])
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+// ! /////////////////////////////// checkers //////////////////////////////////
+void Server::checkRootloc()
+{
+    for (size_t i = 0; i < _locations.size(); i++)
+    {
+        if (_locations[i].getLocation_match() == "/")
+            return ;
+    }
+    Location location;
+    location._allowed_methods.push_back("GET");
+    location.setLocation_match("/");
+    location._index.push_back("index.html");
+    
+    this->_locations.push_back(location);
+    
+}
+
+// void Server::checkServerNamess(std::map<int, std::string> c) const
+// {
+//     std::map<int, std::string>::iterator it = c.begin();
+//     for (; it != c.end(); ++it)
+//     {
+        
+//     }
+// }

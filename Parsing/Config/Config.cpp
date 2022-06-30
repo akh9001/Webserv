@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:17 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/29 16:50:33 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 12:38:43 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,34 @@ Server Config::getServer(int port, std::string &c) const
     return servers[save];
 }
 
+void Config::getServer2(int port )
+{
+    std::vector<Server> a;
+    int save = 0;
+    int j = 0;
+    int check = 0;
+    for (size_t i = 0; i < servers.size(); i++)
+    {
+        if (servers[i].getPort() == port)
+            a.push_back(servers[i]);
+    }
+    if (a.size() == 1)
+        return ;
+    if (a.size() > 1)
+    {
+        for (size_t i = 0; i < a.size() - 1; i++)
+        {
+            for (size_t j = i + 1; j < a.size(); j++)
+            {
+                if (a[i].checkServerName1(a[j].getServerName()))
+                    throw (MultpiteServerName());
+    
+            }
+           
+        }
+    }
+}
+
  std::map<int, std::string> Config::getBinders() const
  {
         return _binders;
@@ -134,6 +162,7 @@ void Config::main_read()
     main_error_check();
     parse_server();
     parse_bind_map();
+    checkServerNamess();
         /* code */
     
 }
@@ -195,7 +224,11 @@ void Config::split_servers()
 void Config::parse_server()
 {
     for (size_t i = 0; i < servers.size(); i++)
+    {
         servers[i].parseLines();
+        servers[i].checkRootloc();
+    }
+    
     //  for (size_t i = 0; i < servers.size(); i++)
     // {
     //     //std::cout << "dadad" << std::endl;
@@ -237,6 +270,23 @@ void Config::check_brekets()
     }
     if (open != 0)
         throw NotclosedBrackets();
+}
+
+void Config::checkServerNamess()
+{
+    std::map<int, std::string>::iterator it = _binders.begin();
+    for (; it != _binders.end(); ++it)
+    {
+        try
+        {
+            getServer2(it->first);
+        }
+        catch(const char * e)
+        {
+            std::cerr << e << '\n';
+        }
+        
+    }
 }
 
 
