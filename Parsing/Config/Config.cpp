@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:17 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/30 14:25:46 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:44:18 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,9 +118,6 @@ Server Config::getServer(int port, std::string &c) const
 void Config::getServer2(int port )
 {
     std::vector<Server> a;
-    int save = 0;
-    int j = 0;
-    int check = 0;
     for (size_t i = 0; i < servers.size(); i++)
     {
         if (servers[i].getPort() == port)

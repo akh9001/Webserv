@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:30 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/30 15:21:07 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:43:01 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,11 +254,16 @@ void Server::fetch_index(std::string &c)
     while ((pos = tmp.find(" ")) != std::string::npos || (pos = tmp.find("\t")) != std::string::npos)
     {
         std::string str = tmp.substr(0, pos);
-        _index.push_back(str);
+        if (!str.empty())
+            _index.push_back(str);
+        tmp.erase(0, pos + 1);
+        // }
+    }
+    if (!tmp.substr(0, pos).empty())
+    {
+        _index.push_back(tmp.substr(0, pos));
         tmp.erase(0, pos + 1);
     }
-    _index.push_back(tmp.substr(0, pos));
-    tmp.erase(0, pos + 1);
 }
 void Server::fetch_allowed_methods(std::string &c)
 {
