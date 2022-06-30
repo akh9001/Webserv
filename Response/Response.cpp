@@ -6,7 +6,7 @@
 /*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/30 19:08:39 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/30 19:20:27 by laafilal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ namespace ws {
 				originErrorPath = ltrim(originErrorPath);
 				originErrorPath = buildLocationPath(originErrorPath, request);
 				setHeader("Location",originErrorPath);
-				return ;
+				throw "Redirection";
 			}
 		}
 
