@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/30 16:42:14 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/30 18:46:37 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -833,7 +833,7 @@ namespace ws {
 
 	std::string	Response::getHost(const Request &request)
 	{
-		return request.getHostIp();
+		return request.getServer().getIp();
 	}
 
 	std::string	Response::getPort(const Request &request)
