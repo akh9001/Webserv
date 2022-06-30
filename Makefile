@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+         #
+#    By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/04 21:26:44 by akhalidy          #+#    #+#              #
-#    Updated: 2022/06/24 22:57:29 by mokhames         ###   ########.fr        #
+#    Updated: 2022/06/30 19:33:13 by akhalidy         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,10 +25,10 @@ SRCS = networking/client.cpp \
 		cgi-bin/cgi.cpp\
 		main.cpp
 
-FLAGS = -Wall -Werror -Wextra -std=c++98 -g3 -fsanitize=address
+FLAGS = -Wall -Werror -Wextra -std=c++98
 
 $(NAME) : $(SRCS)
-		@clang++  $(SRCS) -o $(NAME)
+		@clang++ $(FLAGS) $(SRCS) -o $(NAME)
 		@echo $(NAME) was created!
 
 all : $(NAME)
@@ -41,4 +41,4 @@ fclean : clean
 re : fclean all
 
 run : re
-		@./$(NAME) ngnix.conf
+		@./$(NAME) ngnixtest.conf
