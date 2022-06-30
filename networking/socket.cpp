@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 12:21:06 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/29 16:46:05 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:11:47 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,9 +212,9 @@ inline void	Socket::read_request(int i, std::map<int, Client> &clients, Config c
 
 inline void	Socket::write_response(int i, std::map<int,  Client> &clients)
 {
-	int		bytes_sent;
-	int		bytes_read;
-	char	buff[SIZE_BUFFER];
+	size_t		bytes_sent;
+	int			bytes_read;
+	char		buff[SIZE_BUFFER];
 	
 	// check if client.cgi_ptr != null if it exist call is_finished and if is finish return false just return ;
 	if (clients[i].request.cgi_ptr != NULL && !clients[i].request.cgi_ptr->is_finished(clients[i]))
