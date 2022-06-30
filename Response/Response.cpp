@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: laafilal <laafilal@student.1337.ma>        +#+  +:+       +#+        */
+/*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/11 12:08:59 by laafilal          #+#    #+#             */
-/*   Updated: 2022/06/30 00:11:35 by laafilal         ###   ########.fr       */
+/*   Updated: 2022/06/30 16:42:14 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -756,7 +756,7 @@ namespace ws {
 	std::string Response::buildLocationPath(std::string &path, Request &request)
 	{
 		std::string locationPath;
-		if(strncasecmp(path.c_str(),"http://",8) == 0)
+		if(strncasecmp(path.c_str(),"http://",7) == 0)
 		{
 			locationPath = path;
 		}
