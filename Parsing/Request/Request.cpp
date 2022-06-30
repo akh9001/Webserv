@@ -6,7 +6,7 @@
 /*   By: mokhames <mokhames@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 14:33:10 by mokhames          #+#    #+#             */
-/*   Updated: 2022/06/29 16:36:43 by mokhames         ###   ########.fr       */
+/*   Updated: 2022/06/30 14:04:11 by mokhames         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -397,10 +397,11 @@ void Request::parseCookies()
 
      void Request::fetchHost()
      {
+        if (headerMap.find("Host") == headerMap.end())
+            throw "400";
         hostIp = headerMap["Host"].substr(0, headerMap["Host"].find(":"));
         if (headerMap["Host"].find(":") != std::string::npos)
             hostPort = atoi(headerMap["Host"].substr(headerMap["Host"].find(":") + 1, headerMap["Host"].size()).c_str());
-        
      }
 
     void  Request::getRightServer(Config config)
