@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:00 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/27 22:19:06 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:15:12 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,6 @@ char **CGI::set_envp(const std::vector<std::string> &cookies) {
 bool CGI::execute(char **args, const Request &request) {
   int out;
   int in = 0;
-  int status;
-  int ret;
   const char *post_body = request.getFilePath().c_str();
   _pid = fork();
   if (_pid == -1) {
@@ -99,13 +97,10 @@ bool CGI::execute(char **args, const Request &request) {
 int CGI::cgi(const Request &request, const char *cgi_path,
 			 const char *script_path) {
 	char *args[3];
-	std::string	extension(script_path);
-	std::size_t found;
 
 	args[0] = (char *)cgi_path;
 	args[1] = (char *)script_path;
 	args[2] = NULL;
-	found = extension.find_last_of(".");
   //TODO
 //   std::cerr << GREEN << "Make it here! " << RESET << std::endl;
 	if (execute(args, request))
@@ -163,8 +158,7 @@ bool	CGI::is_finished(Client &client) {
 void CGI::craft_response(Client &client)
 {
 	std::string line;
-	std::size_t	len;
-	
+
 	client.buffer = "Server: WebServ/1.0\r\n" + getDateHeader();
 	_status = "200";
 	client.file.open(file);

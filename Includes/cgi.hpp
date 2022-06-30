@@ -6,7 +6,7 @@
 /*   By: akhalidy <akhalidy@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 14:45:32 by akhalidy          #+#    #+#             */
-/*   Updated: 2022/06/27 22:01:42 by akhalidy         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:13:23 by akhalidy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
 #include "../Response/Response.hpp"
 #include "../Includes/client.hpp"
 
-class Request;
-class Response;
-class Client;
+class 	Request;
+class 	Response;
+struct	Client;
 
 class CGI
 {
@@ -29,7 +29,6 @@ class CGI
 		int									_pid;
 		std::string							_status;
 		bool								finished;
-		bool								is_python;
 	public:
 		CGI(void);
 		int		get_pid();
