@@ -14,5 +14,5 @@ if(!empty($_POST["remember"])) {
 }
 
 ?>
-
-<p><a href="page1.php"> Go to Login Page </a> </p>
+<h3> <? echo $_POST["username"]; ?> </h3>
+<p><a href="page1.php"> Go to Login Page  </a> </p>
