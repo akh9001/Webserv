@@ -34,3 +34,10 @@
 .*
 a.out
 webserv
+
+# OS files
+*.DS_Store
+
+# Code Editors
+.idea/
+.vscode/
